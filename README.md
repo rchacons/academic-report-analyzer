@@ -2,18 +2,18 @@
 
 ## Développement local backend
 
-Pour démarrer l'API localement (en cours de dev) : 
+Pour démarrer l'API localement (en cours de dev) :
 
 ### Prérequis
 
 Installez Poetry, un outil de gestion de dépendances et de packaging pour Python.
 
-Sur Linux et macOS : 
+Sur Linux et macOS :
 ```
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-Sur Windows (Powershell) : 
+Sur Windows (Powershell) :
 ```
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
@@ -33,7 +33,7 @@ poetry install
 
 Cette commande crée un environnement virtuel et installe toutes les dépendances listées dans `pyproject.toml.`
 
-2. Activez l'environnement virtuel : 
+2. Activez l'environnement virtuel :
 ```
 poetry shell
 ```
@@ -43,20 +43,20 @@ poetry shell
 uvicorn app.main:app --reload
 ```
 
-L'API sera lancé et accesible depuis l'adresse `http://127.0.0.1:8000`
+L'API sera lancé et accessible depuis l'adresse `http://127.0.0.1:8000`
 
 Adresse de la doc de l'API (et pour faire les tests) `http://127.0.0.1:8000/docs#/`
 
 4. Pour quitter l'environnement virtuel, utilisez la commande :
 ```
 exit
-``` 
+```
 
-## Utilisation quotidienne 
+## Utilisation quotidienne
 
 Pour relancer le projet, naviguez vers le répertoire `backend` et exécutez :
 
-``` 
+```
 poetry shell
 uvicorn app.main:app --reload
 ```
@@ -66,9 +66,31 @@ Pour ajouter une nouvelle dépendance au projet
 poetry add <package>
 ```
 
-Par exemple, pour ajouter nltk : 
+Par exemple, pour ajouter nltk :
 ```
 poetry add nltk
 ```
 
 Cette commande installera le package, et mettra à jour les fichiers poetry.lock et pyproject.toml automatiquement.
+
+## Développement local frontend
+
+### Prérequis
+
+Avoir une version de node 20+ d'installer sur vote poste
+
+
+### Lancement de l'application en Local
+
+Installation des dépendances :
+
+```
+cd frontend
+npm install
+```
+
+Lancement :
+
+```
+npm run dev
+```
