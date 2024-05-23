@@ -1,7 +1,7 @@
 import './app.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { HomePage } from './pages/homepage/HomePage';
-import { ResultPage } from './pages/result-page/ResultPage';
+import { HomePage } from './pages/HomePage';
+import { ResultPage } from './pages/ResultPage';
 import AppBar from './components/AppBar';
 
 export const App = () => {

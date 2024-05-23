@@ -1,7 +1,7 @@
-import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material';
-import { useCallback, useState } from 'preact/hooks';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import { useCallback } from 'preact/hooks';
 import { useDropzone } from 'react-dropzone';
-import uploadFile from '../../assets/upload_file.svg';
+import uploadFile from '../assets/upload_file.svg';
 
 function FileDropZone({ title, reportFile, setReportFile }) {
   const onDrop = useCallback(

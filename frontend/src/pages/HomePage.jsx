@@ -1,8 +1,5 @@
-// HomePage.tsx
 import { Box, Button, Grid, Typography } from '@mui/material';
-import './styles.css';
-import FileDropZone from '../../components/fileDropZone/FileDropZone';
-import { useTheme } from '@mui/material';
+import FileDropZone from '../components/FileDropZone';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'preact/hooks';
 
@@ -44,7 +41,6 @@ export const HomePage = () => {
           variant='contained'
           color='primary'
           onClick={handleSubmit}
-          sx={{ padding: '1em 3em' }}
         >
           Afficher le résultat
         </Button>

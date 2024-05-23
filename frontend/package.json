@@ -13,6 +13,7 @@
     "@mui/icons-material": "^5.15.18",
     "@mui/material": "^5.15.18",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@mui/x-data-grid": "^7.5.0",
     "preact": "^10.19.6",
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.23.1",
