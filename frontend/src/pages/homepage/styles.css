@@ -1,0 +1,12 @@
+.uploadPaper {
+  /* width: 250px; */
+  background: #fafafa;
+  border: 1px solid rgb(13, 110, 253, 0.25);
+
+  padding: 75px 250px;
+}
+
+.uploadPaper:hover {
+  background: rgb(51, 51, 255, 0.5);
+  border: 1px solid blue;
+}
