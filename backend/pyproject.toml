@@ -16,6 +16,8 @@ rdflib = "^7.0.0"
 sparqlwrapper = "^2.0.0"
 networkx = "2.6.3"
 pytest = "^8.2.1"
+textblob = "^0.18.0.post0"
+pattern = "3.6"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,4 +1,3 @@
-# tests/test_rdf.py
 import pytest
 from app.services.rdf_service import preprocess, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, merge_graphs, get_graph_data, process_rdf
 from rdflib import Graph

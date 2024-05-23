@@ -1,17 +1,36 @@
 import rdflib
 import re
-from nltk.corpus import stopwords
+import nltk
+from textblob import TextBlob 
+#from pattern import parse, split
+from nltk.corpus import stopwords, wordnet
+from nltk.stem import WordNetLemmatizer, SnowballStemmer, PorterStemmer
+from nltk.stem.snowball import FrenchStemmer
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
 from rdflib import Graph, URIRef, RDF
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_multidigraph
 from SPARQLWrapper import SPARQLWrapper, JSON
 import networkx as nx
 from networkx.readwrite import json_graph
 
+
+
+
 # Adaptation de la V1
+# Assurez-vous d'avoir téléchargé les ressources nécessaires
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('universal_tagset')
+nltk.download('stopwords')
+nltk.download('punkt')
+
 
 def preprocess(terms):
-    terms = [re.sub("(l'|d'|L'|D')", "", w) for w in terms]
+    terms = [re.sub("(l'|d'|L'|D'|s'|S'|t'|T'|m'|M'|n'|N'|c'|C'|j'|J'|qu'|Qu')", "", w) for w in terms]
     terms = [re.sub(r'\(\d+\)|,', '', w).strip() for w in terms]
+    terms = [re.sub(r'\W+', '', w).lower() for w in terms]
     terms = [item for item in terms if item != ""]
     terms = [w for w in terms if w not in stopwords.words('french')]
     terms = [w for w in terms if w.lower() != 'les']
@@ -23,7 +42,39 @@ def preprocess(terms):
     terms = [w for w in terms if w.lower() != 'un']
     terms = [w for w in terms if len(w) >= 3]
     terms = list(dict.fromkeys(terms))
+    
     return terms
+
+
+"""
+def lemmatize_words(word_list):
+    lemmatizer = WordNetLemmatizer()
+    return [lemmatizer.lemmatize(word, get_wordnet_pos(word)) for word in word_list]
+"""
+"""
+def lemmatize_words(word_list):
+    stemmer = SnowballStemmer('french')
+    return [stemmer.stem(word) for word in word_list]
+"""
+
+def lemmatize_words(word_list):
+    stemmer = FrenchStemmer()
+    lemmatized_words = []
+    for word in word_list:
+        stemmed_word = stemmer.stem(word)
+        if nltk.pos_tag([word])[0][1].startswith('V'):  # Vérifie si le mot est un verbe
+            lemma = stemmer.stem(word)  # Prend la racine du mot
+        else:
+            lemma = stemmed_word
+        lemmatized_words.append(lemma)
+    ps =PorterStemmer()
+    for w in word_list:
+        rootWord=ps.stem(w)
+        print(rootWord)
+    return lemmatized_words
+
+
+
 
 def retrieve_top_biology_concepts_dbpedia(terms):
     g = Graph()

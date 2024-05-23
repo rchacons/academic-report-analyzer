@@ -18,3 +18,10 @@ class RDFResponse2(BaseModel):
     wikidata_graph: dict
     dbpedia_graph: dict
     merged_graph: dict
+
+class RDFResponse3(BaseModel):
+    terms: list
+
+class RDFResponse4(BaseModel):
+    terms: list
+    lemme_terms: list
