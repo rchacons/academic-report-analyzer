@@ -6,6 +6,8 @@ Pour démarrer l'API localement (en cours de dev) :
 
 ### Prérequis
 
+Avoir python3 d'installé sur votre poste
+
 Installez Poetry, un outil de gestion de dépendances et de packaging pour Python.
 
 Sur Linux et macOS :
