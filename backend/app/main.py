@@ -1,12 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
-
-#from .dependencies import get_query_token, get_token_header
-#from .internal import admin
-from .routers import comparison
+from fastapi import Depends, FastAPI
+from .routers import comparison, authentication
 from .core.config import settings
 from starlette.middleware.cors import CORSMiddleware
-
-#app = FastAPI(dependencies=[Depends(get_query_token)])
+from .auth.auth_bearer import JWTBearer
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -28,7 +24,7 @@ if settings.BACKEND_CORS_ORIGINS:
 
 
 app.include_router(comparison.router,prefix=settings.API_V1_STR)
-
+app.include_router(authentication.router,prefix=settings.API_V1_STR)
 
 @app.get("/", summary="Root endpoint", description="This is the root endpoint of the API.")
 async def root():
