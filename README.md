@@ -75,6 +75,26 @@ poetry add nltk
 
 Cette commande installera le package, et mettra à jour les fichiers poetry.lock et pyproject.toml automatiquement.
 
+
+## Authentification
+
+L'API utilise JSON Web Tokens (JWT) pour l'authentification. Lorsqu'un utilisateur se connecte avec succès, l'API génère un JWT et le renvoie à l'utilisateur. Ce JWT doit ensuite être inclus dans l'en-tête `Authorization` des requêtes suivantes pour authentifier l'utilisateur.
+
+### Configuration de l'authentification
+
+Pour utiliser l'authentification en local, vous devez définir certaines variables d'environnement dans un fichier `.env`. Vous pouvez vous baser sur le fichier `.env.example` pour savoir quelles variables définir.
+
+Voici les variables d'environnement liées à l'authentification :
+
+- `SECRET_KEY` : La clé secrète utilisée pour signer les JWT.
+- `ALGORITHM` : L'algorithme utilisé pour signer les JWT.
+- `ACCESS_TOKEN_EXPIRE_MINUTES` : La durée de validité des JWT, en minutes.
+
+### Désactivation de l'authentification
+
+Si vous souhaitez désactiver l'authentification pour des raisons de test ou de développement, vous pouvez le faire en définissant la variable d'environnement `ENABLE_AUTH` à `False` dans votre fichier `.env`.
+
+
 ## Développement local frontend
 
 ### Prérequis

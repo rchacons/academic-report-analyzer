@@ -1,16 +1,30 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import Depends, FastAPI
+from .routers import comparison, authentication
+from .core.config import settings
+from starlette.middleware.cors import CORSMiddleware
+from .auth.auth_bearer import JWTBearer
 
-#from .dependencies import get_query_token, get_token_header
-#from .internal import admin
-from .routers import comparison
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    version=settings.API_VERSION,
+)
 
-#app = FastAPI(dependencies=[Depends(get_query_token)])
-app = FastAPI(title="SI-REL2 API", version="0.1.0")
+# Set all CORS enabled origins
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            str(origin).strip("/") for origin in settings.BACKEND_CORS_ORIGINS
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-api_prefix = "/api/v1"
-app.include_router(comparison.router,prefix=api_prefix)
 
-
+app.include_router(comparison.router,prefix=settings.API_V1_STR)
+app.include_router(authentication.router,prefix=settings.API_V1_STR)
 
 @app.get("/", summary="Root endpoint", description="This is the root endpoint of the API.")
 async def root():
