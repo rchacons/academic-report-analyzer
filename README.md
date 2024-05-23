@@ -77,7 +77,7 @@ Cette commande installera le package, et mettra à jour les fichiers poetry.lock
 
 ### Prérequis
 
-Avoir une version de node 20+ d'installer sur vote poste
+Avoir une version de node 20+ d'installée sur vote poste
 
 
 ### Lancement de l'application en Local
