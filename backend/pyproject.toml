@@ -18,11 +18,11 @@ networkx = "2.6.3"
 pytest = "^8.2.1"
 textblob = "^0.18.0.post0"
 pattern = "3.6"
+deep-translator = "^1.11.4"
 
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"
-black = "^24.4.2"
 mypy = "^1.10.0"
 
 [tool.black]

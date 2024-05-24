@@ -25,3 +25,6 @@ class RDFResponse3(BaseModel):
 class RDFResponse4(BaseModel):
     terms: list
     lemme_terms: list
+
+class RDFResponse5(BaseModel):
+    text: str
