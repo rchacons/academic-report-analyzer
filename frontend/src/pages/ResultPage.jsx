@@ -66,7 +66,7 @@ export const ResultPage = () => {
   return (
     <Grid container spacing={2} justifyContent='space-between' p='2em'>
 
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={8}>
         <Box
           sx={{
             display: 'flex',
