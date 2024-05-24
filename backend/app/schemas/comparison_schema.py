@@ -127,7 +127,7 @@ class ComparisonSubjectsResult:
     A model for the result of a comparison.
     """
 
-    def __init__(self, added_subjects: SubjectsWithMaterials, removed_subjects: SubjectsWithMaterials, kept_subjects: SubjectsWithMaterials, identical_subjects: SubjectsWithMaterials):
+    def __init__(self, added_subjects: List[Subject], removed_subjects: List[Subject], kept_subjects: List[Subject], identical_subjects: List[Subject]):
         self.added_subjects = added_subjects
         self.removed_subjects = removed_subjects
         self.kept_subjects = kept_subjects
