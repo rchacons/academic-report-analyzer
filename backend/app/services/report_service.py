@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from ..schemas.comparison_schema import Subject
 import pandas as pd
 import pdfplumber
@@ -49,7 +49,7 @@ class ReportService:
         return text
     
 
-    def clean_and_parse_data(self, raw_data) ->List[Subject]:
+    def clean_and_parse_data(self, raw_data) ->Dict[Subject, List[List[str]]]:
         """
         Clean and parse the raw data into a list of Subjects.
 
@@ -62,22 +62,23 @@ class ReportService:
         
         logger.info("Cleaning and parsing data")
 
-        subjects = []
+        subjects : Dict[Subject, List[List[str]]] = {}
 
         for row in raw_data[1:]:
 
             # Normalize text
             row = [re.sub(r'\s+', ' ', cell).strip() for cell in row]
 
-
             # Parse the row into a Subject object
             subject = Subject(
-                bio_geol=row[0],
+                domaine=row[0],
                 niveau=row[1],
-                lecon=row[2],
-                materiel=self.tokenize_material(row[3])
+                intitule=row[2],
             )
-            subjects.append(subject)
+
+            if subject not in subjects:
+                subjects[subject] = []
+            subjects[subject].append(self.tokenize_material(row[3]))
 
         return subjects
 
