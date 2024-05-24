@@ -1,5 +1,5 @@
 from typing import List
-from ..schemas.comparison_schema import Subject
+from ..schemas.comparison_schema import Subject, SubjectsWithMaterials, ListMaterials
 import pandas as pd
 import pdfplumber
 import re
@@ -49,7 +49,7 @@ class ReportService:
         return text
     
 
-    def clean_and_parse_data(self, raw_data) ->List[Subject]:
+    def clean_and_parse_data(self, raw_data) ->SubjectsWithMaterials:
         """
         Clean and parse the raw data into a list of Subjects.
 
@@ -57,31 +57,27 @@ class ReportService:
         raw_data (list): The raw data
 
         Returns:
-        List[Subject]: The cleaned and parsed data
+        SubjectsWithMaterials: A dictionnary that associates Subjects and their different configuration of materials
         """
         
         logger.info("Cleaning and parsing data")
 
-        subjects = []
+        subjectsWithMaterials = SubjectsWithMaterials()
 
         for row in raw_data[1:]:
 
             # Normalize text
             row = [re.sub(r'\s+', ' ', cell).strip() for cell in row]
-
-
             # Parse the row into a Subject object
-            subject = Subject(
-                bio_geol=row[0],
-                niveau=row[1],
-                lecon=row[2],
-                materiel=self.tokenize_material(row[3])
-            )
-            subjects.append(subject)
+            subject = Subject(row[0], row[1], row[2])
 
-        return subjects
+            # Utilisation de setdefault pour ajouter la clé si elle n'existe pas et associer une liste vide à cette clé
+            subjectsWithMaterials.setdefault(subject, [])
+            subjectsWithMaterials[subject].append(self.tokenize_material(row[3]))
 
-    def tokenize_material(self, raw_materials:str) -> List[str]:
+        return subjectsWithMaterials
+
+    def tokenize_material(self, raw_materials:str) -> ListMaterials:
         """
         Tokenize the raw materials string into a list of materials.
 
@@ -109,4 +105,4 @@ class ReportService:
         list_exclude = ["eau", "microscope", "aiguille lancéolée", "blouse", "ciseaux", "ecran vertical", "évier", "excel", "feutre à pointe fine", "feutre au matériel", "feutres permanents", "lames de verre", "lunettes", "marqueur", "ordinateur", "papier absorbant", "pissette", "pissette d'eau", "poubelle de table", "récipient", "sopalin", "tableur", "touillette"]
         final_materials = [word for word in final_materials if word.lower() not in list_exclude]
 
-        return final_materials
+        return ListMaterials(final_materials)
