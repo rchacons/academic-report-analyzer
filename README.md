@@ -101,6 +101,16 @@ Si vous souhaitez désactiver l'authentification pour des raisons de test ou de 
 
 Avoir une version de node 20+ d'installée sur vote poste
 
+### Configuration de l'authentification
+
+Créer un fichier .env.local à la racine du projet (/frontend)
+Remplir les variables avec les identifiants correspondants à la configuration local du backend
+Exemple fichier env.local :
+```
+VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
+VITE_API_USERNAME=username
+VITE_API_PASSWORD=password
+```
 
 ### Lancement de l'application en Local
 
