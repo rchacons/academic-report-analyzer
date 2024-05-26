@@ -1,8 +1,12 @@
 from fastapi import Depends, FastAPI
 from .routers import comparison, authentication
 from .core.config import settings
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from .auth.auth_bearer import JWTBearer
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

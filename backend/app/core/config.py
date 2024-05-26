@@ -7,7 +7,7 @@ from pydantic import (
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings): 
+class Settings(BaseSettings):
     """
     A class to store the settings for the core module.
     """
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "SI-REL2 API"
     API_V1_STR: str = "/api/v1"
     API_VERSION: str = "0.1.0"
- 
+
     DOMAIN: str = "localhost"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
@@ -28,10 +28,10 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "local":
             return f"http://{self.DOMAIN}"
         return f"https://{self.DOMAIN}"
-    
+
     BACKEND_CORS_ORIGINS: list[AnyUrl] = [
-        "http://localhost:5000",  # TODO modifier -> Local frontend
+        "http://localhost:5173/",
         "http://production-frontend.com" # TODO modifier -> Production frontend
-        ]  
+        ]
 
 settings = Settings()  # type: ignore

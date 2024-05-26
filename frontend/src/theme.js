@@ -1,7 +1,5 @@
-import { colors } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 
-// Step 1: Create the base theme
 let baseTheme = createTheme({
   palette: {
     primary: {
@@ -30,15 +28,19 @@ let baseTheme = createTheme({
       main: '#4caf50',
     },
     background: {
-      default: '#fafafa', // Couleur de fond par défaut
-      paper: '#fff', // Couleur de fond des éléments "papier" comme les cartes
+      default: '#fafafa',
+      paper: '#fff',
     },
     text: {
-      primary: '#000', // Couleur du texte principal
-      secondary: '#757575', // Couleur du texte secondaire
+      primary: '#000',
+      secondary: '#757575',
     },
     gray: {
       light: '#f8f9fa',
+    },
+    white: {
+      main: '#fafafa',
+      paper: 'fff',
     },
   }, // palette
 
@@ -59,6 +61,11 @@ let baseTheme = createTheme({
     textInfo: {
       color: '#888',
     },
+    textInfoLittle: {
+      color: '#888',
+      fontSize: 12,
+
+    },
   }, // typography
 
   components: {
@@ -67,10 +74,16 @@ let baseTheme = createTheme({
         root: {
           padding: '1em 2em',
           borderRadius: '12px',
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:active': {
+            border: 'none',
+          },
         },
       },
     },
-  },
+  }, //components
 });
 
 const theme = createTheme(baseTheme, {

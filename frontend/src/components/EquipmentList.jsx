@@ -34,6 +34,7 @@ const EquipmentList = () => {
         margin: '0 auto',
         padding: 2,
         border: '1px solid lightGray',
+        backgroundColor: 'white'
       }}
     >
       <Typography variant='h6' component='div' gutterBottom>
