@@ -11,10 +11,10 @@ export const compareReports = async (file1, file2) => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    console.log('Response status:', response.status);
-    console.log('Response headers:', JSON.stringify(response.headers));
-    console.log('Response data:', JSON.stringify(response.data));
-    } catch (error) {
+    if (response.status === 200) {
+      return response.data
+    }
+  } catch (error) {
     console.error('Erreur lors de la comparaison des rapports:', error);
     throw error;
   }

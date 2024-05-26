@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { login } from './services/AuthService';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1', // Remplace par l'URL de ton API
+  baseURL: import.meta.env.VITE_API_BASE_URL, // Remplace par l'URL de ton API
   headers: {
     'Content-Type': 'application/json',
   },
