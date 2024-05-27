@@ -17,14 +17,18 @@ class Subject(BaseModel):
     def __hash__(self):
         return hash((self.domaine, self.niveau, self.intitule))
     
+class ListMaterials(BaseModel):
+    materials: List[str]
+    origin: int
+
 class ComparisonSubjectsResult(BaseModel):
     """
     A model for the result of a comparison.
     """
-    added_subjects: Dict[Subject, List[List[str]]]
-    removed_subjects: Dict[Subject, List[List[str]]]
-    kept_subjects: Dict[Subject, List[List[str]]]
-    identical_subjects: Dict[Subject, List[List[str]]]
+    added_subjects: Dict[Subject, List[ListMaterials]]
+    removed_subjects: Dict[Subject, List[ListMaterials]]
+    kept_subjects: Dict[Subject, List[ListMaterials]]
+    identical_subjects: Dict[Subject, List[ListMaterials]]
 
 class ComparisonMaterialsResult(BaseModel):
     
