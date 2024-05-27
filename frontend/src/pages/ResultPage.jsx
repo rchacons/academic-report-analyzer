@@ -1,4 +1,11 @@
-import { Box, Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
@@ -7,32 +14,62 @@ import { useLocation } from 'react-router-dom';
 
 export const ResultPage = () => {
   const location = useLocation();
-  const [addedSubjects, setAddedSubjects] = useState([]);
-  const [removedSubjects, setRemovedSubjects] = useState([] );
-  const [keptSubjects, setKeptSubjects] = useState([]);
 
   const { comparisonResult } = location.state || {};
+  const newSubjects = Object.entries(comparisonResult.added_subjects);
+  const removedSubjects = Object.entries(comparisonResult.removed_subjects);
+  const keptSubjects = Object.entries(comparisonResult.kept_subjects);
+  const identicalSubjects = Object.entries(comparisonResult.identical_subjects);
+  const numberOfSubjects =
+    newSubjects.length +
+    removedSubjects.length +
+    keptSubjects.length +
+    identicalSubjects.length;
 
-  const [activeSubjectFilter, setActiveSubjectFilter] = useState('second');
-  const resultButtons = [
+  const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
+  const [displayedSubjects, setDisplayedSubjects] = useState([]);
+
+  const setSubjectsToDisplay = (subjectFilter) => {
+    console.log(`dispay ${subjectFilter}`);
+    switch (subjectFilter) {
+      case 'new_subjects':
+        setActiveSubjectFilter(subjectFilter);
+        setDisplayedSubjects(newSubjects);
+        break;
+      case 'removed_subjects':
+        setActiveSubjectFilter(subjectFilter);
+        setDisplayedSubjects(removedSubjects);
+        break;
+      case 'kept_subjects':
+        setActiveSubjectFilter(subjectFilter);
+        setDisplayedSubjects(keptSubjects);
+        break;
+      case 'identical_subjects':
+        setDisplayedSubjects(identicalSubjects);
+        setActiveSubjectFilter(subjectFilter);
+        break;
+    }
+  };
+
+  const subjectFilterButtons = [
     <Button
       key='new_subjects'
       thin
       variant={
         activeSubjectFilter === 'new_subjects' ? 'contained' : 'outlined'
       }
-      onClick={() => setActiveSubjectFilter('new_subjects')}
+      onClick={() => setSubjectsToDisplay('new_subjects')}
     >
-      Sujet ajoutés (165 sur 531)
+      Sujet ajoutés ({newSubjects.length} sur {numberOfSubjects})
     </Button>,
 
     <Button
-      key='deleted_subjects'
+      key='removed_subjects'
       thin
       variant={
-        activeSubjectFilter === 'deleted_subjects' ? 'contained' : 'outlined'
+        activeSubjectFilter === 'removed_subjects' ? 'contained' : 'outlined'
       }
-      onClick={() => setActiveSubjectFilter('deleted_subjects')}
+      onClick={() => setSubjectsToDisplay('removed_subjects')}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -42,7 +79,7 @@ export const ResultPage = () => {
         },
       }}
     >
-      Sujet supprimés (365 sur 531)
+      Sujet supprimés ({removedSubjects.length} sur {numberOfSubjects})
     </Button>,
     <Button
       key='kept_subjects'
@@ -50,7 +87,7 @@ export const ResultPage = () => {
       variant={
         activeSubjectFilter === 'kept_subjects' ? 'contained' : 'outlined'
       }
-      onClick={() => setActiveSubjectFilter('kept_subjects')}
+      onClick={() => setSubjectsToDisplay('kept_subjects')}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -60,18 +97,29 @@ export const ResultPage = () => {
         },
       }}
     >
-      Sujet gardés (1 sur 531)
+      Sujet gardés ({keptSubjects.length} sur {numberOfSubjects})
+    </Button>,
+    <Button
+      key='identical_subjects'
+      thin
+      variant={
+        activeSubjectFilter === 'identical_subjects' ? 'contained' : 'outlined'
+      }
+      onClick={() => setSubjectsToDisplay('identical_subjects')}
+      sx={{
+        '&:focus': {
+          outline: 'none',
+        },
+        '&:active': {
+          border: 'none',
+        },
+      }}
+    >
+      Sujet identiques ({identicalSubjects.length} sur {numberOfSubjects})
     </Button>,
   ];
 
   useEffect(() => {
-    if (comparisonResult) {
-      setAddedSubjects(comparisonResult.added_subjects);
-      setRemovedSubjects(comparisonResult.removed_subjects);
-      setKeptSubjects(comparisonResult.kept_subjects);
-    }
-
-
     return () => {};
   }, []);
 
@@ -89,7 +137,7 @@ export const ResultPage = () => {
           }}
         >
           <ButtonGroup size='large' aria-label='Large button group'>
-            {resultButtons}
+            {subjectFilterButtons}
           </ButtonGroup>
         </Box>
       </Grid>
@@ -110,10 +158,10 @@ export const ResultPage = () => {
         </Box>
       </Grid>
 
-      {keptSubjects ? (
-        <pre>{JSON.stringify(keptSubjects, null, 2)}</pre>
+      {displayedSubjects && displayedSubjects.length !== 0 ? (
+        <pre>{JSON.stringify(displayedSubjects, null, 2)}</pre>
       ) : (
-        <Typography>Pas de résultats disponibles.</Typography>
+        <Typography> Pas de données à afficher</Typography>
       )}
 
       <Grid item xs={12} md={8}>
