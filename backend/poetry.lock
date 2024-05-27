@@ -2253,25 +2253,6 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-freezer", "pytest-mypy", "pytest-ruff (>=0.2.1)", "types-pytz"]
 
 [[package]]
-name = "textblob"
-version = "0.18.0.post0"
-description = "Simple, Pythonic text processing. Sentiment analysis, part-of-speech tagging, noun phrase parsing, and more."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "textblob-0.18.0.post0-py3-none-any.whl", hash = "sha256:dd0c7ec4eb7b9346ec0a3f136a63eba13e0f59890d2a693d3d6aeb8371949dca"},
-    {file = "textblob-0.18.0.post0.tar.gz", hash = "sha256:8131c52c630bcdf61d04c359f939c98d5b836a01fba224d9e7ae22fc274e0ccb"},
-]
-
-[package.dependencies]
-nltk = ">=3.8"
-
-[package.extras]
-dev = ["pre-commit (>=3.5,<4.0)", "textblob[tests]", "tox"]
-docs = ["PyYAML (==6.0.1)", "sphinx (==7.2.6)", "sphinx-issues (==4.0.0)"]
-tests = ["numpy", "pytest"]
-
-[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -2703,6 +2684,20 @@ files = [
 ]
 
 [[package]]
+name = "wikipedia-api"
+version = "0.6.0"
+description = "Python Wrapper for Wikipedia"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Wikipedia-API-0.6.0.tar.gz", hash = "sha256:61e94921cca9ec68e92aa5f258261d6a88b7baa960f9acfcb0c9c2c525dcb3ff"},
+    {file = "Wikipedia_API-0.6.0-py3-none-any.whl", hash = "sha256:6dfd6b3b680e342a3843fe954049c5784c1a67fadc0060f9d1696d1d0e41ecfb"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "zc-lockfile"
 version = "3.0.post1"
 description = "Basic inter-process locks"
@@ -2737,4 +2732,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "585fb399d8386c727fbe81a7d223827b55e9bc2b9dcb146ac789125222a1222b"
+content-hash = "f86ad57f7439ad7b8251e4a3b8b127512ab838ceec584e03ff6edd3ed354cddb"

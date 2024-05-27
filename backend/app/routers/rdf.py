@@ -1,13 +1,38 @@
 from fastapi import APIRouter, HTTPException
-from ..services.rdf_service import preprocess, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french
-from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5
+from ..services.rdf_service import preprocess, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french, merge_graphs, get_graph_data, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, get_labels_from_dbpedia, get_labels_from_wikidata, test_wiki, wiki_graph, process_rdf_wikipedia
+from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5, RDFResponse6, RDFResponse22, RDFResponse23, RDFResponseGraph
+
+
 
 router = APIRouter()
+
+@router.post("/main-process-rdf-wikipedia/", 
+            summary="Process RDF data",
+            description="Takes a text, pre-processes it, lemmetize it, queries Wikipedia, and returns the constructed graph in JSON format.",
+            response_model=RDFResponseGraph,
+            responses={
+                200: {"description": "RDF processed successfully"},
+                400: {"description": "Invalid input"},
+                500: {"description": "An error occurred during RDF processing"}
+            })
+async def process_rdf(request: RDFRequest):
+    try:
+        graph = process_rdf_wikipedia(request.text)
+
+        return RDFResponseGraph(
+            graph=graph
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
 
 @router.post("/process-rdf/", 
             summary="Process RDF data",
             description="Takes a text, pre-processes it, queries Wikidata and DBpedia, and returns the constructed schema.",
-            response_model=RDFResponse2,
+            response_model=RDFResponse22,
             responses={
                 200: {"description": "RDF processed successfully"},
                 400: {"description": "Invalid input"},
@@ -16,28 +41,75 @@ router = APIRouter()
 async def process_rdf(request: RDFRequest):
     try:
         # Preprocess the input text
-        preprocessed_terms = preprocess(request.text.split())
+        #Traduis l'entrée en français
+        eng_sentence = trad_sentence(request.text)
+        #Preprocess les mots de la phrase
+        preprocessed_terms = preprocess_english(eng_sentence)
+        #Lemmetize words
+        lemmatize_terms = lemmatize_words(preprocessed_terms)
+        #Translate in french
+        french_terms = trad_words_french(lemmatize_terms)
         
         # Retrieve graphs from Wikidata and DBpedia
         wikidata_graph = retrieve_top_biology_concepts_wikidata(preprocessed_terms)
         dbpedia_graph = retrieve_top_biology_concepts_dbpedia(preprocessed_terms)
         
+        dbpedia_labels = get_labels_from_dbpedia(dbpedia_graph)
+        wikidata_labels = get_labels_from_wikidata(wikidata_graph)
+
         # Merge the graphs
-        merged_graph = merge_graphs(wikidata_graph, dbpedia_graph)
+        merged_graph = merge_graphs(dbpedia_graph, wikidata_graph, dbpedia_labels, wikidata_labels)
+        #merged_graph = merge_graphs(wikidata_graph, dbpedia_graph)
         
         # Convert graphs to JSON
         wikidata_graph_data = get_graph_data(wikidata_graph)
         dbpedia_graph_data = get_graph_data(dbpedia_graph)
         merged_graph_data = get_graph_data(merged_graph)
+
         
-        return RDFResponse2(
-            preprocessed_terms=preprocessed_terms,
+        return RDFResponse22(
+            preprocessed_terms=french_terms,
             wikidata_graph=wikidata_graph_data,
             dbpedia_graph=dbpedia_graph_data,
-            merged_graph=merged_graph_data
+            merged_graph=merged_graph_data,
+            labels_dbpedia=dbpedia_labels,
+            labels_wikidata= wikidata_labels
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+@router.post("/process-rdf-wikipedia/", 
+            summary="Process RDF data",
+            description="Takes a text, pre-processes it, queries Wikidata and DBpedia, and returns the constructed schema.",
+            response_model=RDFResponse23,
+            responses={
+                200: {"description": "RDF processed successfully"},
+                400: {"description": "Invalid input"},
+                500: {"description": "An error occurred during RDF processing"}
+            })
+async def process_rdf(request: RDFRequest):
+    try:
+        # Preprocess the input text
+        #Traduis l'entrée en français
+        eng_sentence = trad_sentence(request.text)
+        #Preprocess les mots de la phrase
+        preprocessed_terms = preprocess_english(eng_sentence)
+        #Lemmetize words
+        lemmatize_terms = lemmatize_words(preprocessed_terms)
+        #Translate in french
+        french_terms = trad_words_french(lemmatize_terms)
+        #Construit le graphe
+        graph = wiki_graph(french_terms)
+
+        return RDFResponse23(
+            preprocessed_terms=french_terms,
+            graph=graph
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
     
 @router.post("/preprocess-rdf/", 
             summary="Preprocess RDF data",
@@ -130,13 +202,41 @@ async def traduction_rdf(request: RDFRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
 
-
-"""
-async def process_rdf_endpoint(rdf_data: RDFSchema):
+@router.post("/traduction-mots-rdf/", 
+          summary="Preprocess RDF data",
+          description="Takes a list of terms, retrieves RDF data from DBpedia and Wikidata, and returns the merged graph data and terms.",
+          response_model=RDFResponse6,
+          responses={
+              200: {"description": "RDF processed successfully"},
+              400: {"description": "Invalid input"},
+              500: {"description": "An error occurred during RDF processing"}
+          })
+async def traduction_rdf(request: RDFRequest):
     try:
-        result = process_rdf(rdf_data)
-        return {"message": "RDF processed successfully", "data": result}
+        #Traduis l'entrée en français
+        eng_sentence = trad_sentence(request.text)
+        #Preprocess les mots de la phrase
+        preprocessed_terms = preprocess_english(eng_sentence)
+        #Lemmetize words
+        lemmatize_terms = lemmatize_words(preprocessed_terms)
+        #Translate in french
+        french_terms = trad_words_french(lemmatize_terms)
+        
+        # Retrieve biology concepts from DBpedia and Wikidata
+        dbpedia_graph = retrieve_top_biology_concepts_dbpedia(french_terms)
+        wikidata_graph = retrieve_top_biology_concepts_wikidata(french_terms)
+        
+        # Merge the two graphs
+        merged_graph = merge_graphs(dbpedia_graph, wikidata_graph)
+        
+        # Get graph data
+        graph_data = get_graph_data(merged_graph)
+        
+        return RDFResponse6(
+            graph_data=graph_data,
+            terms=french_terms
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-"""
