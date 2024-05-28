@@ -158,14 +158,14 @@ export const ResultPage = () => {
         </Box>
       </Grid>
 
-      {displayedSubjects && displayedSubjects.length !== 0 ? (
+      {/* {displayedSubjects && displayedSubjects.length !== 0 ? (
         <pre>{JSON.stringify(displayedSubjects, null, 2)}</pre>
       ) : (
         <Typography> Pas de données à afficher</Typography>
-      )}
+      )} */}
 
       <Grid item xs={12} md={8}>
-        <ReportsTable />
+        <ReportsTable data={displayedSubjects} setData={setDisplayedSubjects} />
       </Grid>
 
       <Grid item xs={12} md={4}>
