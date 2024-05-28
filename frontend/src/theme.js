@@ -42,21 +42,29 @@ let baseTheme = createTheme({
       main: '#fafafa',
       paper: 'fff',
     },
+    black: {
+      main: '#000',
+      light: '#1C1C1E',
+    },
   }, // palette
+});
 
+const theme = createTheme(baseTheme, {
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h3: {
-      fontSize: 30,
-      color: 'black',
-      padding: 20,
-      fontWeight: 600,
-    },
     headerTitle: {
-      fontSize: '3rem',
-      color: '#1A1A1A',
-      padding: 20,
+      fontSize: 32,
+      marginBottom: '20px',
+      color: baseTheme.palette.black.light,
       fontWeight: 600,
+      letterSpacing: 2,
+    },
+    cardTitle: {
+      fontSize: 28,
+      color: baseTheme.palette.black.light,
+      padding: 0,
+      margin: 0,
+      fontWeight: 400,
     },
     textInfo: {
       color: '#888',
@@ -64,7 +72,6 @@ let baseTheme = createTheme({
     textInfoLittle: {
       color: '#888',
       fontSize: 12,
-
     },
   }, // typography
 
@@ -72,8 +79,10 @@ let baseTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          padding: '1em 2em',
-          borderRadius: '12px',
+          textTransform: 'none',
+          padding: '12px 28px',
+          fontSize: '12px',
+          borderRadius: '8px',
           '&:focus': {
             outline: 'none',
           },
@@ -82,23 +91,30 @@ let baseTheme = createTheme({
           },
         },
       },
+      variants: [
+        {
+          props: { thin: true },
+          style: {
+            fontSize: '12px',
+            // padding: '4px 10px',
+          },
+        },
+      ],
     },
-  }, //components
-});
-
-const theme = createTheme(baseTheme, {
-  components: {
-    MuiButton: {
+    MuiPAper: {
       styleOverrides: {
         root: {
-          padding: '16px 24px',
+          '::-webkit-scrollbar': {
+            width: '10px',
+          },
         },
       },
       variants: [
         {
           props: { thin: true },
           style: {
-            padding: '8px 16px',
+            fontSize: '10px',
+            // padding: '4px 10px',
           },
         },
       ],

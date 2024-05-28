@@ -416,7 +416,11 @@ export default function ReportsTable() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[10, 20, 50]}
+          labelRowsPerPage='Lignes par page'
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} sur ${count}`
+          }
           component='div'
           count={rows.length}
           rowsPerPage={rowsPerPage}
