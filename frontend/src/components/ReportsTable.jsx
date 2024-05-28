@@ -184,7 +184,7 @@ export default function ReportsTable({ data }) {
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const rows = transformData(data);
   console.log('rows', rows);
@@ -319,7 +319,7 @@ export default function ReportsTable({ data }) {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[10, 20, 50]}
           component='div'
           count={rows.length}
           rowsPerPage={rowsPerPage}
