@@ -5,6 +5,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Paper,
   Typography,
 } from '@mui/material';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -27,14 +28,12 @@ const materielData = [
 
 const EquipmentList = () => {
   return (
-    <Box
+    <Paper
       sx={{
         maxHeight: 700,
         overflow: 'auto',
         margin: '0 auto',
         padding: 2,
-        border: '1px solid lightGray',
-        backgroundColor: 'white'
       }}
     >
       <Typography variant='h6' component='div' gutterBottom>
@@ -58,7 +57,7 @@ const EquipmentList = () => {
           </ListItem>
         ))}
       </List>
-    </Box>
+    </Paper>
   );
 };
 

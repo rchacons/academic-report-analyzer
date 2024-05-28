@@ -2,7 +2,6 @@ import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
 import FileDropZone from '../components/FileDropZone';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'preact/hooks';
-import { login } from '../services/AuthService';
 import { compareReports } from '../services/comparisonService';
 
 export const HomePage = () => {
@@ -37,10 +36,16 @@ export const HomePage = () => {
     }
   };
 
-
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant='headerTitle' gutterBottom>
+    <Grid
+      container
+      spacing={2}
+      display={'flex'}
+      justifyContent='center'
+      textAlign={'left'}
+      sx={{ p: 4 }}
+    >
+      <Typography variant='headerTitle' width={'83%'}>
         Comparer les rapports de jury CAPES
       </Typography>
 
@@ -57,7 +62,13 @@ export const HomePage = () => {
           setReportFile={setNewReportFile}
         />
       </Grid>
-      <Box mt={4} display={'flex'} flexDirection={'column'} textAlign='center' alignItems='center'>
+      <Box
+        mt={4}
+        display={'flex'}
+        flexDirection={'column'}
+        textAlign='center'
+        alignItems='center'
+      >
         <Button
           variant='contained'
           color='primary'
@@ -85,8 +96,7 @@ export const HomePage = () => {
             Le traitement peut mettre quelques instants, veuillez patienter...
           </Typography>
         )}
-
       </Box>
-    </Box>
+    </Grid>
   );
 };
