@@ -320,6 +320,8 @@ export default function ReportsTable({ data }) {
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 20, 50]}
+          labelRowsPerPage='Lignes par page'
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} sur ${count}`}
           component='div'
           count={rows.length}
           rowsPerPage={rowsPerPage}
@@ -330,7 +332,7 @@ export default function ReportsTable({ data }) {
       </Paper>
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label='Dense padding'
+        label='Affichage dense'
       />
     </Box>
   );
