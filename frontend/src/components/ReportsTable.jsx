@@ -47,7 +47,6 @@ function transformData(data) {
 }
 
 const headCells = [
-  { id: 'id', numeric: true, disablePadding: true, label: '' },
   { id: 'domaine', numeric: false, disablePadding: false, label: 'Domaine' },
   { id: 'niveau', numeric: false, disablePadding: false, label: 'Niveau' },
   { id: 'intitule', numeric: false, disablePadding: false, label: 'Intitulé' },
@@ -293,14 +292,7 @@ export default function ReportsTable({ data }) {
                         inputProps={{ 'aria-labelledby': labelId }}
                       />
                     </TableCell>
-                    <TableCell
-                      component='th'
-                      id={labelId}
-                      scope='row'
-                      padding='none'
-                    >
-                      {row.id}
-                    </TableCell>
+
                     <TableCell align='left'>{row.domaine}</TableCell>
                     <TableCell align='left'>{row.niveau}</TableCell>
                     <TableCell align='left'>{row.intitule}</TableCell>

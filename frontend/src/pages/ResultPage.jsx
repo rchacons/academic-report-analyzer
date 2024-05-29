@@ -1,9 +1,17 @@
-import { Box, Button, ButtonGroup, Grid, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
 import EquipmentList from '../components/EquipmentList';
 import { useLocation } from 'react-router-dom';
+import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 
 export const ResultPage = () => {
   const location = useLocation();
@@ -21,6 +29,8 @@ export const ResultPage = () => {
 
   const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
+  const [filterLevels, setFilterLevels] = useState([]);
+  const levels = ['3C', '4C'];
 
   const setSubjectsToDisplay = (subjectFilter) => {
     console.log(`dispay ${subjectFilter}`);
@@ -157,6 +167,12 @@ export const ResultPage = () => {
         <Typography> Pas de données à afficher</Typography>
       )} */}
 
+      <MultipleSelectChip
+        name='Niveaux'
+        items={['3C', '4C']}
+        selectedValue={filterLevels}
+        setSelectedValue={setFilterLevels}
+      ></MultipleSelectChip>
       <Grid item xs={12} md={8}>
         <ReportsTable data={displayedSubjects} setData={setDisplayedSubjects} />
       </Grid>
