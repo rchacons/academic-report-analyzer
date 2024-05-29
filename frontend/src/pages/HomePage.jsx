@@ -1,4 +1,11 @@
-import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Snackbar,
+  Typography,
+} from '@mui/material';
 import FileDropZone from '../components/FileDropZone';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'preact/hooks';
@@ -10,12 +17,14 @@ export const HomePage = () => {
   const [oldReportFile, setOldReportFile] = useState(null);
   const [newReportFile, setNewReportFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!oldReportFile || !newReportFile) {
-      console.error('Veuillez télécharger les deux fichiers PDF.');
+      displayMessage('Veuillez charger les deux documents');
       return;
     }
 
@@ -28,12 +37,16 @@ export const HomePage = () => {
       );
       navigate('/results', { state: { comparisonResult } });
     } catch (error) {
-      console.error(
-        'Erreur lors de la comparaison des rapports. Veuillez réessayer.'
-      );
+      displayMessage('Une erreur est survenue');
+      console.error('Erreur lors de la comparaison des rapports', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const displayMessage = (message) => {
+    setMessage(message);
+    setOpen(true);
   };
 
   return (
@@ -54,12 +67,15 @@ export const HomePage = () => {
           title={'Ancien Rapport'}
           reportFile={oldReportFile}
           setReportFile={setOldReportFile}
+          displayMessage={displayMessage}
         />
 
         <FileDropZone
           title={'Nouveau Rapport'}
           reportFile={newReportFile}
           setReportFile={setNewReportFile}
+          displayMessage={displayMessage}
+
         />
       </Grid>
       <Box
@@ -97,6 +113,15 @@ export const HomePage = () => {
           </Typography>
         )}
       </Box>
+
+      <Snackbar
+        warning
+        ContentProps={{ warning: true }}
+        open={open}
+        autoHideDuration={5000}
+        onClose={() => setOpen(false)}
+        message={message}
+      />
     </Grid>
   );
 };

@@ -16,7 +16,8 @@ let baseTheme = createTheme({
       contrastText: '#fff',
     },
     error: {
-      main: '#f44336',
+      main: '#f00',
+      background: '#FA948D',
     },
     warning: {
       main: '#ffa726',
@@ -101,11 +102,63 @@ const theme = createTheme(baseTheme, {
         },
       ],
     },
+
+    MuiSnackbar: {
+      styleOverrides: {
+        root: {
+        },
+      },
+      variants: [
+        {
+          props: { warning: true },
+          style: {
+            backgroundColor: baseTheme.palette.error.background,
+            border :`1px solid ${baseTheme.palette.error.main}`,
+            borderRadius: "8px",
+            color: 'red',
+            fontSize: '1rem',
+          },
+        },
+      ],
+    },
+    MuiSnackbarContent: {
+      styleOverrides: {
+        root: {
+        },
+      },
+      variants: [
+        {
+          props: { warning: true },
+          style: {
+            backgroundColor: baseTheme.palette.error.background,
+            borderRadius: "8px",
+            color: 'red',
+            fontSize: '1rem',
+          },
+        },
+      ],
+    },
+
+
     MuiPAper: {
       styleOverrides: {
         root: {
           '::-webkit-scrollbar': {
             width: '10px',
+          },
+          /* Track */
+          '::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+
+          /* Handle */
+          '::-webkit-scrollbar-thumb': {
+            background: '#888',
+          },
+
+          /* Handle on hover */
+          '::-webkit-scrollbar-thumb:hover': {
+            background: '#555',
           },
         },
       },
