@@ -3,7 +3,6 @@ import re
 import nltk
 import wikipediaapi
 import json
-#from pattern import parse, split
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer, SnowballStemmer, PorterStemmer, RegexpStemmer
 from nltk.stem.snowball import FrenchStemmer
