@@ -8,7 +8,7 @@ function FileDropZone({ title, reportFile, setReportFile, displayMessage }) {
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file && file.type === 'application/pdf') {
-        if (file.size <= 5000) {
+        if (file.size <= 5242880) {
           setReportFile(file);
         } else {
           displayMessage('La taille du fichier doit être inférieur à 5 Mo');
