@@ -1,98 +1,37 @@
 # Projet Pro M2 SIREL2
 
-## Développement local backend
-
-Pour démarrer l'API localement (en cours de dev) :
+## Développement local
 
 ### Prérequis
+Pour démarrer l'application localement, il y a deux possibilités : 
+1. Démarrer le backend et le frontend séparemment (cf README des /backend et /frontend) 
+2. Utiliser le `docker-compose.yml`, qui lancera les trois conteneurs : backend, frontend et le reverse proxy. Afin de faire fonctionner le reverse proxy, il faut utiliser des certificats auto-signés. De cette façon, chaque développeur peut générer son propre certificat pour les tests locaux sans avoir besoin de partager des certificats de production sensibles.
 
-Avoir python3 d'installé sur votre poste
+### Certificats auto-signés
 
-Installez Poetry, un outil de gestion de dépendances et de packaging pour Python.
+Voici comment vous pouvez générer un certificat auto-signé :
 
-Sur Linux et macOS :
-```
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-Sur Windows (Powershell) :
-```
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-```
-
-Vérifiez l'installation avec:
-```
-poetry --version
+```bash
+cd nginx 
+mkdir certs && cd certs
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 ```
 
-### Installation des dépendances
-1. Naviguez vers le répertoire backend du projet et installez les dépendances :
+Cela générera des fichiers `key.pem` (clé privée) et `cert.pem` (certificat). Vous pouvez ensuite vérifier que le fichier `docker-compose.yml` contient les informations : 
 
 ```
-cd backend
-poetry install
+  server:
+    image: nginx:1.21-slim
+    container_name: sirel2-nginx
+    environment:
+      - SERVER_NAME=localhost
+      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
+      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./nginx/start-nginx.sh:/start-nginx.sh
+      - ./nginx/certs:/etc/ssl/certs
 ```
-
-Cette commande crée un environnement virtuel et installe toutes les dépendances listées dans `pyproject.toml.`
-
-2. Activez l'environnement virtuel :
-```
-poetry shell
-```
-
-3. Lancez l'API :
-```
-uvicorn app.main:app --reload
-```
-
-L'API sera lancé et accessible depuis l'adresse `http://127.0.0.1:8000`
-
-Adresse de la doc de l'API (et pour faire les tests) `http://127.0.0.1:8000/docs#/`
-
-4. Pour quitter l'environnement virtuel, utilisez la commande :
-```
-exit
-```
-
-## Utilisation quotidienne
-
-Pour relancer le projet, naviguez vers le répertoire `backend` et exécutez :
-
-```
-poetry shell
-uvicorn app.main:app --reload
-```
-
-Pour ajouter une nouvelle dépendance au projet
-```
-poetry add <package>
-```
-
-Par exemple, pour ajouter nltk :
-```
-poetry add nltk
-```
-
-Cette commande installera le package, et mettra à jour les fichiers poetry.lock et pyproject.toml automatiquement.
-
-
-## Authentification
-
-L'API utilise JSON Web Tokens (JWT) pour l'authentification. Lorsqu'un utilisateur se connecte avec succès, l'API génère un JWT et le renvoie à l'utilisateur. Ce JWT doit ensuite être inclus dans l'en-tête `Authorization` des requêtes suivantes pour authentifier l'utilisateur.
-
-### Configuration de l'authentification
-
-Pour utiliser l'authentification en local, vous devez définir certaines variables d'environnement dans un fichier `.env`. Vous pouvez vous baser sur le fichier `.env.example` pour savoir quelles variables définir.
-
-Voici les variables d'environnement liées à l'authentification :
-
-- `SECRET_KEY` : La clé secrète utilisée pour signer les JWT.
-- `ALGORITHM` : L'algorithme utilisé pour signer les JWT.
-- `ACCESS_TOKEN_EXPIRE_MINUTES` : La durée de validité des JWT, en minutes.
-
-### Désactivation de l'authentification
-
-Si vous souhaitez désactiver l'authentification pour des raisons de test ou de développement, vous pouvez le faire en définissant la variable d'environnement `ENABLE_AUTH` à `False` dans votre fichier `.env`.
 
 
 ## Développement local frontend
@@ -126,3 +65,5 @@ Lancement :
 ```
 npm run dev
 ```
+
+

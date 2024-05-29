@@ -1,0 +1,31 @@
+services:
+  backend:
+    image: sirel2-back:1.0.0
+    container_name: sirel2-back
+    restart: always
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+
+  server:
+    image: nginx:1.21.0
+    container_name: sirel2-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SERVER_NAME=comppdf.istic.univ-rennes1.fr
+      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
+      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./nginx/start-nginx.sh:/start-nginx.sh
+      - ./nginx/certs:/etc/ssl/certs
+    entrypoint: 
+      - /bin/sh
+      - /start-nginx.sh
+    depends_on:
+      - backend
+

@@ -1,18 +1,19 @@
 import jwt
-from decouple import config
 from ..schemas.token_schema import Token
 from datetime import datetime, timedelta, timezone
 import logging
 from dateutil.parser import parse
+from dotenv import load_dotenv
+import os
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-JWT_SECRET = config("SECRET_KEY")
-JWT_ALGORITHM = config("ALGORITHM")
-JWT_EXPIRE_MINUTES = config("ACCESS_TOKEN_EXPIRE_MINUTES")
+JWT_SECRET = os.getenv("SECRET_KEY")
+JWT_ALGORITHM = os.getenv("ALGORITHM")
+JWT_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 
 def create_access_token(user_id: str) -> Token:
@@ -53,8 +54,8 @@ def authenticate_user(username: str, password: str):
     logger.info("Attempting to authenticate user: %s", username)
 
     # Import user information from environment file
-    user_username = config("API_USERNAME")
-    user_password = config("API_PASSWORD")
+    user_username = os.getenv("API_USERNAME")
+    user_password = os.getenv("API_PASSWORD")
 
     if username == user_username and password == user_password:
         logger.info("User authenticated successfully: %s", username)

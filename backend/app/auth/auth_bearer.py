@@ -1,12 +1,15 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from .auth_handler import decode_jwt
-from decouple import config
+from dotenv import load_dotenv
+import os
 
 import logging
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+load_dotenv()
 
 
 class JWTBearer(HTTPBearer):
@@ -27,7 +30,7 @@ class JWTBearer(HTTPBearer):
         """
         logger.info("Authenticating request")
 
-        if config("ENABLE_AUTH") == 'False':
+        if os.getenv("ENABLE_AUTH") == 'False':
             logger.info("Authentication bypassed")
             return "dummy_token"
         
