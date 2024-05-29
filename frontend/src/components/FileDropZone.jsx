@@ -3,14 +3,18 @@ import { useCallback } from 'preact/hooks';
 import { useDropzone } from 'react-dropzone';
 import uploadFile from '../assets/upload_file.svg';
 
-function FileDropZone({ title, reportFile, setReportFile }) {
+function FileDropZone({ title, reportFile, setReportFile, displayMessage }) {
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file && file.type === 'application/pdf') {
-        setReportFile(file);
+        if (file.size <= 5242880) {
+          setReportFile(file);
+        } else {
+          displayMessage('La taille du fichier doit être inférieur à 5 Mo');
+        }
       } else {
-        alert('Veuillez télécharger un fichier au format PDF.');
+        displayMessage('Veuillez charger un fichier au format PDF');
       }
     },
     [setReportFile]
@@ -18,17 +22,8 @@ function FileDropZone({ title, reportFile, setReportFile }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: 'application/pdf',
+    accept: { 'application/pdf': ['.pdf'] },
   });
-
-  const handleReportFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setReportFile(file);
-    } else {
-      alert('Veuillez télécharger un fichier au format PDF.');
-    }
-  };
 
   return (
     <Grid item xs={12} md={5}>
@@ -36,13 +31,13 @@ function FileDropZone({ title, reportFile, setReportFile }) {
         {...getRootProps()}
         display='flex'
         flexDirection='column'
-        gap={2}
+        gap={1}
         textAlign='center'
         justifyContent='center'
         alignItems='center'
         border={1}
         borderRadius={1}
-        p={2}
+        p={'3vh'}
         borderColor='grey.300'
         sx={{
           cursor: 'pointer',
@@ -51,27 +46,24 @@ function FileDropZone({ title, reportFile, setReportFile }) {
           },
         }}
       >
-        <input
-          {...getInputProps()}
-          hidden
-          onChange={handleReportFileChange}
-          accept='application/pdf'
-        />
+        <input {...getInputProps()} hidden onChange={onDrop} />
 
-        <Typography variant='h5' gutterBottom>
+        <Typography variant='cardTitle' gutterBottom>
           {title}
         </Typography>
 
-        <img src={uploadFile}></img>
+        <img className='uploadImg' src={uploadFile}></img>
 
-        <Button variant='outlined' color={'primary'}>Télécharger un fichier</Button>
+        <Button variant='outlined' color={'primary'}>
+          Télécharger un fichier
+        </Button>
 
         {isDragActive ? (
-          <Typography variant='textInfo'>
+          <Typography variant='textInfo' mt={1}>
             Déposez le fichier ici ...
           </Typography>
         ) : (
-          <Typography variant='textInfo'>
+          <Typography variant='textInfo' mt={1}>
             Ou faite glisser un fichier ici
           </Typography>
         )}

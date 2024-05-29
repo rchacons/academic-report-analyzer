@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Grid,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Button, ButtonGroup, Grid, Tooltip, Typography } from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
@@ -124,7 +117,7 @@ export const ResultPage = () => {
   }, []);
 
   return (
-    <Grid container spacing={2} justifyContent='space-between' p='2em'>
+    <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
       <Grid item xs={12} md={8}>
         <Box
           sx={{

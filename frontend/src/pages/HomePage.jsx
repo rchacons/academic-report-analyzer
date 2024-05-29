@@ -1,8 +1,14 @@
-import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Snackbar,
+  Typography,
+} from '@mui/material';
 import FileDropZone from '../components/FileDropZone';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'preact/hooks';
-import { login } from '../services/AuthService';
 import { compareReports } from '../services/comparisonService';
 
 export const HomePage = () => {
@@ -11,12 +17,14 @@ export const HomePage = () => {
   const [oldReportFile, setOldReportFile] = useState(null);
   const [newReportFile, setNewReportFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!oldReportFile || !newReportFile) {
-      console.error('Veuillez télécharger les deux fichiers PDF.');
+      displayMessage('Veuillez charger les deux documents');
       return;
     }
 
@@ -29,18 +37,28 @@ export const HomePage = () => {
       );
       navigate('/results', { state: { comparisonResult } });
     } catch (error) {
-      console.error(
-        'Erreur lors de la comparaison des rapports. Veuillez réessayer.'
-      );
+      displayMessage('Une erreur est survenue');
+      console.error('Erreur lors de la comparaison des rapports', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const displayMessage = (message) => {
+    setMessage(message);
+    setOpen(true);
+  };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant='headerTitle' gutterBottom>
+    <Grid
+      container
+      spacing={2}
+      display={'flex'}
+      justifyContent='center'
+      textAlign={'left'}
+      sx={{ p: 4 }}
+    >
+      <Typography variant='headerTitle' width={'83%'}>
         Comparer les rapports de jury CAPES
       </Typography>
 
@@ -49,15 +67,24 @@ export const HomePage = () => {
           title={'Ancien Rapport'}
           reportFile={oldReportFile}
           setReportFile={setOldReportFile}
+          displayMessage={displayMessage}
         />
 
         <FileDropZone
           title={'Nouveau Rapport'}
           reportFile={newReportFile}
           setReportFile={setNewReportFile}
+          displayMessage={displayMessage}
+
         />
       </Grid>
-      <Box mt={4} display={'flex'} flexDirection={'column'} textAlign='center' alignItems='center'>
+      <Box
+        mt={4}
+        display={'flex'}
+        flexDirection={'column'}
+        textAlign='center'
+        alignItems='center'
+      >
         <Button
           variant='contained'
           color='primary'
@@ -85,8 +112,16 @@ export const HomePage = () => {
             Le traitement peut mettre quelques instants, veuillez patienter...
           </Typography>
         )}
-
       </Box>
-    </Box>
+
+      <Snackbar
+        warning
+        ContentProps={{ warning: true }}
+        open={open}
+        autoHideDuration={5000}
+        onClose={() => setOpen(false)}
+        message={message}
+      />
+    </Grid>
   );
 };

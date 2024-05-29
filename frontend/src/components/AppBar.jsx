@@ -13,7 +13,7 @@ export default function AppBar() {
     <Box sx={{ flexGrow: 1 }}>
       <MuiAppBar position='static' sx={{ boxShadow: 'none' }}>
         <Toolbar sx={{ backgroundColor: 'grey.100' }}>
-          <Box sx={{ marginLeft: '10em' }}>
+          <Box>
             <ButtonBase
               sx={{
                 '&:focus': {
