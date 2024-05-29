@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
+import { Box, Button, ButtonGroup, Grid, Tooltip, Typography } from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
