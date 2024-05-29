@@ -36,13 +36,13 @@ function FileDropZone({ title, reportFile, setReportFile }) {
         {...getRootProps()}
         display='flex'
         flexDirection='column'
-        gap={2}
+        gap={1}
         textAlign='center'
         justifyContent='center'
         alignItems='center'
         border={1}
         borderRadius={1}
-        p={2}
+        p={'3vh'}
         borderColor='grey.300'
         sx={{
           cursor: 'pointer',
@@ -58,20 +58,22 @@ function FileDropZone({ title, reportFile, setReportFile }) {
           accept='application/pdf'
         />
 
-        <Typography variant='h5' gutterBottom>
+        <Typography variant='cardTitle' gutterBottom>
           {title}
         </Typography>
 
-        <img src={uploadFile}></img>
+        <img className='uploadImg' src={uploadFile}></img>
 
-        <Button variant='outlined' color={'primary'}>Télécharger un fichier</Button>
+        <Button variant='outlined' color={'primary'}>
+          Télécharger un fichier
+        </Button>
 
         {isDragActive ? (
-          <Typography variant='textInfo'>
+          <Typography variant='textInfo' mt={1}>
             Déposez le fichier ici ...
           </Typography>
         ) : (
-          <Typography variant='textInfo'>
+          <Typography variant='textInfo' mt={1}>
             Ou faite glisser un fichier ici
           </Typography>
         )}

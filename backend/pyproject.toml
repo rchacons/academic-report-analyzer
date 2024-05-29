@@ -12,6 +12,13 @@ uvicorn = {extras = ["standard"], version = "^0.29.0"}
 pandas = "^2.2.2"
 pdfplumber = "^0.11.0"
 nltk = "^3.8.1"
+rdflib = "^7.0.0"
+sparqlwrapper = "^2.0.0"
+networkx = "2.6.3"
+pytest = "^8.2.1"
+pattern = "3.6"
+deep-translator = "^1.11.4"
+wikipedia-api = "^0.6.0"
 pydantic = "^2.7.1"
 pydantic-settings = "^2.2.1"
 pyjwt = "^2.8.0"
@@ -21,7 +28,6 @@ gunicorn = "^22.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"
-black = "^24.4.2"
 mypy = "^1.10.0"
 
 [tool.black]
