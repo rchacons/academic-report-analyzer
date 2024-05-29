@@ -1,16 +1,35 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import Depends, FastAPI
+from .routers import comparison, authentication, rdf
+from .core.config import settings
+from fastapi.middleware.cors import CORSMiddleware
+from .auth.auth_bearer import JWTBearer
+import logging
 
-#from .dependencies import get_query_token, get_token_header
-#from .internal import admin
-from .routers import comparison, rdf
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-#app = FastAPI(dependencies=[Depends(get_query_token)])
-app = FastAPI(title="SI-REL2 API", version="0.1.0")
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    version=settings.API_VERSION,
+)
 
-api_prefix = "/api/v1"
-app.include_router(comparison.router,prefix=api_prefix)
-app.include_router(rdf.router)
+# Set all CORS enabled origins
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            str(origin).strip("/") for origin in settings.BACKEND_CORS_ORIGINS
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
+
+app.include_router(comparison.router,prefix=settings.API_V1_STR)
+app.include_router(authentication.router,prefix=settings.API_V1_STR)
+app.include_router(rdf.router,prefix=settings.API_V1_STR)
 
 @app.get("/", summary="Root endpoint", description="This is the root endpoint of the API.")
 async def root():

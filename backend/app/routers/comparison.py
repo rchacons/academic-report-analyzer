@@ -1,23 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from ..services.file_service import save_pdf_temporarily
 from ..services.comparison_service import ComparisonService
-from ..schemas.comparison_schema import ComparisonResult
+from ..schemas.comparison_schema import ComparisonSubjectsResult
+from ..auth.auth_bearer import JWTBearer
 import logging
-
-#from ..dependencies import get_token_header
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 router = APIRouter(
     tags=["Comparisons"],
-    #dependencies=[Depends(get_token_header)], TODO -> definir token
+    dependencies=[Depends(JWTBearer())]
 )
 
 @router.post("/compare-reports/",
              summary="Compare two PDF CAPES reports",
              description="This endpoint accepts two PDF CAPES reports, compares them, and returns the comparison result.",
-             response_model=ComparisonResult,
+             response_model=ComparisonSubjectsResult,
              responses={
                  200: {"description": "Comparison completed successfully"},
                  400: {"description": "Invalid input - not a PDF file"},
