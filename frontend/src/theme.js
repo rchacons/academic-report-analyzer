@@ -67,6 +67,11 @@ const theme = createTheme(baseTheme, {
       margin: 0,
       fontWeight: 400,
     },
+    tableRowTitle: {
+      fontSize: 18,
+      color: baseTheme.palette.primary.main,
+      fontWeight: 400,
+    },
     textInfo: {
       color: '#888',
     },

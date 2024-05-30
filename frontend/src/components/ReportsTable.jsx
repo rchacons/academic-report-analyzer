@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -22,130 +21,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'preact/hooks';
+import Collapse from '@mui/material/Collapse';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function createData(id, subject, level, lesson, related_concepts) {
-  return { id, subject, level, lesson, related_concepts };
-}
-
-const rows = [
-  createData(
-    1,
-    'Bio',
-    '3C',
-    'La place des microorganismes dans la production et la conservation des aliments'
-  ),
-  createData(2, 'Bio', '3C', 'Le développement des êtres vivants'),
-  createData(
-    3,
-    'Bio',
-    '3C',
-    "Développement d'une plante à fleur et aptitude à la reproduction"
-  ),
-  createData(
-    4,
-    'Bio',
-    '3C',
-    'L’interdépendance des différents êtres vivants dans un réseau trophique'
-  ),
-  createData(
-    5,
-    'Bio',
-    '3C',
-    'La classification des êtres vivants et lien de parentés'
-  ),
-  createData(
-    6,
-    'Bio',
-    '3C',
-    'Dynamique des populations et reproduction asexuée'
-  ),
-  createData(
-    7,
-    'Bio',
-    '3C',
-    'Dynamique des populations et reproduction sexuée'
-  ),
-  createData(
-    8,
-    'Bio',
-    '3C',
-    'Dynamique des populations et reproductions sexuée et asexuée'
-  ),
-  createData(
-    9,
-    'Bio',
-    '3C',
-    "L'ADN : diversité génétique et stabilité des groupes"
-  ),
-  createData(10, 'Bio', '3C', 'La dynamique des populations'),
-  createData(11, 'Bio', '3C', 'La stabilité génétique des individus'),
-  createData(12, 'Bio', '3C', 'La vaccination'),
-  createData(13, 'Bio', '3C', 'le devenir des aliments dans le tube digestif'),
-];
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
+function createData({ id, field, level, title, materials_configurations }) {
+  return { id, field, level, title, materials_configurations };
 }
 
 const headCells = [
-  {
-    id: 'id',
-    numeric: true,
-    disablePadding: true,
-    label: '',
-  },
-  {
-    id: 'subject',
-    numeric: true,
-    disablePadding: false,
-    label: 'Matière',
-  },
-  {
-    id: 'level',
-    numeric: true,
-    disablePadding: false,
-    label: 'Niveau',
-  },
-  {
-    id: 'lesson',
-    numeric: true,
-    disablePadding: false,
-    label: 'Leçon',
-  },
-  {
-    id: 'related_concepts',
-    numeric: true,
-    disablePadding: false,
-    label: 'Concepts Liés',
-  },
+  { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
+  { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
+  { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
+  { id: 'related_concepts', numeric: false, disablePadding: false, label: 'Concepts liés' },
+
 ];
 
 function EnhancedTableHead(props) {
@@ -170,9 +60,7 @@ function EnhancedTableHead(props) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all reports',
-            }}
+            inputProps={{ 'aria-label': 'select all reports' }}
           />
         </TableCell>
         {headCells.map((headCell) => (
@@ -196,6 +84,7 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell align='left'>Matériels</TableCell>
       </TableRow>
     </TableHead>
   );
@@ -211,7 +100,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+  const { numSelected, numberOfSubjects } = props;
 
   return (
     <Toolbar
@@ -243,7 +132,7 @@ function EnhancedTableToolbar(props) {
           id='tableTitle'
           component='div'
         >
-          Rapports de Jury
+          Rapports de Jury - {numberOfSubjects}
         </Typography>
       )}
 
@@ -266,15 +155,148 @@ function EnhancedTableToolbar(props) {
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
+  numberOfSubjects: PropTypes.number.isRequired,
 };
 
-export default function ReportsTable() {
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+// Fusionner les configurations de matériaux identiques tout en maintenant l'ordre des origines
+function mergeMaterialConfigurations(materials_configurations) {
+  const merged = {};
+
+  materials_configurations.forEach((config) => {
+    const key = config.materials.join(','); // Utiliser les matériaux comme clé
+
+    if (merged[key]) {
+      merged[key].origin = `${merged[key].origin} et ${config.origin}`; // Fusionner les origines
+    } else {
+      merged[key] = { ...config };
+    }
+  });
+
+  // Séparer les configurations par origine pour maintenir l'ordre
+  const origin1 = [];
+  const origin2 = [];
+
+  Object.values(merged).forEach((config) => {
+    if (config.origin == '1') {
+      origin1.push(config);
+    } else {
+      origin2.push(config);
+    }
+  });
+
+  // Retourner les configurations de l'origine 1 suivies de celles de l'origine 2
+  return [...origin1, ...origin2];
+}
+
+function CollapsibleRow({
+  row,
+  isItemSelected,
+  handleClick,
+  isSelected,
+  handleSelectMaterial,
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Fusionner les configurations de matériaux
+  const mergedMaterials = mergeMaterialConfigurations(
+    row.materials_configurations
+  );
+
+  return (
+    <>
+      <TableRow
+        hover
+        onClick={(event) => handleClick(event, row.id)}
+        role='checkbox'
+        aria-checked={isItemSelected}
+        tabIndex={-1}
+        key={row.id}
+        selected={isItemSelected}
+      >
+        <TableCell padding='checkbox'>
+          <Checkbox
+            color='primary'
+            checked={isItemSelected}
+            inputProps={{
+              'aria-labelledby': `enhanced-table-checkbox-${row.id}`,
+            }}
+          />
+        </TableCell>
+
+        <TableCell align='left'>{row.field}</TableCell>
+        <TableCell align='left'>{row.level}</TableCell>
+        <TableCell align='left'>{row.title}</TableCell>
+        <TableCell align='left'><Link>voir</Link></TableCell>
+
+        <TableCell align='left'>
+          <IconButton
+            aria-label='expand row'
+            size='small'
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout='auto' unmountOnExit>
+            <Box margin={1}>
+              {mergedMaterials.map((config, index) => (
+                <Box key={index} margin={1}>
+                  <Typography
+                    variant='tableRowTitle'
+                    gutterBottom
+                    component='div'
+                  >
+                    Sous-sujet {index + 1}
+                  </Typography>
+                  <Table size='small' aria-label='purchases'>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Document</TableCell>
+                        <TableCell align={'left'}>Matériel</TableCell>
+                        <TableCell align={'right'}>Sélectionner</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>{config.origin}</TableCell>
+                        <TableCell>{config.materials.join(', ')}</TableCell>
+                        <TableCell align={'right'}>
+                          <Checkbox
+                            color='primary'
+                            onClick={() => handleSelectMaterial(row.id, config)}
+                            inputProps={{
+                              'aria-labelledby': `enhanced-table-checkbox-material-${row.id}-${index}`,
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Box>
+              ))}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
+
+export default function ReportsTable({ data }) {
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('id');
+  const [selected, setSelected] = useState([]);
+  const [selectedMaterial, setSelectedMaterial] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const rows = data.map((item, index) =>
+    createData({ id: index + 1, ...item })
+  );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -310,6 +332,26 @@ export default function ReportsTable() {
     setSelected(newSelected);
   };
 
+  const handleSelectMaterial = (subjectId, config) => {
+    const key = `${subjectId}-${config.origin}`;
+    const selectedIndex = selectedMaterial.indexOf(key);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedMaterial, key);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedMaterial.slice(1));
+    } else if (selectedIndex === selectedMaterial.length - 1) {
+      newSelected = newSelected.concat(selectedMaterial.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedMaterial.slice(0, selectedIndex),
+        selectedMaterial.slice(selectedIndex + 1)
+      );
+    }
+    setSelectedMaterial(newSelected);
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -325,23 +367,25 @@ export default function ReportsTable() {
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const visibleRows = React.useMemo(
+  const visibleRows = useMemo(
     () =>
       stableSort(rows, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
-    [order, orderBy, page, rowsPerPage]
+    [order, orderBy, page, rowsPerPage, rows]
   );
 
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          numberOfSubjects={data.length}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -359,56 +403,19 @@ export default function ReportsTable() {
             <TableBody>
               {visibleRows.map((row, index) => {
                 const isItemSelected = isSelected(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
-
                 return (
-                  <TableRow
-                    hover
-                    // onClick={(event) => handleClick(event, row.id)}
-                    role='checkbox'
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
+                  <CollapsibleRow
                     key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell
-                      padding='checkbox'
-                      onClick={(event) => handleClick(event, row.id)}
-                    >
-                      <Checkbox
-                        color='primary'
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell
-                      component='th'
-                      id={labelId}
-                      scope='row'
-                      padding='none'
-                      onClick={(event) => handleClick(event, row.id)}
-                    >
-                      {row.id}
-                    </TableCell>
-
-                    <TableCell align='left'>{row.subject}</TableCell>
-                    <TableCell align='left'>{row.level}</TableCell>
-                    <TableCell align='left'>{row.lesson}</TableCell>
-                    <TableCell align='left'>
-                      <Link to='/'>voir</Link>
-                    </TableCell>
-                  </TableRow>
+                    row={row}
+                    isItemSelected={isItemSelected}
+                    handleClick={handleClick}
+                    handleSelectMaterial={handleSelectMaterial}
+                    isSelected={isSelected}
+                  />
                 );
               })}
               {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
+                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
@@ -435,4 +442,34 @@ export default function ReportsTable() {
       />
     </Box>
   );
+}
+
+ReportsTable.propTypes = {
+  data: PropTypes.array.isRequired,
+};
+
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
 }

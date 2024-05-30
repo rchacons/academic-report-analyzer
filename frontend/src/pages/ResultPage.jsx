@@ -1,29 +1,37 @@
-import { Box, Button, ButtonGroup, Grid, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
 import EquipmentList from '../components/EquipmentList';
 import { useLocation } from 'react-router-dom';
+import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 
 export const ResultPage = () => {
   const location = useLocation();
 
   const { comparisonResult } = location.state || {};
-  const newSubjects = Object.entries(comparisonResult.added_subjects);
-  const removedSubjects = Object.entries(comparisonResult.removed_subjects);
-  const keptSubjects = Object.entries(comparisonResult.kept_subjects);
-  const identicalSubjects = Object.entries(comparisonResult.identical_subjects);
+  const newSubjects = comparisonResult.added_subjects;
+  const removedSubjects = comparisonResult.removed_subjects;
+  const keptSubjects = comparisonResult.kept_subjects;
   const numberOfSubjects =
     newSubjects.length +
     removedSubjects.length +
-    keptSubjects.length +
-    identicalSubjects.length;
+    keptSubjects.length;
 
   const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
+  const [selectedMaterial, setSelectedMaterial] = useState([]);
+  const [filterLevels, setFilterLevels] = useState([]);
+  const levels = ['3C', '4C'];
 
   const setSubjectsToDisplay = (subjectFilter) => {
-    console.log(`dispay ${subjectFilter}`);
     switch (subjectFilter) {
       case 'new_subjects':
         setActiveSubjectFilter(subjectFilter);
@@ -36,10 +44,6 @@ export const ResultPage = () => {
       case 'kept_subjects':
         setActiveSubjectFilter(subjectFilter);
         setDisplayedSubjects(keptSubjects);
-        break;
-      case 'identical_subjects':
-        setDisplayedSubjects(identicalSubjects);
-        setActiveSubjectFilter(subjectFilter);
         break;
     }
   };
@@ -92,24 +96,6 @@ export const ResultPage = () => {
     >
       Sujet gardés ({keptSubjects.length} sur {numberOfSubjects})
     </Button>,
-    <Button
-      key='identical_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'identical_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('identical_subjects')}
-      sx={{
-        '&:focus': {
-          outline: 'none',
-        },
-        '&:active': {
-          border: 'none',
-        },
-      }}
-    >
-      Sujet identiques ({identicalSubjects.length} sur {numberOfSubjects})
-    </Button>,
   ];
 
   useEffect(() => {
@@ -151,19 +137,26 @@ export const ResultPage = () => {
         </Box>
       </Grid>
 
-      {displayedSubjects && displayedSubjects.length !== 0 ? (
+      {/* {displayedSubjects && displayedSubjects.length !== 0 ? (
         <pre>{JSON.stringify(displayedSubjects, null, 2)}</pre>
       ) : (
         <Typography> Pas de données à afficher</Typography>
-      )}
+      )} */}
 
-      <Grid item xs={12} md={8}>
-        <ReportsTable />
+      {/*   <MultipleSelectChip
+        name='Niveaux'
+        items={['3C', '4C']}
+        selectedValue={filterLevels}
+        setSelectedValue={setFilterLevels}
+      ></MultipleSelectChip> */}
+
+      <Grid item xs={12} md={12}>
+        <ReportsTable data={displayedSubjects} /* setData={setDisplayedSubjects} */ selectedMaterial={selectedMaterial} setSelectedMaterial={setSelectedMaterial} />
       </Grid>
-
+{/*
       <Grid item xs={12} md={4}>
-        <EquipmentList />
-      </Grid>
+        <EquipmentList data={selectedMaterial} />
+      </Grid> */}
     </Grid>
   );
 };
