@@ -1,5 +1,5 @@
 # Utiliser une image de base officielle de Node.js
-FROM node:20.13.1-alpine
+FROM node:20.13.1-alpine as build-stage
 
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
@@ -15,8 +15,9 @@ COPY . .
 RUN npm run build
 
 # Utiliser une image Nginx pour servir les fichiers statiques
-FROM nginx:alpine
-COPY --from=0 /app/dist /usr/share/nginx/html
+FROM nginx:1.21.0-alpine
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 80

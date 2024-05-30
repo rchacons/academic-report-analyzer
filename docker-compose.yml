@@ -1,0 +1,48 @@
+services:
+  backend:
+    build: ./backend 
+    image: sirel2-back:1.0.0
+    container_name: sirel2-back
+    restart: always
+    env_file:
+      - backend/.env
+
+  frontend-app:
+    build: 
+      context: ./frontend
+      target: build-stage
+      dockerfile: Dockerfile
+    image: sirel2-front-app:1.0.0
+    container_name: sirel2-front-app
+    env_file:
+      - frontend/.env
+
+  frontend-serve:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: sirel2-front-serve:1.0.0
+    container_name: sirel2-front-serve
+    restart: always
+
+  server:
+    image: nginx:1.21.0
+    container_name: sirel2-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SERVER_NAME=localhost
+      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
+      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./nginx/start-nginx.sh:/start-nginx.sh
+      - ./nginx/certs:/etc/ssl/certs
+    entrypoint: 
+      - /bin/sh
+      - /start-nginx.sh
+    depends_on:
+      - backend
+      - frontend-serve

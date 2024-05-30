@@ -1,18 +1,19 @@
 import jwt
-from decouple import config
 from ..schemas.token_schema import Token
 from datetime import datetime, timedelta, timezone
 import logging
 from dateutil.parser import parse
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-JWT_SECRET = config("SECRET_KEY")
-JWT_ALGORITHM = config("ALGORITHM")
-JWT_EXPIRE_MINUTES = config("ACCESS_TOKEN_EXPIRE_MINUTES")
+JWT_SECRET = os.getenv("SECRET_KEY")
+JWT_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 
 def create_access_token(user_id: str) -> Token:
@@ -26,14 +27,14 @@ def create_access_token(user_id: str) -> Token:
         Token: The JWT access token.
     """
     logger.info("Creating access token for user: %s", user_id)
-
+    
     access_token_expires = timedelta(minutes=int(JWT_EXPIRE_MINUTES))
     to_encode = {
         "user_id": user_id,
         "expires": (datetime.now() + access_token_expires).isoformat()
     }
 
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm="HS256")
     logger.info("Access token created successfully for user: %s", user_id)
 
     return encoded_jwt
@@ -53,8 +54,8 @@ def authenticate_user(username: str, password: str):
     logger.info("Attempting to authenticate user: %s", username)
 
     # Import user information from environment file
-    user_username = config("API_USERNAME")
-    user_password = config("API_PASSWORD")
+    user_username = os.getenv("API_USERNAME")
+    user_password = os.getenv("API_PASSWORD")
 
     if username == user_username and password == user_password:
         logger.info("User authenticated successfully: %s", username)
@@ -77,7 +78,7 @@ def decode_jwt(token: str) -> dict:
     """
     logger.info("Attempting to decode JWT token")
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        decoded_token = jwt.decode(token, JWT_SECRET, "HS256")
         return decoded_token if parse(decoded_token["expires"]) >= datetime.now() else None
     except:
         logging.exception("An error occurred while decoding the token")

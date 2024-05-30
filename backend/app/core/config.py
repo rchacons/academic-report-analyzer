@@ -18,20 +18,12 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     API_VERSION: str = "0.1.0"
 
-    DOMAIN: str = "localhost"
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
-
-    @computed_field  # type: ignore[misc]
-    @property
-    def server_host(self) -> str:
-        # Use HTTPS for anything other than local development
-        if self.ENVIRONMENT == "local":
-            return f"http://{self.DOMAIN}"
-        return f"https://{self.DOMAIN}"
-
     BACKEND_CORS_ORIGINS: list[AnyUrl] = [
-        "http://localhost:5173/",
-        "http://production-frontend.com" # TODO modifier -> Production frontend
+        "http://localhost",
+        "http://localhost:8080",
+        "http://localhost:5173",
+        "http://127.0.0.1:8000",
+        "https://localhost"
         ]
 
 settings = Settings()  # type: ignore

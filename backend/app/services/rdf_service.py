@@ -3,7 +3,6 @@ import re
 import nltk
 import wikipediaapi
 import json
-#from pattern import parse, split
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer, SnowballStemmer, PorterStemmer, RegexpStemmer
 from nltk.stem.snowball import FrenchStemmer
@@ -15,17 +14,22 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import networkx as nx
 from networkx.readwrite import json_graph
 from deep_translator import GoogleTranslator
+import os
 
+def download_nltk_package(package_name, subfolder):
+    try:
+        nltk.data.find(f'{subfolder}/{package_name}')
+    except LookupError:
+        nltk.download(package_name)
 
 # Adaptation de la V1
 # Assurez-vous d'avoir téléchargé les ressources nécessaires
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('universal_tagset')
-nltk.download('stopwords')
-nltk.download('punkt')
-
+download_nltk_package('wordnet', 'corpora')
+download_nltk_package('omw-1.4', 'corpora')
+download_nltk_package('averaged_perceptron_tagger', 'taggers')
+download_nltk_package('universal_tagset', 'taggers')
+download_nltk_package('stopwords', 'corpora')
+download_nltk_package('punkt', 'tokenizers')
 
 
 def trad_sentence(sentence):
