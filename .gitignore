@@ -1,6 +1,10 @@
 __pycache__/
 .env
 
+# Nginx local certificates
+certs/*
+cert.pem
+key.pem
 
 # Logs
 logs
@@ -26,3 +30,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
