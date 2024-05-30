@@ -26,7 +26,7 @@ const materielData = [
   "fiche technique : réalisation d'une culture in vitro lames + lamelles + microscope + eau iodée",
 ];
 
-const EquipmentList = () => {
+const EquipmentList = ({data}) => {
   return (
     <Paper
       sx={{
@@ -40,12 +40,12 @@ const EquipmentList = () => {
         Matériel imposé
       </Typography>
       <Typography variant='body1' component='div' gutterBottom>
-        Total : {materielData.length}
+        Total : {data.length}
       </Typography>
       <Divider />
 
       <List dense disablePadding>
-        {materielData.map((item, index) => (
+        {data.map((item, index) => (
           <ListItem key={index}>
             <ListItemIcon>
               <FiberManualRecordIcon

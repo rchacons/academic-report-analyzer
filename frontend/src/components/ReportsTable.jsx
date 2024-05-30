@@ -22,40 +22,20 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'preact/hooks';
+import Collapse from '@mui/material/Collapse';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function createData({ id, domaine, niveau, intitule, materiel }) {
-  return { id, domaine, niveau, intitule, materiel };
-}
-
-function transformData(data) {
-  const transformed = [];
-  data.forEach((item, index) => {
-    const [details, _] = item; // Ignorer le matériel pour le moment
-    const [domaine, niveau, intitule] = details
-      .split("' ")
-      .map((str) => str.split('=')[1].replace(/'/g, ''));
-    transformed.push(
-      createData({
-        id: `${index + 1}`,
-        domaine,
-        niveau,
-        intitule,
-      })
-    );
-  });
-  return transformed;
+function createData({ id, field, level, title, materials_configurations }) {
+  return { id, field, level, title, materials_configurations };
 }
 
 const headCells = [
-  { id: 'domaine', numeric: false, disablePadding: false, label: 'Domaine' },
-  { id: 'niveau', numeric: false, disablePadding: false, label: 'Niveau' },
-  { id: 'intitule', numeric: false, disablePadding: false, label: 'Intitulé' },
-  {
-    id: 'concept lié',
-    numeric: false,
-    disablePadding: false,
-    label: 'Concept lié',
-  },
+  { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
+  { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
+  { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
+  { id: 'related_concepts', numeric: false, disablePadding: false, label: 'Concepts liés' },
+
 ];
 
 function EnhancedTableHead(props) {
@@ -104,6 +84,7 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell align='left'>Matériels</TableCell>
       </TableRow>
     </TableHead>
   );
@@ -177,16 +158,145 @@ EnhancedTableToolbar.propTypes = {
   numberOfSubjects: PropTypes.number.isRequired,
 };
 
+// Fusionner les configurations de matériaux identiques tout en maintenant l'ordre des origines
+function mergeMaterialConfigurations(materials_configurations) {
+  const merged = {};
+
+  materials_configurations.forEach((config) => {
+    const key = config.materials.join(','); // Utiliser les matériaux comme clé
+
+    if (merged[key]) {
+      merged[key].origin = `${merged[key].origin} et ${config.origin}`; // Fusionner les origines
+    } else {
+      merged[key] = { ...config };
+    }
+  });
+
+  // Séparer les configurations par origine pour maintenir l'ordre
+  const origin1 = [];
+  const origin2 = [];
+
+  Object.values(merged).forEach((config) => {
+    if (config.origin == '1') {
+      origin1.push(config);
+    } else {
+      origin2.push(config);
+    }
+  });
+
+  // Retourner les configurations de l'origine 1 suivies de celles de l'origine 2
+  return [...origin1, ...origin2];
+}
+
+function CollapsibleRow({
+  row,
+  isItemSelected,
+  handleClick,
+  isSelected,
+  handleSelectMaterial,
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Fusionner les configurations de matériaux
+  const mergedMaterials = mergeMaterialConfigurations(
+    row.materials_configurations
+  );
+
+  return (
+    <>
+      <TableRow
+        hover
+        onClick={(event) => handleClick(event, row.id)}
+        role='checkbox'
+        aria-checked={isItemSelected}
+        tabIndex={-1}
+        key={row.id}
+        selected={isItemSelected}
+      >
+        <TableCell padding='checkbox'>
+          <Checkbox
+            color='primary'
+            checked={isItemSelected}
+            inputProps={{
+              'aria-labelledby': `enhanced-table-checkbox-${row.id}`,
+            }}
+          />
+        </TableCell>
+
+        <TableCell align='left'>{row.field}</TableCell>
+        <TableCell align='left'>{row.level}</TableCell>
+        <TableCell align='left'>{row.title}</TableCell>
+        <TableCell align='left'><Link>voir</Link></TableCell>
+
+        <TableCell align='left'>
+          <IconButton
+            aria-label='expand row'
+            size='small'
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout='auto' unmountOnExit>
+            <Box margin={1}>
+              {mergedMaterials.map((config, index) => (
+                <Box key={index} margin={1}>
+                  <Typography
+                    variant='tableRowTitle'
+                    gutterBottom
+                    component='div'
+                  >
+                    Sous-sujet {index + 1}
+                  </Typography>
+                  <Table size='small' aria-label='purchases'>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Document</TableCell>
+                        <TableCell align={'left'}>Matériel</TableCell>
+                        <TableCell align={'right'}>Sélectionner</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>{config.origin}</TableCell>
+                        <TableCell>{config.materials.join(', ')}</TableCell>
+                        <TableCell align={'right'}>
+                          <Checkbox
+                            color='primary'
+                            onClick={() => handleSelectMaterial(row.id, config)}
+                            inputProps={{
+                              'aria-labelledby': `enhanced-table-checkbox-material-${row.id}-${index}`,
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Box>
+              ))}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
+
 export default function ReportsTable({ data }) {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('id');
   const [selected, setSelected] = useState([]);
+  const [selectedMaterial, setSelectedMaterial] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const rows = transformData(data);
-  console.log('rows', rows);
+  const rows = data.map((item, index) =>
+    createData({ id: index + 1, ...item })
+  );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -220,6 +330,26 @@ export default function ReportsTable({ data }) {
       );
     }
     setSelected(newSelected);
+  };
+
+  const handleSelectMaterial = (subjectId, config) => {
+    const key = `${subjectId}-${config.origin}`;
+    const selectedIndex = selectedMaterial.indexOf(key);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedMaterial, key);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedMaterial.slice(1));
+    } else if (selectedIndex === selectedMaterial.length - 1) {
+      newSelected = newSelected.concat(selectedMaterial.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedMaterial.slice(0, selectedIndex),
+        selectedMaterial.slice(selectedIndex + 1)
+      );
+    }
+    setSelectedMaterial(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -273,33 +403,15 @@ export default function ReportsTable({ data }) {
             <TableBody>
               {visibleRows.map((row, index) => {
                 const isItemSelected = isSelected(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
-
                 return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role='checkbox'
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
+                  <CollapsibleRow
                     key={row.id}
-                    selected={isItemSelected}
-                  >
-                    <TableCell padding='checkbox'>
-                      <Checkbox
-                        color='primary'
-                        checked={isItemSelected}
-                        inputProps={{ 'aria-labelledby': labelId }}
-                      />
-                    </TableCell>
-
-                    <TableCell align='left'>{row.domaine}</TableCell>
-                    <TableCell align='left'>{row.niveau}</TableCell>
-                    <TableCell align='left'>{row.intitule}</TableCell>
-                    <TableCell align='left'>
-                      <Link>voir</Link>
-                    </TableCell>
-                  </TableRow>
+                    row={row}
+                    isItemSelected={isItemSelected}
+                    handleClick={handleClick}
+                    handleSelectMaterial={handleSelectMaterial}
+                    isSelected={isSelected}
+                  />
                 );
               })}
               {emptyRows > 0 && (
