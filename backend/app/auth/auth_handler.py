@@ -6,13 +6,13 @@ from dateutil.parser import parse
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 JWT_SECRET = os.getenv("SECRET_KEY")
-JWT_ALGORITHM = os.getenv("ALGORITHM")
 JWT_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 
@@ -27,14 +27,14 @@ def create_access_token(user_id: str) -> Token:
         Token: The JWT access token.
     """
     logger.info("Creating access token for user: %s", user_id)
-
+    
     access_token_expires = timedelta(minutes=int(JWT_EXPIRE_MINUTES))
     to_encode = {
         "user_id": user_id,
         "expires": (datetime.now() + access_token_expires).isoformat()
     }
 
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm="HS256")
     logger.info("Access token created successfully for user: %s", user_id)
 
     return encoded_jwt
@@ -78,7 +78,7 @@ def decode_jwt(token: str) -> dict:
     """
     logger.info("Attempting to decode JWT token")
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        decoded_token = jwt.decode(token, JWT_SECRET, "HS256")
         return decoded_token if parse(decoded_token["expires"]) >= datetime.now() else None
     except:
         logging.exception("An error occurred while decoding the token")

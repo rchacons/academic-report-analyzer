@@ -17,6 +17,16 @@ COPY ./app /app
 # Install python dependencies
 RUN python3 -m pip install --no-cache-dir --upgrade -r requirements.txt
 
+# Download nltk stopwords
+RUN python3 -c "\
+import nltk;\
+nltk.download('wordnet');\
+nltk.download('omw-1.4');\
+nltk.download('averaged_perceptron_tagger');\
+nltk.download('universal_tagset');\
+nltk.download('stopwords');\
+nltk.download('punkt');\
+"
 # Create directories for shared memory and local files
 RUN mkdir -p /tmp/shm && mkdir /.local
 
