@@ -3,9 +3,13 @@
 ## Développement local
 
 ### Prérequis
-Pour démarrer l'application localement, il y a deux possibilités : 
+Pour démarrer l'application localement, il y a deux possibilités (*dans les deux cas il faut créer les fichiers .env du backend et frontend pour simuler les variables d'environnement*) :
+
 1. Démarrer le backend et le frontend séparemment (cf README des /backend et /frontend) 
-2. Utiliser le `docker-compose.yml`, qui lancera les trois conteneurs : backend, frontend et le reverse proxy. Afin de faire fonctionner le reverse proxy, il faut utiliser des certificats auto-signés. De cette façon, chaque développeur peut générer son propre certificat pour les tests locaux sans avoir besoin de partager des certificats de production sensibles.
+2. Utiliser le `docker-compose.yml`, qui lancera les trois conteneurs : `backend`, `frontend` et le `reverse proxy`. Afin de faire fonctionner le reverse proxy, il faut utiliser des certificats auto-signés (en production ce sont des vraies certificats). De cette façon, chaque développeur peut générer son propre certificat pour les tests locaux sans avoir besoin de partager des certificats de production sensibles. 
+
+**Attention** : Lors de l'utilisation d'un certificat auto-signé, cela générera un avertissement dans votre navigateur indiquant que le certificat n'est pas fiable. Vous pouvez contourner cet avertissement à des fins de test.
+
 
 ### Certificats auto-signés
 
@@ -33,37 +37,45 @@ Cela générera des fichiers `key.pem` (clé privée) et `cert.pem` (certificat)
       - ./nginx/certs:/etc/ssl/certs
 ```
 
+### Fonctionnement du reverse proxy
 
-## Développement local frontend
+Le reverse proxy est un serveur intermédiaire qui agit comme un intermédiaire entre les clients et les serveurs. Il reçoit les requêtes des clients et les transmet aux serveurs appropriés, puis renvoie les réponses des serveurs aux clients. Dans le contexte de cette application, le reverse proxy est utilisé pour forcer l'utilisation du protocole HTTPS, assurant ainsi la sécurité de l'application.
 
-### Prérequis
+Lorsque le reverse proxy est utilisé en environnement local, il est configuré pour écouter sur le port 443 (HTTPS). Cela signifie que toutes les connexions doivent être établies via HTTPS, même en développement local. Cela garantit que les données échangées entre le client et le serveur sont chiffrées et sécurisées.
 
-Avoir une version de node 20+ d'installée sur vote poste
+La configuration se trouve dans le fichier `nginx.conf.template`. Il contient deux blocs principaux :
 
-### Configuration de l'authentification
+1. **Bloc server (HTTP)** : Ce bloc définit un serveur qui écoute sur le port 80 (HTTP) et redirige toutes les requêtes vers HTTPS. Cela garantit que toutes les connexions sont redirigées vers le protocole sécurisé.
 
-Créer un fichier .env.local à la racine du projet (/frontend)
-Remplir les variables avec les identifiants correspondants à la configuration local du backend
-Exemple fichier env.local :
-```
-VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
-VITE_API_USERNAME=username
-VITE_API_PASSWORD=password
-```
+2. **Bloc server (HTTPS)** : Ce bloc définit un serveur qui écoute sur le port 443 (HTTPS). Il spécifie l'emplacement du certificat SSL et de la clé privée nécessaires pour établir une connexion sécurisée. Les requêtes sont ensuite traitées en fonction de leur route :
+    - Les requêtes vers `/api/v1/` sont transmises au `backend`, avec des en-têtes CORS spécifiques ajoutés à la réponse.
+    - Toutes les autres requêtes sont transmises au `frontend`.
 
-### Lancement de l'application en Local
 
-Installation des dépendances :
+### Lancement avec Docker Compose
 
-```
-cd frontend
-npm install
-```
+Si vous avez Docker et Docker Compose installés, vous pouvez les utiliser pour lancer l'application. Docker Compose permet de gérer plusieurs conteneurs comme un ensemble de services définis dans le fichier `docker-compose.yml`.
 
-Lancement :
+Avant de lancer l'application, assurez-vous que les fichiers `.env` du backend et du frontend sont correctement configurés pour simuler les variables d'environnement.
 
-```
-npm run dev
+Pour lancer l'application :
+
+```bash
+docker compose up
 ```
 
+Cette commande va démarrer tous les services définis dans le fichier docker-compose.yml. Cela inclut le backend, le frontend et le reverse proxy. Les conteneurs seront lancés en arrière-plan et leurs logs seront affichés dans le terminal.
+
+Pour arrêter l'application :
+```bash
+docker compose down
+```
+
+Cette commande arrête tous les services lancés par `docker-compose up`. Elle arrête également et supprime les conteneurs, réseaux, volumes et images définis dans le fichier `docker-compose.yml`.
+
+Si vous voulez juste arrêter les services sans les supprimer, vous pouvez utiliser la commande `docker-compose stop` :
+
+```bash
+docker-compose stop
+```
 

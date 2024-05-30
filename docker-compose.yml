@@ -1,10 +1,29 @@
 services:
   backend:
+    build: ./backend 
     image: sirel2-back:1.0.0
     container_name: sirel2-back
     restart: always
     env_file:
       - backend/.env
+
+  frontend-app:
+    build: 
+      context: ./frontend
+      target: build-stage
+      dockerfile: Dockerfile
+    image: sirel2-front-app:1.0.0
+    container_name: sirel2-front-app
+    env_file:
+      - frontend/.env
+
+  frontend-serve:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: sirel2-front-serve:1.0.0
+    container_name: sirel2-front-serve
+    restart: always
 
   server:
     image: nginx:1.21.0
@@ -26,5 +45,4 @@ services:
       - /start-nginx.sh
     depends_on:
       - backend
-
-
+      - frontend-serve

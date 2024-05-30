@@ -3,8 +3,8 @@
 Ce guide vous aidera à démarrer l'API localement.
 
 Vous avez 2 options pour le démarrage locale de l'API : 
-1. Utiliser Docker.
-2. Lancer le serveur local Uvicorn.
+1. Lancement avec Docker.
+2. Lancement avec le serveur local Uvicorn.
 
 ## Prérequis
 
@@ -66,7 +66,7 @@ Cette commande construit une image Docker à partir de votre Dockerfile et la ta
 2. Exécutez un conteneur à partir de l'image Docker :
 
 ```bash
-docker run -d -p 8000:8000 --env-file .env sirel2-back:1.0.0
+docker run -p 8000:8000 --env-file .env sirel2-back:1.0.0
 ```
 
 L'application devrait maintenant être accessible à l'adresse `http://localhost:8000`.
@@ -93,6 +93,8 @@ Si vous avez déjà créé un conteneur à partir de l'image Docker, vous n'avez
     ```
 
 L'application devrait être à nouveau accessible à l'adresse `http://localhost:8000`.
+
+`Note`: Lorsque vous apportez des modifications au code de l'application, vous devez reconstruire l'image Docker pour que ces modifications soient prises en compte dans le conteneur Docker. N'oubliez pas de supprimer l'ancienne. 
 
 ## Lancement sans Docker
 
