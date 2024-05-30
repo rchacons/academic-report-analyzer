@@ -32,42 +32,36 @@ class ComparisonService:
         return self.compareSubjectsWithMaterials(report1, report2)
  
     def compareSubjectsWithMaterials(self, subjects1: Dict[Subject, List[ListMaterials]], subjects2: Dict[Subject, List[ListMaterials]]) -> ComparisonSubjectsResult:
-        
-        added_subjects = {subject: values for subject, values in subjects2.items() if subject not in subjects1}
-        removed_subjects = {subject: values for subject, values in subjects1.items() if subject not in subjects2}
-        kept_subjects = {}
-        identical_subjects = {}
+        added_subjects : Dict[Subject, List[ListMaterials]] = {subject: values for subject, values in subjects2.items() if subject not in subjects1}
+        removed_subjects : Dict[Subject, List[ListMaterials]] = {subject: values for subject, values in subjects1.items() if subject not in subjects2}
+        kept_subjects : Dict[Subject, List[ListMaterials]] = {}
+        identical_subjects : Dict[Subject, List[ListMaterials]] = {}
 
-        common_keys = subjects1.keys() & subjects2.keys()
+        common_keys : set[Subject] = subjects1.keys() & subjects2.keys()
 
         for subject in common_keys:
-            identical_lists = [lst for lst in subjects1[subject] if lst in subjects2[subject]]
-            if identical_lists:
-                identical_subjects[subject] = identical_lists
-                kept_materials = []
-                for lst in subjects1[subject]:
-                    kept_materials.append(ListMaterials(materials=[material for material in lst.materials if material not in identical_lists[0].materials], origin=lst.origin))
-                kept_subjects[subject] = kept_materials
-            else:
-                kept_subjects[subject] = subjects1[subject]
+
+            materials_s1_set : set[ListMaterials] = set(subjects1[subject])
+            materials_s2_set : set[ListMaterials] = set(subjects2[subject])
+
+            identical : set[ListMaterials] = materials_s1_set & materials_s2_set
+            kept : set[ListMaterials] = materials_s1_set ^ materials_s2_set  # Symmetric difference
+
+            if identical:
+                identical_subjects[subject] = list(identical)
+            if kept:
+                kept_subjects[subject] = list(kept)
 
         return ComparisonSubjectsResult(
-            added_subjects=added_subjects,
-            removed_subjects=removed_subjects,
-            kept_subjects=kept_subjects,
-            identical_subjects=identical_subjects
+            added_subjects=self.convertDictionaryIntoSubject(added_subjects),
+            removed_subjects=self.convertDictionaryIntoSubject(removed_subjects),
+            kept_subjects=self.convertDictionaryIntoSubject(kept_subjects),
+            identical_subjects=self.convertDictionaryIntoSubject(identical_subjects)
         )
-    
-    def countNumberOfSubjects(subjects: Dict[Subject, List[ListMaterials]]) -> int:
-        total_count = 0
-        for materials_list in subjects.values():
-            for materials_obj in materials_list:
-                total_count += len(materials_obj.materials)
-        return total_count 
-    
-    def compareListMaterials(self, list1: List[str], list2: List[str]) -> ComparisonMaterialsResult:
-        added_materials = List[str]([item for item in list1 if item not in list2])
-        removed_materials = List[str]([item for item in list2 if item not in list1])
-        kept_materials = List[str]([item for item in list1 if item in list2])
-        return ComparisonMaterialsResult(added_materials=added_materials,removed_materials=removed_materials,kept_materials=kept_materials)  
 
+    def convertDictionaryIntoSubject(self, dictionary: Dict[Subject, List[ListMaterials]]) -> List[Subject]:
+        subjects_list = []
+        for key, value in dictionary.items():
+            subject = Subject(field=key.field, level=key.level, title=key.title, materials_configurations=value)
+            subjects_list.append(subject)
+        return subjects_list

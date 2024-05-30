@@ -73,9 +73,10 @@ class ReportService:
                 
                 # Parse the row into a Subject object
                 subject = Subject(
-                    domaine=row[0],
-                    niveau=row[1],
-                    intitule=row[2]
+                    field=row[0],
+                    level=row[1],
+                    title=row[2],
+                    materials_configurations=[ListMaterials(materials=[], origin=origin)]
                 )
 
                 if subject not in subjects:
