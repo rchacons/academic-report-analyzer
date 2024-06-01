@@ -1,5 +1,5 @@
 from .report_service import ReportService  
-from ..schemas.comparison_schema import Subject, ComparisonMaterialsResult, ComparisonSubjectsResult, ListMaterials
+from ..schemas.comparison_schema import Subject, ComparisonSubjectsResult, ListMaterials
 from typing import List, Dict, Set
 import pandas as pd
 import numpy as np
@@ -31,37 +31,44 @@ class ComparisonService:
         report2 = ReportService(path2, 2).data
         return self.compareSubjectsWithMaterials(report1, report2)
  
-    def compareSubjectsWithMaterials(self, subjects1: Dict[Subject, List[ListMaterials]], subjects2: Dict[Subject, List[ListMaterials]]) -> ComparisonSubjectsResult:
-        added_subjects : Dict[Subject, List[ListMaterials]] = {subject: values for subject, values in subjects2.items() if subject not in subjects1}
-        removed_subjects : Dict[Subject, List[ListMaterials]] = {subject: values for subject, values in subjects1.items() if subject not in subjects2}
-        kept_subjects : Dict[Subject, List[ListMaterials]] = {}
-        identical_subjects : Dict[Subject, List[ListMaterials]] = {}
+    def compareSubjectsWithMaterials(self, subjects1: Dict[Subject, Set[ListMaterials]], subjects2: Dict[Subject, Set[ListMaterials]]) -> ComparisonSubjectsResult:
+        added_subjects : Dict[Subject, Set[ListMaterials]] = {subject: values for subject, values in subjects2.items() if subject not in subjects1}
+        removed_subjects : Dict[Subject, Set[ListMaterials]] = {subject: values for subject, values in subjects1.items() if subject not in subjects2}
+        kept_subjects : Dict[Subject, Set[ListMaterials]] = {}
+        identical_subjects : Dict[Subject, Set[ListMaterials]] = {}
 
         common_keys : set[Subject] = subjects1.keys() & subjects2.keys()
 
         for subject in common_keys:
 
-            materials_s1_set : set[ListMaterials] = set(subjects1[subject])
-            materials_s2_set : set[ListMaterials] = set(subjects2[subject])
+            materials_s1_set : set[ListMaterials] = subjects1[subject]
+            materials_s2_set : set[ListMaterials] = subjects2[subject]
 
             identical : set[ListMaterials] = materials_s1_set & materials_s2_set
             kept : set[ListMaterials] = materials_s1_set ^ materials_s2_set  # Symmetric difference
 
             if identical:
-                identical_subjects[subject] = list(identical)
+                identical_subjects[subject] = identical
             if kept:
-                kept_subjects[subject] = list(kept)
+                kept_subjects[subject] = kept
+
+        all_keys : set[Subject] = subjects1.keys() | subjects2.keys()
+        unique_fields: Set[str] = {subject.field.lower() for subject in all_keys if subject.field.strip()}
+        unique_levels: Set[str] = {subject.level.lower() for subject in all_keys if subject.level.strip()}
 
         return ComparisonSubjectsResult(
             added_subjects=self.convertDictionaryIntoSubject(added_subjects),
             removed_subjects=self.convertDictionaryIntoSubject(removed_subjects),
             kept_subjects=self.convertDictionaryIntoSubject(kept_subjects),
-            identical_subjects=self.convertDictionaryIntoSubject(identical_subjects)
+            identical_subjects=self.convertDictionaryIntoSubject(identical_subjects),
+            field_list=unique_fields,
+            level_list=unique_levels,
+            theme_list =[]
         )
 
-    def convertDictionaryIntoSubject(self, dictionary: Dict[Subject, List[ListMaterials]]) -> List[Subject]:
+    def convertDictionaryIntoSubject(self, dictionary: Dict[Subject, Set[ListMaterials]]) -> List[Subject]:
         subjects_list = []
         for key, value in dictionary.items():
-            subject = Subject(field=key.field, level=key.level, title=key.title, materials_configurations=value)
+            subject = Subject(field=key.field, level=key.level, theme=key.theme, title=key.title, title_research=key.title_research, materials_configurations=value)
             subjects_list.append(subject)
         return subjects_list
