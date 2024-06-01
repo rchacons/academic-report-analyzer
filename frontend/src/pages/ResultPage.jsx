@@ -5,14 +5,18 @@ import {
   Grid,
   Tooltip,
   Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Chip,
 } from '@mui/material';
+import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
-import EquipmentList from '../components/EquipmentList';
 import { useLocation } from 'react-router-dom';
-import MultipleSelectChip from '../components/shared/MultipleSelectChip';
-
 export const ResultPage = () => {
   const location = useLocation();
 
@@ -21,31 +25,55 @@ export const ResultPage = () => {
   const removedSubjects = comparisonResult.removed_subjects;
   const keptSubjects = comparisonResult.kept_subjects;
   const numberOfSubjects =
-    newSubjects.length +
-    removedSubjects.length +
-    keptSubjects.length;
+    newSubjects.length + removedSubjects.length + keptSubjects.length;
 
   const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState([]);
   const [filterLevels, setFilterLevels] = useState([]);
+  const [filterFields, setFilterFields] = useState([]);
+
   const levels = ['3C', '4C'];
+  const fields = ['Bio', 'physique']; // Ajouter d'autres domaines si nécessaire
+
+  const applyFilters = (subjects, levelsFilter, fieldsFilter) => {
+    return subjects.filter(
+      (subject) =>
+        (levelsFilter.length === 0 || levelsFilter.includes(subject.level)) &&
+        (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field))
+    );
+  };
 
   const setSubjectsToDisplay = (subjectFilter) => {
+    let subjects;
     switch (subjectFilter) {
       case 'new_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(newSubjects);
+        subjects = newSubjects;
         break;
       case 'removed_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(removedSubjects);
+        subjects = removedSubjects;
         break;
       case 'kept_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(keptSubjects);
+        subjects = keptSubjects;
         break;
+      default:
+        subjects = [];
     }
+
+    const filteredSubjects = applyFilters(subjects, filterLevels, filterFields);
+    setActiveSubjectFilter(subjectFilter);
+    setDisplayedSubjects(filteredSubjects);
+  };
+
+  const handleFilterLevelsChange = (event) => {
+    const selectedLevels = event.target.value;
+    setFilterLevels(selectedLevels);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
+  const handleFilterFieldsChange = (event) => {
+    const selectedFields = event.target.value;
+    setFilterFields(selectedFields);
+    setSubjectsToDisplay(activeSubjectFilter);
   };
 
   const subjectFilterButtons = [
@@ -57,7 +85,7 @@ export const ResultPage = () => {
       }
       onClick={() => setSubjectsToDisplay('new_subjects')}
     >
-      Sujet ajoutés ({newSubjects.length} sur {numberOfSubjects})
+      Sujets ajoutés ({newSubjects.length} sur {numberOfSubjects})
     </Button>,
 
     <Button
@@ -76,7 +104,7 @@ export const ResultPage = () => {
         },
       }}
     >
-      Sujet supprimés ({removedSubjects.length} sur {numberOfSubjects})
+      Sujets supprimés ({removedSubjects.length} sur {numberOfSubjects})
     </Button>,
     <Button
       key='kept_subjects'
@@ -94,13 +122,13 @@ export const ResultPage = () => {
         },
       }}
     >
-      Sujet gardés ({keptSubjects.length} sur {numberOfSubjects})
+      Sujets gardés ({keptSubjects.length} sur {numberOfSubjects})
     </Button>,
   ];
 
   useEffect(() => {
-    return () => {};
-  }, []);
+    setSubjectsToDisplay(activeSubjectFilter);
+  }, [filterLevels, filterFields]);
 
   return (
     <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
@@ -137,26 +165,37 @@ export const ResultPage = () => {
         </Box>
       </Grid>
 
-      {/* {displayedSubjects && displayedSubjects.length !== 0 ? (
-        <pre>{JSON.stringify(displayedSubjects, null, 2)}</pre>
-      ) : (
-        <Typography> Pas de données à afficher</Typography>
-      )} */}
+      <Grid item xs={12} md={12}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            '& > *': {
+              m: 1,
+            },
+          }}
+        >
+          <MultipleSelectChip
+            name='Domaines'
+            items={fields}
+            selectedValue={filterFields}
+            onChange={handleFilterFieldsChange}
+          ></MultipleSelectChip>
 
-      {/*   <MultipleSelectChip
-        name='Niveaux'
-        items={['3C', '4C']}
-        selectedValue={filterLevels}
-        setSelectedValue={setFilterLevels}
-      ></MultipleSelectChip> */}
+          <MultipleSelectChip
+            name='Niveaux'
+            items={levels}
+            selectedValue={filterLevels}
+            onChange={handleFilterLevelsChange}
+          ></MultipleSelectChip>
+
+        </Box>
+      </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable data={displayedSubjects} /* setData={setDisplayedSubjects} */ selectedMaterial={selectedMaterial} setSelectedMaterial={setSelectedMaterial} />
+        <ReportsTable data={displayedSubjects} />
       </Grid>
-{/*
-      <Grid item xs={12} md={4}>
-        <EquipmentList data={selectedMaterial} />
-      </Grid> */}
     </Grid>
   );
 };

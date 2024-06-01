@@ -110,16 +110,15 @@ const theme = createTheme(baseTheme, {
 
     MuiSnackbar: {
       styleOverrides: {
-        root: {
-        },
+        root: {},
       },
       variants: [
         {
           props: { warning: true },
           style: {
             backgroundColor: baseTheme.palette.error.background,
-            border :`1px solid ${baseTheme.palette.error.main}`,
-            borderRadius: "8px",
+            border: `1px solid ${baseTheme.palette.error.main}`,
+            borderRadius: '8px',
             color: 'red',
             fontSize: '1rem',
           },
@@ -128,23 +127,20 @@ const theme = createTheme(baseTheme, {
     },
     MuiSnackbarContent: {
       styleOverrides: {
-        root: {
-        },
+        root: {},
       },
       variants: [
         {
           props: { warning: true },
           style: {
             backgroundColor: baseTheme.palette.error.background,
-            borderRadius: "8px",
+            borderRadius: '8px',
             color: 'red',
             fontSize: '1rem',
           },
         },
       ],
     },
-
-
     MuiPAper: {
       styleOverrides: {
         root: {
