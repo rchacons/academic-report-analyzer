@@ -1,22 +1,13 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Grid,
-  Tooltip,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Chip,
-} from '@mui/material';
+import { Box, Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
 import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import { useEffect, useState } from 'preact/hooks';
 
 import ReportsTable from '../components/ReportsTable';
 import { useLocation } from 'react-router-dom';
+import SearchBar from '../components/SearchBar';
+import { removeStopwords, fra } from 'stopword';
+import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
+
 export const ResultPage = () => {
   const location = useLocation();
 
@@ -24,6 +15,8 @@ export const ResultPage = () => {
   const newSubjects = comparisonResult.added_subjects;
   const removedSubjects = comparisonResult.removed_subjects;
   const keptSubjects = comparisonResult.kept_subjects;
+  const levels = comparisonResult.level_list;
+  const fields = comparisonResult.field_list;
   const numberOfSubjects =
     newSubjects.length + removedSubjects.length + keptSubjects.length;
 
@@ -32,18 +25,15 @@ export const ResultPage = () => {
   const [filterLevels, setFilterLevels] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
 
-  const levels = ['3C', '4C'];
-  const fields = ['Bio', 'physique']; // Ajouter d'autres domaines si nécessaire
-
   const applyFilters = (subjects, levelsFilter, fieldsFilter) => {
     return subjects.filter(
       (subject) =>
-        (levelsFilter.length === 0 || levelsFilter.includes(subject.level)) &&
-        (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field))
+        (levelsFilter.length === 0 || levelsFilter.includes((subject.level).toLowerCase())) &&
+        (fieldsFilter.length === 0 || fieldsFilter.includes((subject.field.toLowerCase())))
     );
   };
 
-  const setSubjectsToDisplay = (subjectFilter) => {
+  const getSelectedSubjects = (subjectFilter) => {
     let subjects;
     switch (subjectFilter) {
       case 'new_subjects':
@@ -58,6 +48,12 @@ export const ResultPage = () => {
       default:
         subjects = [];
     }
+    console.log(subjects);
+    return subjects;
+  };
+
+  const setSubjectsToDisplay = (subjectFilter) => {
+    let subjects = getSelectedSubjects(subjectFilter);
 
     const filteredSubjects = applyFilters(subjects, filterLevels, filterFields);
     setActiveSubjectFilter(subjectFilter);
@@ -76,56 +72,6 @@ export const ResultPage = () => {
     setSubjectsToDisplay(activeSubjectFilter);
   };
 
-  const subjectFilterButtons = [
-    <Button
-      key='new_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'new_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('new_subjects')}
-    >
-      Sujets ajoutés ({newSubjects.length} sur {numberOfSubjects})
-    </Button>,
-
-    <Button
-      key='removed_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'removed_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('removed_subjects')}
-      sx={{
-        '&:focus': {
-          outline: 'none',
-        },
-        '&:active': {
-          border: 'none',
-        },
-      }}
-    >
-      Sujets supprimés ({removedSubjects.length} sur {numberOfSubjects})
-    </Button>,
-    <Button
-      key='kept_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'kept_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('kept_subjects')}
-      sx={{
-        '&:focus': {
-          outline: 'none',
-        },
-        '&:active': {
-          border: 'none',
-        },
-      }}
-    >
-      Sujets gardés ({keptSubjects.length} sur {numberOfSubjects})
-    </Button>,
-  ];
-
   useEffect(() => {
     setSubjectsToDisplay(activeSubjectFilter);
   }, [filterLevels, filterFields]);
@@ -143,9 +89,14 @@ export const ResultPage = () => {
             },
           }}
         >
-          <ButtonGroup size='large' aria-label='Large button group'>
-            {subjectFilterButtons}
-          </ButtonGroup>
+          <SubjectsFilterButtons
+            setSubjectsToDisplay={setSubjectsToDisplay}
+            activeSubjectFilter={activeSubjectFilter}
+            newSubjects={newSubjects}
+            removedSubjects={removedSubjects}
+            keptSubjects={keptSubjects}
+            numberOfSubjects={numberOfSubjects}
+          />
         </Box>
       </Grid>
 
@@ -190,6 +141,10 @@ export const ResultPage = () => {
             onChange={handleFilterLevelsChange}
           ></MultipleSelectChip>
 
+          <SearchBar
+            items={getSelectedSubjects(activeSubjectFilter)}
+            onResults={setDisplayedSubjects}
+          ></SearchBar>
         </Box>
       </Grid>
 

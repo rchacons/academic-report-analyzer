@@ -107,6 +107,20 @@ const theme = createTheme(baseTheme, {
         },
       ],
     },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:active': {
+            border: 'none',
+          },
+        },
+      },
+    },
 
     MuiSnackbar: {
       styleOverrides: {
