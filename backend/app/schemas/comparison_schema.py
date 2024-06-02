@@ -1,18 +1,19 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Set
 
 class ListMaterials(BaseModel):
     materials: List[str]
+    materials_research: str
     origin: int
 
     # 2 ListMaterials are treated as equals if their materials have the same content
     def __eq__(self, other):
         if isinstance(other, ListMaterials):
-            return set(self.materials) == set(other.materials) and self.origin == other.origin
+            return set(self.materials) == set(other.materials)
         return False
 
     def __hash__(self):
-        return hash((frozenset(self.materials), self.origin))
+        return hash(frozenset(self.materials))
 
 class Subject(BaseModel):
     """
@@ -20,8 +21,10 @@ class Subject(BaseModel):
     """
     field: str  # bio / géo
     level: str
+    theme: str
     title: str
-    materials_configurations: List[ListMaterials]
+    title_research: str
+    materials_configurations: Set[ListMaterials]
 
     def __eq__(self, other):
         if isinstance(other, Subject):
@@ -39,9 +42,6 @@ class ComparisonSubjectsResult(BaseModel):
     removed_subjects: List[Subject]
     kept_subjects: List[Subject]
     identical_subjects: List[Subject]
-
-class ComparisonMaterialsResult(BaseModel):
-    
-    added_materials: List[str]
-    removed_materials: List[str]
-    kept_materials: List[str]
+    field_list: Set[str]
+    level_list: Set[str]
+    theme_list: Set[str]

@@ -1,19 +1,18 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set
 from ..schemas.comparison_schema import Subject, ListMaterials
 import pandas as pd
 import pdfplumber
 import re
 import logging
 import nltk
-nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-
 class ReportService:
+
     """
     A service for reading, processing, and cleaning the tabular data from PDF files.
     """
@@ -49,7 +48,7 @@ class ReportService:
         return text
     
 
-    def clean_and_parse_data(self, raw_data, origin:int) ->Dict[Subject, List[ListMaterials]]:
+    def clean_and_parse_data(self, raw_data, origin:int) ->Dict[Subject, Set[ListMaterials]]:
         """
         Clean and parse the raw data into a list of Subjects.
 
@@ -62,7 +61,7 @@ class ReportService:
         
         logger.info("Cleaning and parsing data")
 
-        subjects : Dict[Subject, List[List[str]]] = {}
+        subjects : Dict[Subject, Set[ListMaterials]] = {}
 
         for row in raw_data[1:]:
 
@@ -75,13 +74,15 @@ class ReportService:
                 subject = Subject(
                     field=row[0],
                     level=row[1],
+                    theme="",
                     title=row[2],
-                    materials_configurations=[ListMaterials(materials=[], origin=origin)]
+                    title_research=self.tokenize_lemmatize(row[2]),
+                    materials_configurations=set([ListMaterials(materials=[], origin=origin, materials_research="")])
                 )
 
                 if subject not in subjects:
-                    subjects[subject] = []
-                subjects[subject].append(self.tokenize_material(row[3], origin))
+                    subjects[subject] = set()
+                subjects[subject].add(self.tokenize_material(row[3], origin))
 
         return subjects
 
@@ -131,4 +132,7 @@ class ReportService:
         list_exclude = ["eau", "microscope", "aiguille lancéolée", "blouse", "ciseaux", "ecran vertical", "évier", "excel", "feutre à pointe fine", "feutre au matériel", "feutres permanents", "lames de verre", "lunettes", "marqueur", "ordinateur", "papier absorbant", "pissette", "pissette d'eau", "poubelle de table", "récipient", "sopalin", "tableur", "touillette", "matériel imposé", "", " "]
         final_materials = [word for word in final_materials if word.lower() not in list_exclude]
 
-        return ListMaterials(materials=final_materials, origin=origin)
+        return ListMaterials(materials=final_materials, materials_research=", ".join(self.tokenize_lemmatize(final_materials)) ,origin=origin)
+    
+    def tokenize_lemmatize(self, text: str):
+        return text
