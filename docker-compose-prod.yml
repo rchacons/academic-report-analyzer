@@ -34,12 +34,13 @@ services:
       - "443:443"
     environment:
       - SERVER_NAME=comppdf.istic.univ-rennes1.fr
-      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
-      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
+      - SSL_CERTIFICATE=/etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/fullchain.pem
+      - SSL_CERTIFICATE_KEY=/etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/privkey.pem    
     volumes:
       - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
       - ./nginx/start-nginx.sh:/start-nginx.sh
-      - ./nginx/certs:/etc/ssl/certs
+      - /etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/fullchain.pem:/etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/fullchain.pem
+      - /etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/privkey.pem:/etc/letsencrypt/live/comppdf.istic.univ-rennes1.fr/privkey.pem
     entrypoint: 
       - /bin/sh
       - /start-nginx.sh
