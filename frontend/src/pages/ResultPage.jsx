@@ -9,7 +9,6 @@ import Fuse from 'fuse.js';
 import { removeStopwords, fra } from 'stopword';
 
 function tokenize(query) {
-
   const filteredText = removeStopwords(query.toLowerCase().split(' '), fra);
   return filteredText;
 }
@@ -52,13 +51,9 @@ export const ResultPage = () => {
         let score = 0;
 
         tokens.forEach((token) => {
-          if ((item.title).toLowerCase().includes(token)) {
+          if (item.title_research.toLowerCase().includes(token)) {
             score += 1;
           }
-
-
-
-
         });
 
         return { item, score };
@@ -206,9 +201,7 @@ export const ResultPage = () => {
             onChange={handleFilterLevelsChange}
           ></MultipleSelectChip>
 
-          <SearchBar
-            onSearch={handleSearchResults}
-          ></SearchBar>
+          <SearchBar onSearch={handleSearchResults}></SearchBar>
         </Box>
       </Grid>
 
