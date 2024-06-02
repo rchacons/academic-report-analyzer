@@ -15,8 +15,6 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
@@ -26,8 +24,8 @@ import Collapse from '@mui/material/Collapse';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function createData({ id, field, level, title, materials_configurations }) {
-  return { id, field, level, title, materials_configurations };
+function createData({ id, field, level, title, materials_configurations, score = 0 }) {
+  return { id, field, level, title, materials_configurations, score };
 }
 
 const headCells = [
@@ -35,7 +33,6 @@ const headCells = [
   { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
   { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
   { id: 'related_concepts', numeric: false, disablePadding: false, label: 'Concepts liés' },
-
 ];
 
 function EnhancedTableHead(props) {
@@ -132,7 +129,7 @@ function EnhancedTableToolbar(props) {
           id='tableTitle'
           component='div'
         >
-          Rapports de Jury - {numberOfSubjects}
+          Rapports de Jury - {numberOfSubjects} résultat(s)
         </Typography>
       )}
 
@@ -285,18 +282,24 @@ function CollapsibleRow({
   );
 }
 
-export default function ReportsTable({ data }) {
+CollapsibleRow.propTypes = {
+  row: PropTypes.object.isRequired,
+  isItemSelected: PropTypes.bool.isRequired,
+  handleClick: PropTypes.func.isRequired,
+  isSelected: PropTypes.func.isRequired,
+  handleSelectMaterial: PropTypes.func.isRequired,
+};
+
+function ReportsTable({ reports }) {
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('id');
+  const [orderBy, setOrderBy] = useState('score');
   const [selected, setSelected] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState([]);
   const [page, setPage] = useState(0);
-  const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const rows = data.map((item, index) =>
-    createData({ id: index + 1, ...item })
-  );
+  const rows = useMemo(() => reports.map((report) => createData(report)), [
+    reports,
+  ]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -306,8 +309,8 @@ export default function ReportsTable({ data }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
+      const newSelecteds = rows.map((n) => n.id);
+      setSelected(newSelecteds);
       return;
     }
     setSelected([]);
@@ -329,27 +332,8 @@ export default function ReportsTable({ data }) {
         selected.slice(selectedIndex + 1)
       );
     }
+
     setSelected(newSelected);
-  };
-
-  const handleSelectMaterial = (subjectId, config) => {
-    const key = `${subjectId}-${config.origin}`;
-    const selectedIndex = selectedMaterial.indexOf(key);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedMaterial, key);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedMaterial.slice(1));
-    } else if (selectedIndex === selectedMaterial.length - 1) {
-      newSelected = newSelected.concat(selectedMaterial.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedMaterial.slice(0, selectedIndex),
-        selectedMaterial.slice(selectedIndex + 1)
-      );
-    }
-    setSelectedMaterial(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -361,37 +345,46 @@ export default function ReportsTable({ data }) {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
+  const handleSelectMaterial = (rowId, materialConfig) => {
+    // Logique pour gérer la sélection du matériel
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const stableSort = (array, comparator) => {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  };
 
-  const visibleRows = useMemo(
-    () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
-    [order, orderBy, page, rowsPerPage, rows]
-  );
+  const getComparator = (order, orderBy) => {
+    return (a, b) => {
+      if (a.score !== b.score) {
+        return order === 'desc' ? b.score - a.score : a.score - b.score;
+      }
+      if (orderBy === 'score') {
+        return 0;
+      }
+      return order === 'desc'
+        ? b[orderBy] < a[orderBy]
+          ? -1
+          : 1
+        : b[orderBy] > a[orderBy]
+        ? -1
+        : 1;
+    };
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar
-          numSelected={selected.length}
-          numberOfSubjects={data.length}
-        />
+        <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
         <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby='tableTitle'
-            size={dense ? 'small' : 'medium'}
-          >
+          <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle' size={'medium'}>
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
@@ -401,21 +394,23 @@ export default function ReportsTable({ data }) {
               rowCount={rows.length}
             />
             <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.id);
-                return (
-                  <CollapsibleRow
-                    key={row.id}
-                    row={row}
-                    isItemSelected={isItemSelected}
-                    handleClick={handleClick}
-                    handleSelectMaterial={handleSelectMaterial}
-                    isSelected={isSelected}
-                  />
-                );
-              })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+              {stableSort(rows, getComparator(order, orderBy))
+                .slice(page, page + rowsPerPage)
+                .map((row, index) => {
+                  const isItemSelected = isSelected(row.id);
+                  return (
+                    <CollapsibleRow
+                      key={row.id}
+                      row={row}
+                      isItemSelected={isItemSelected}
+                      handleClick={handleClick}
+                      isSelected={isSelected}
+                      handleSelectMaterial={handleSelectMaterial}
+                    />
+                  );
+                })}
+              {rows.length > 0 && (
+                <TableRow style={{ height: (53) * rowsPerPage }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
@@ -424,10 +419,6 @@ export default function ReportsTable({ data }) {
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 20, 50]}
-          labelRowsPerPage='Lignes par page'
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} sur ${count}`
-          }
           component='div'
           count={rows.length}
           rowsPerPage={rowsPerPage}
@@ -436,40 +427,12 @@ export default function ReportsTable({ data }) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label='Affichage dense'
-      />
     </Box>
   );
 }
 
 ReportsTable.propTypes = {
-  data: PropTypes.array.isRequired,
+  reports: PropTypes.array.isRequired,
 };
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+export default ReportsTable;

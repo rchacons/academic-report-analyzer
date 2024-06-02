@@ -1,17 +1,17 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Grid,
-  Tooltip,
-  Typography,
-} from '@mui/material';
 import { useEffect, useState } from 'preact/hooks';
-
-import ReportsTable from '../components/ReportsTable';
-import EquipmentList from '../components/EquipmentList';
 import { useLocation } from 'react-router-dom';
+import { Box, Button, Grid, Tooltip } from '@mui/material';
 import MultipleSelectChip from '../components/shared/MultipleSelectChip';
+import ReportsTable from '../components/ReportsTable';
+import SearchBar from '../components/SearchBar';
+import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
+import Fuse from 'fuse.js';
+import { removeStopwords, fra } from 'stopword';
+
+function tokenize(query) {
+  const filteredText = removeStopwords(query.toLowerCase().split(' '), fra);
+  return filteredText;
+}
 
 export const ResultPage = () => {
   const location = useLocation();
@@ -20,87 +20,121 @@ export const ResultPage = () => {
   const newSubjects = comparisonResult.added_subjects;
   const removedSubjects = comparisonResult.removed_subjects;
   const keptSubjects = comparisonResult.kept_subjects;
+  const levels = comparisonResult.level_list;
+  const fields = comparisonResult.field_list;
   const numberOfSubjects =
-    newSubjects.length +
-    removedSubjects.length +
-    keptSubjects.length;
+    newSubjects.length + removedSubjects.length + keptSubjects.length;
 
   const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState([]);
   const [filterLevels, setFilterLevels] = useState([]);
-  const levels = ['3C', '4C'];
+  const [filterFields, setFilterFields] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const setSubjectsToDisplay = (subjectFilter) => {
-    switch (subjectFilter) {
-      case 'new_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(newSubjects);
-        break;
-      case 'removed_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(removedSubjects);
-        break;
-      case 'kept_subjects':
-        setActiveSubjectFilter(subjectFilter);
-        setDisplayedSubjects(keptSubjects);
-        break;
-    }
+  const applyFilters = (subjects, levelsFilter, fieldsFilter) => {
+    return subjects.filter(
+      (subject) =>
+        (levelsFilter.length === 0 ||
+          levelsFilter.includes(subject.level.toLowerCase())) &&
+        (fieldsFilter.length === 0 ||
+          fieldsFilter.includes(subject.field.toLowerCase()))
+    );
   };
 
-  const subjectFilterButtons = [
-    <Button
-      key='new_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'new_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('new_subjects')}
-    >
-      Sujet ajoutés ({newSubjects.length} sur {numberOfSubjects})
-    </Button>,
+  function search(query, items) {
+    if (!query) return items;
 
-    <Button
-      key='removed_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'removed_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('removed_subjects')}
-      sx={{
-        '&:focus': {
-          outline: 'none',
-        },
-        '&:active': {
-          border: 'none',
-        },
-      }}
-    >
-      Sujet supprimés ({removedSubjects.length} sur {numberOfSubjects})
-    </Button>,
-    <Button
-      key='kept_subjects'
-      thin
-      variant={
-        activeSubjectFilter === 'kept_subjects' ? 'contained' : 'outlined'
-      }
-      onClick={() => setSubjectsToDisplay('kept_subjects')}
-      sx={{
-        '&:focus': {
-          outline: 'none',
-        },
-        '&:active': {
-          border: 'none',
-        },
-      }}
-    >
-      Sujet gardés ({keptSubjects.length} sur {numberOfSubjects})
-    </Button>,
-  ];
+    const tokens = tokenize(query);
+    console.log('tokenized query:', tokens);
+    return items
+      .map((item) => {
+        let score = 0;
+
+        tokens.forEach((token) => {
+          if (item.title_research.toLowerCase().includes(token)) {
+            score += 1;
+          }
+        });
+
+        return { item, score };
+      })
+      .filter((result) => result.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((result) => result.item);
+  }
+
+  /* const search = (query, subjects) => {
+    if (!query) return subjects;
+
+    const options = {
+      keys: ['title', 'materials_configurations.materials'],
+      threshold: 0.3,
+    };
+
+    const fuse = new Fuse(subjects, options);
+    const result = fuse.search(query);
+
+    return result.map(({ item, score }) => ({
+      ...item,
+      score,
+      materials_configurations: item.materials_configurations.map((config) => {
+        const materialFuse = new Fuse([config], {
+          keys: ['materials'],
+          threshold: 0.3,
+        });
+        const materialResult = materialFuse.search(query);
+        const materialScore = materialResult.length > 0 ? materialResult[0].score : 1;
+        return { ...config, score: materialScore };
+      }),
+    }));
+  }; */
+
+  const getSelectedSubjects = (subjectFilter) => {
+    let subjects;
+    switch (subjectFilter) {
+      case 'new_subjects':
+        subjects = newSubjects;
+        break;
+      case 'removed_subjects':
+        subjects = removedSubjects;
+        break;
+      case 'kept_subjects':
+        subjects = keptSubjects;
+        break;
+      default:
+        subjects = [];
+    }
+    return subjects;
+  };
+
+  const setSubjectsToDisplay = (subjectFilter) => {
+    let subjects = getSelectedSubjects(subjectFilter);
+    subjects = applyFilters(subjects, filterLevels, filterFields);
+    subjects = search(searchQuery, subjects);
+    setActiveSubjectFilter(subjectFilter);
+    setDisplayedSubjects(subjects);
+  };
+
+  const handleFilterLevelsChange = (event) => {
+    const selectedLevels = event.target.value;
+    setFilterLevels(selectedLevels);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
+  const handleFilterFieldsChange = (event) => {
+    const selectedFields = event.target.value;
+    setFilterFields(selectedFields);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
+  const handleSearchResults = (query) => {
+    setSearchQuery(query);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
 
   useEffect(() => {
-    return () => {};
-  }, []);
+    setSubjectsToDisplay(activeSubjectFilter);
+  }, [filterLevels, filterFields, searchQuery]);
 
   return (
     <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
@@ -115,9 +149,14 @@ export const ResultPage = () => {
             },
           }}
         >
-          <ButtonGroup size='large' aria-label='Large button group'>
-            {subjectFilterButtons}
-          </ButtonGroup>
+          <SubjectsFilterButtons
+            setSubjectsToDisplay={setSubjectsToDisplay}
+            activeSubjectFilter={activeSubjectFilter}
+            newSubjects={newSubjects}
+            removedSubjects={removedSubjects}
+            keptSubjects={keptSubjects}
+            numberOfSubjects={numberOfSubjects}
+          />
         </Box>
       </Grid>
 
@@ -137,26 +176,38 @@ export const ResultPage = () => {
         </Box>
       </Grid>
 
-      {/* {displayedSubjects && displayedSubjects.length !== 0 ? (
-        <pre>{JSON.stringify(displayedSubjects, null, 2)}</pre>
-      ) : (
-        <Typography> Pas de données à afficher</Typography>
-      )} */}
+      <Grid item xs={12} md={12}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            '& > *': {
+              m: 1,
+            },
+          }}
+        >
+          <MultipleSelectChip
+            name='Domaines'
+            items={fields}
+            selectedValue={filterFields}
+            onChange={handleFilterFieldsChange}
+          ></MultipleSelectChip>
 
-      {/*   <MultipleSelectChip
-        name='Niveaux'
-        items={['3C', '4C']}
-        selectedValue={filterLevels}
-        setSelectedValue={setFilterLevels}
-      ></MultipleSelectChip> */}
+          <MultipleSelectChip
+            name='Niveaux'
+            items={levels}
+            selectedValue={filterLevels}
+            onChange={handleFilterLevelsChange}
+          ></MultipleSelectChip>
+
+          <SearchBar onSearch={handleSearchResults}></SearchBar>
+        </Box>
+      </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable data={displayedSubjects} /* setData={setDisplayedSubjects} */ selectedMaterial={selectedMaterial} setSelectedMaterial={setSelectedMaterial} />
+        <ReportsTable reports={displayedSubjects} />
       </Grid>
-{/*
-      <Grid item xs={12} md={4}>
-        <EquipmentList data={selectedMaterial} />
-      </Grid> */}
     </Grid>
   );
 };
