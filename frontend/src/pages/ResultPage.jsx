@@ -1,12 +1,18 @@
-import { Box, Button, ButtonGroup, Grid, Tooltip } from '@mui/material';
-import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import { useEffect, useState } from 'preact/hooks';
-
-import ReportsTable from '../components/ReportsTable';
 import { useLocation } from 'react-router-dom';
+import { Box, Button, Grid, Tooltip } from '@mui/material';
+import MultipleSelectChip from '../components/shared/MultipleSelectChip';
+import ReportsTable from '../components/ReportsTable';
 import SearchBar from '../components/SearchBar';
-import { removeStopwords, fra } from 'stopword';
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
+import Fuse from 'fuse.js';
+import { removeStopwords, fra } from 'stopword';
+
+function tokenize(query) {
+
+  const filteredText = removeStopwords(query.toLowerCase().split(' '), fra);
+  return filteredText;
+}
 
 export const ResultPage = () => {
   const location = useLocation();
@@ -24,14 +30,69 @@ export const ResultPage = () => {
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
   const [filterLevels, setFilterLevels] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const applyFilters = (subjects, levelsFilter, fieldsFilter) => {
     return subjects.filter(
       (subject) =>
-        (levelsFilter.length === 0 || levelsFilter.includes((subject.level).toLowerCase())) &&
-        (fieldsFilter.length === 0 || fieldsFilter.includes((subject.field.toLowerCase())))
+        (levelsFilter.length === 0 ||
+          levelsFilter.includes(subject.level.toLowerCase())) &&
+        (fieldsFilter.length === 0 ||
+          fieldsFilter.includes(subject.field.toLowerCase()))
     );
   };
+
+  function search(query, items) {
+    if (!query) return items;
+
+    const tokens = tokenize(query);
+    console.log('tokenized query:', tokens);
+    return items
+      .map((item) => {
+        let score = 0;
+
+        tokens.forEach((token) => {
+          if ((item.title).toLowerCase().includes(token)) {
+            score += 1;
+          }
+
+
+
+
+        });
+
+        return { item, score };
+      })
+      .filter((result) => result.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((result) => result.item);
+  }
+
+  /* const search = (query, subjects) => {
+    if (!query) return subjects;
+
+    const options = {
+      keys: ['title', 'materials_configurations.materials'],
+      threshold: 0.3,
+    };
+
+    const fuse = new Fuse(subjects, options);
+    const result = fuse.search(query);
+
+    return result.map(({ item, score }) => ({
+      ...item,
+      score,
+      materials_configurations: item.materials_configurations.map((config) => {
+        const materialFuse = new Fuse([config], {
+          keys: ['materials'],
+          threshold: 0.3,
+        });
+        const materialResult = materialFuse.search(query);
+        const materialScore = materialResult.length > 0 ? materialResult[0].score : 1;
+        return { ...config, score: materialScore };
+      }),
+    }));
+  }; */
 
   const getSelectedSubjects = (subjectFilter) => {
     let subjects;
@@ -48,16 +109,15 @@ export const ResultPage = () => {
       default:
         subjects = [];
     }
-    console.log(subjects);
     return subjects;
   };
 
   const setSubjectsToDisplay = (subjectFilter) => {
     let subjects = getSelectedSubjects(subjectFilter);
-
-    const filteredSubjects = applyFilters(subjects, filterLevels, filterFields);
+    subjects = applyFilters(subjects, filterLevels, filterFields);
+    subjects = search(searchQuery, subjects);
     setActiveSubjectFilter(subjectFilter);
-    setDisplayedSubjects(filteredSubjects);
+    setDisplayedSubjects(subjects);
   };
 
   const handleFilterLevelsChange = (event) => {
@@ -72,9 +132,14 @@ export const ResultPage = () => {
     setSubjectsToDisplay(activeSubjectFilter);
   };
 
+  const handleSearchResults = (query) => {
+    setSearchQuery(query);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
   useEffect(() => {
     setSubjectsToDisplay(activeSubjectFilter);
-  }, [filterLevels, filterFields]);
+  }, [filterLevels, filterFields, searchQuery]);
 
   return (
     <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
@@ -142,14 +207,13 @@ export const ResultPage = () => {
           ></MultipleSelectChip>
 
           <SearchBar
-            items={getSelectedSubjects(activeSubjectFilter)}
-            onResults={setDisplayedSubjects}
+            onSearch={handleSearchResults}
           ></SearchBar>
         </Box>
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable data={displayedSubjects} />
+        <ReportsTable reports={displayedSubjects} />
       </Grid>
     </Grid>
   );
