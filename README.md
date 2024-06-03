@@ -1,93 +1,81 @@
-# projet-pro-m2-sirel2
+# Projet Pro M2 SIREL2
+
+## Développement local
+
+### Prérequis
+Pour démarrer l'application localement, il y a deux possibilités (*dans les deux cas il faut créer les fichiers .env du backend et frontend pour simuler les variables d'environnement*) :
+
+1. Démarrer le backend et le frontend séparemment (cf README des /backend et /frontend) 
+2. Utiliser le `docker-compose.yml`, qui lancera les trois conteneurs : `backend`, `frontend` et le `reverse proxy`. Afin de faire fonctionner le reverse proxy, il faut utiliser des certificats auto-signés (en production ce sont des vraies certificats). De cette façon, chaque développeur peut générer son propre certificat pour les tests locaux sans avoir besoin de partager des certificats de production sensibles. 
+
+**Attention** : Lors de l'utilisation d'un certificat auto-signé, cela générera un avertissement dans votre navigateur indiquant que le certificat n'est pas fiable. Vous pouvez contourner cet avertissement à des fins de test.
 
 
+### Certificats auto-signés
 
-## Getting started
+Voici comment vous pouvez générer un certificat auto-signé :
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+```bash
+cd nginx 
+mkdir certs && cd certs
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+```
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Cela générera des fichiers `key.pem` (clé privée) et `cert.pem` (certificat). Vous pouvez ensuite vérifier que le fichier `docker-compose.yml` contient les informations : 
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.istic.univ-rennes1.fr/rchaconsuare/projet-pro-m2-sirel2.git
-git branch -M main
-git push -uf origin main
+  server:
+    image: nginx:1.21-slim
+    container_name: sirel2-nginx
+    environment:
+      - SERVER_NAME=localhost
+      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
+      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./nginx/start-nginx.sh:/start-nginx.sh
+      - ./nginx/certs:/etc/ssl/certs
 ```
 
-## Integrate with your tools
+### Fonctionnement du reverse proxy
 
-- [ ] [Set up project integrations](https://gitlab.istic.univ-rennes1.fr/rchaconsuare/projet-pro-m2-sirel2/-/settings/integrations)
+Le reverse proxy est un serveur intermédiaire qui agit comme un intermédiaire entre les clients et les serveurs. Il reçoit les requêtes des clients et les transmet aux serveurs appropriés, puis renvoie les réponses des serveurs aux clients. Dans le contexte de cette application, le reverse proxy est utilisé pour forcer l'utilisation du protocole HTTPS, assurant ainsi la sécurité de l'application.
 
-## Collaborate with your team
+Lorsque le reverse proxy est utilisé en environnement local, il est configuré pour écouter sur le port 443 (HTTPS). Cela signifie que toutes les connexions doivent être établies via HTTPS, même en développement local. Cela garantit que les données échangées entre le client et le serveur sont chiffrées et sécurisées.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+La configuration se trouve dans le fichier `nginx.conf.template`. Il contient deux blocs principaux :
 
-## Test and Deploy
+1. **Bloc server (HTTP)** : Ce bloc définit un serveur qui écoute sur le port 80 (HTTP) et redirige toutes les requêtes vers HTTPS. Cela garantit que toutes les connexions sont redirigées vers le protocole sécurisé.
 
-Use the built-in continuous integration in GitLab.
+2. **Bloc server (HTTPS)** : Ce bloc définit un serveur qui écoute sur le port 443 (HTTPS). Il spécifie l'emplacement du certificat SSL et de la clé privée nécessaires pour établir une connexion sécurisée. Les requêtes sont ensuite traitées en fonction de leur route :
+    - Les requêtes vers `/api/v1/` sont transmises au `backend`, avec des en-têtes CORS spécifiques ajoutés à la réponse.
+    - Toutes les autres requêtes sont transmises au `frontend`.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-***
+### Lancement avec Docker Compose
 
-# Editing this README
+Si vous avez Docker et Docker Compose installés, vous pouvez les utiliser pour lancer l'application. Docker Compose permet de gérer plusieurs conteneurs comme un ensemble de services définis dans le fichier `docker-compose.yml`.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Avant de lancer l'application, assurez-vous que les fichiers `.env` du backend et du frontend sont correctement configurés pour simuler les variables d'environnement.
 
-## Suggestions for a good README
+Pour lancer l'application :
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```bash
+docker compose up
+```
 
-## Name
-Choose a self-explaining name for your project.
+Cette commande va démarrer tous les services définis dans le fichier docker-compose.yml. Cela inclut le backend, le frontend et le reverse proxy. Les conteneurs seront lancés en arrière-plan et leurs logs seront affichés dans le terminal.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Pour arrêter l'application :
+```bash
+docker compose down
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Cette commande arrête tous les services lancés par `docker-compose up`. Elle arrête également et supprime les conteneurs, réseaux, volumes et images définis dans le fichier `docker-compose.yml`.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Si vous voulez juste arrêter les services sans les supprimer, vous pouvez utiliser la commande `docker-compose stop` :
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+docker-compose stop
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
