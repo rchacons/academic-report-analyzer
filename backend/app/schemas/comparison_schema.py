@@ -65,6 +65,6 @@ class Book(BaseModel):
         
 
 class ComparaisonListBookResult(BaseModel):
-     added_books: List[Book]
-     removed_books: List[Book]
-     kept_books: List[Book]
+    added_books: List[Book]
+    removed_books: List[Book]
+    kept_books: List[Book]

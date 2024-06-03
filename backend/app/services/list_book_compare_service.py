@@ -32,33 +32,25 @@ class ListBookCompareService:
 
         list_book1 = BookListExtractorService(path1).extract_books_from_pdf()
 
-        print(len(list_book1))
         list_book2 = BookListExtractorService(path2).extract_books_from_pdf()
-
-        print(len(list_book2))
-
 
         set_book1 = set(list_book1)
 
         set_book2 = set(list_book2)
 
+        
+        removed_books_from_list = [book for book in list_book1 if book not in set_book2]
+        added_books_to_list = [book for book in list_book2 if book not in set_book1]
+        kept_books_in_list = [book for book in list_book1 if book in set_book2]
 
-        removed_books = []
-        added_books = []
-        kept_books = []
-
-        removed_books = [book for book in list_book1 if book not in set_book2]
-        added_books = [book for book in list_book2 if book not in set_book1]
-        kept_books = [book for book in list_book1 if book in set_book2]
-
-        print(len(added_books))
-        print(len(removed_books))
-        print(len(kept_books))
 
         comparaison_result =  ComparaisonListBookResult(
-            added_books=added_books,
-            removed_books=removed_books,
-            kept_books=kept_books)
+            added_books=added_books_to_list,
+            removed_books=removed_books_from_list,
+            kept_books=kept_books_in_list)
+        
+        print(list_book1[0].__eq__(list_book2[0]))
+
 
         return comparaison_result
     
