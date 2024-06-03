@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 class ComparisonService:
     
     """
-    A service for comparing reports.
+    A service for comparing reports and list of book.
     """
     def compare(self, path1: str, path2: str) -> ComparisonSubjectsResult:
         """
@@ -58,7 +58,7 @@ class ComparisonService:
             identical_subjects=identical_subjects
         )
     
-    def countNumberOfSubjects(self, subjects: Dict[Subject, List[List[str]]]) -> int:
+    def countNumberOfSu1999bjects(self, subjects: Dict[Subject, List[List[str]]]) -> int:
         total_count = 0
         for materials_list in subjects.values():
             for materials in materials_list:

@@ -18,6 +18,9 @@ curl -sSL https://install.python-poetry.org | python3 -
 Sur Windows (Powershell) :
 ```
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+
+Si vous n'avez pas resussi avec ce commande, essayez de remplacer py par python dans cette commande.
+Après il faut ajouter la chemin de poetry dans PATH.
 ```
 
 Vérifiez l'installation avec:
