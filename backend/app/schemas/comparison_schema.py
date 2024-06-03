@@ -63,8 +63,12 @@ class Book(BaseModel):
         def __hash__(self):
             return hash((self.author, self.year_published, self.book_name))
         
+class BookWithOrigin(BaseModel):
+    infor_book: Book
+    origin: int 
 
 class ComparaisonListBookResult(BaseModel):
-    added_books: List[Book]
-    removed_books: List[Book]
-    kept_books: List[Book]
+    added_books: List[BookWithOrigin]
+    removed_books: List[BookWithOrigin]
+    kept_books: List[BookWithOrigin]
+   
