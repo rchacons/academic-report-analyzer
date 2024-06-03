@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 class ComparisonService:
     
     """
-    A service for comparing reports.
+    A service for comparing reports and list of book.
     """
     def compare(self, path1: str, path2: str) -> ComparisonSubjectsResult:
         """

@@ -1,0 +1,80 @@
+
+import pdfplumber
+import re
+import logging
+from collections import defaultdict
+
+from ..schemas.comparison_schema import Book, ComparaisonListBookResult
+from .book_list_extractor_service import BookListExtractorService
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+
+class ListBookCompareService:
+
+    """
+    A service for reading and retrieving data of list book, serving for
+    comparing list of each year. 
+    """
+    
+    def __init__(self):
+        self.book_partern = re.compile(r'([A-Z\s,\'’:.]+)(\d{4})?\s?\(([^)]+)\)')
+
+
+
+    def commpare_book(self, book1: Book, book2: Book) -> bool: 
+        return  book1.is_same_book(book2)
+
+
+    def compareTwoListBook(self, path1: str, path2: str) -> ComparaisonListBookResult:
+
+        list_book1 = BookListExtractorService(path1).extract_books_from_pdf()
+
+        print(len(list_book1))
+        list_book2 = BookListExtractorService(path2).extract_books_from_pdf()
+
+        print(len(list_book2))
+
+
+        set_book1 = set(list_book1)
+
+        set_book2 = set(list_book2)
+
+
+        removed_books = []
+        added_books = []
+        kept_books = []
+
+        removed_books = [book for book in list_book1 if book not in set_book2]
+        added_books = [book for book in list_book2 if book not in set_book1]
+        kept_books = [book for book in list_book1 if book in set_book2]
+
+        print(len(added_books))
+        print(len(removed_books))
+        print(len(kept_books))
+
+        comparaison_result =  ComparaisonListBookResult(
+            added_books=added_books,
+            removed_books=removed_books,
+            kept_books=kept_books)
+
+        return comparaison_result
+    
+
+    
+
+
+
+
+
+
+
+
+
+        
+
+        
+    
+
