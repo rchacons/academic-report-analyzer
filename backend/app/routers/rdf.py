@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from ..services.rdf_service import preprocess, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french, merge_graphs, get_graph_data, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, get_labels_from_dbpedia, get_labels_from_wikidata, test_wiki, wiki_graph, process_rdf_wikipedia
 from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5, RDFResponse6, RDFResponse22, RDFResponse23, RDFResponseGraph
-
+import json
 
 
 router = APIRouter()
@@ -17,10 +17,14 @@ router = APIRouter()
             })
 async def process_rdf(request: RDFRequest):
     try:
-        graph = process_rdf_wikipedia(request.text)
+        graph, client_concept, combinate_graph = process_rdf_wikipedia(request.text)
+
+        print(json.dumps(combinate_graph, indent=2, ensure_ascii=False))
 
         return RDFResponseGraph(
-            graph=graph
+            graph=graph,
+            client_concept=client_concept,
+            combinate_graph=combinate_graph
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
