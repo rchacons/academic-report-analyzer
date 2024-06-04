@@ -1,44 +1,69 @@
 import {
   Box,
-  Button,
-  CircularProgress,
   Grid,
   Snackbar,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import FileDropZone from '../components/FileDropZone';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'preact/hooks';
-import { compareReports } from '../services/comparisonService';
+import { compareBiblio, compareReports } from '../services/comparisonService';
+import LoadingButton from '../components/shared/LoadingButton';
 
 export const HomePage = () => {
   let navigate = useNavigate();
 
-  const [oldReportFile, setOldReportFile] = useState(null);
-  const [newReportFile, setNewReportFile] = useState(null);
+  const [firstFile, setFirstFile] = useState(null);
+  const [secondFile, setSecondFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [comparisonType, setComparisonType] = useState('report');
+
+  const handleComparisonTypeChange = (event) => {
+    console.log('handleComparisonTypeChange', event.target.value);
+    setComparisonType(event.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!oldReportFile || !newReportFile) {
+    if (!firstFile || !secondFile) {
       displayMessage('Veuillez charger les deux documents');
       return;
     }
 
     setLoading(true);
+    console.log('comparisonType', comparisonType);
 
+    comparisonType == 'report'
+      ? handleReportComparison()
+      : handleBiblioComparison();
+  };
+
+  const handleReportComparison = async () => {
+    console.log('handleReportComparison');
     try {
-      const comparisonResult = await compareReports(
-        oldReportFile,
-        newReportFile
-      );
-      navigate('/results', { state: { comparisonResult } });
+      const comparisonResult = await compareReports(firstFile, secondFile);
+      navigate('/results/report', { state: { comparisonResult } });
     } catch (error) {
       displayMessage('Une erreur est survenue');
-      console.error('Erreur lors de la comparaison des rapports', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBiblioComparison = async () => {
+    console.log('handleBiblioComparison');
+
+    try {
+      const comparisonResult = await compareBiblio(firstFile, secondFile);
+      navigate('/results/biblio', { state: { comparisonResult } });
+    } catch (error) {
+      displayMessage('Une erreur est survenue');
     } finally {
       setLoading(false);
     }
@@ -58,26 +83,48 @@ export const HomePage = () => {
       textAlign={'left'}
       sx={{ p: 4 }}
     >
-      <Typography variant='headerTitle' width={'83%'}>
-        Comparer les rapports de jury CAPES
-      </Typography>
+      <Grid md={12}>
+        <Tooltip title={'Que souhaitez-vous comparer ?'}>
+
+          <ToggleButtonGroup
+            color='primary'
+            value={comparisonType}
+            exclusive
+            onChange={(event) => handleComparisonTypeChange(event)}
+            aria-label='Comparison-type'
+          >
+            <ToggleButton value='report'>Rapport de jury</ToggleButton>
+            <ToggleButton value='biblio'>Bibliographie</ToggleButton>
+          </ToggleButtonGroup>
+        </Tooltip>
+      </Grid>
+
+      {comparisonType == 'report' ? (
+        <Typography variant='headerTitle' /* width={'83%'} */>
+          Comparer les rapports de jury CAPES
+        </Typography>
+      ) : (
+        <Typography variant='headerTitle' /* width={'83%'} */>
+          Comparer les bibliographie
+        </Typography>
+      )}
 
       <Grid container spacing={2} justifyContent='center'>
         <FileDropZone
-          title={'Ancien Rapport'}
-          reportFile={oldReportFile}
-          setReportFile={setOldReportFile}
+          title={'Ancien Fichier'}
+          reportFile={firstFile}
+          setReportFile={setFirstFile}
           displayMessage={displayMessage}
         />
 
         <FileDropZone
-          title={'Nouveau Rapport'}
-          reportFile={newReportFile}
-          setReportFile={setNewReportFile}
+          title={'Nouveau Fichier'}
+          reportFile={secondFile}
+          setReportFile={setSecondFile}
           displayMessage={displayMessage}
-
         />
       </Grid>
+
       <Box
         mt={4}
         display={'flex'}
@@ -85,27 +132,7 @@ export const HomePage = () => {
         textAlign='center'
         alignItems='center'
       >
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          Afficher le résultat
-          {loading && (
-            <CircularProgress
-              color='primary'
-              size={30}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                marginTop: '-12px',
-                marginLeft: '-12px',
-              }}
-            />
-          )}
-        </Button>
+        <LoadingButton onClick={handleSubmit} loading={loading} />
 
         {loading && (
           <Typography variant='textInfoLittle' mt={1}>

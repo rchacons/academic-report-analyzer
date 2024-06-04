@@ -122,6 +122,22 @@ const theme = createTheme(baseTheme, {
       },
     },
 
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          padding: '0.5rem 2rem',
+
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:active': {
+            border: 'none',
+          },
+        },
+      },
+    },
+
     MuiSnackbar: {
       styleOverrides: {
         root: {},
