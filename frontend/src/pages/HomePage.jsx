@@ -24,7 +24,6 @@ export const HomePage = () => {
   const [comparisonType, setComparisonType] = useState('report');
 
   const handleComparisonTypeChange = (event) => {
-    console.log('handleComparisonTypeChange', event.target.value);
     setComparisonType(event.target.value);
   };
 
@@ -35,9 +34,7 @@ export const HomePage = () => {
       displayMessage('Veuillez charger les deux documents');
       return;
     }
-
     setLoading(true);
-    console.log('comparisonType', comparisonType);
 
     comparisonType == 'report'
       ? handleReportComparison()
@@ -45,7 +42,6 @@ export const HomePage = () => {
   };
 
   const handleReportComparison = async () => {
-    console.log('handleReportComparison');
     try {
       const comparisonResult = await compareReports(firstFile, secondFile);
       navigate('/results/report', { state: { comparisonResult } });
@@ -57,8 +53,6 @@ export const HomePage = () => {
   };
 
   const handleBiblioComparison = async () => {
-    console.log('handleBiblioComparison');
-
     try {
       const comparisonResult = await compareBiblio(firstFile, secondFile);
       navigate('/results/biblio', { state: { comparisonResult } });
@@ -83,9 +77,8 @@ export const HomePage = () => {
       textAlign={'left'}
       sx={{ p: 4 }}
     >
-      <Grid md={12}>
+      <Grid item md={12}>
         <Tooltip title={'Que souhaitez-vous comparer ?'}>
-
           <ToggleButtonGroup
             color='primary'
             value={comparisonType}
