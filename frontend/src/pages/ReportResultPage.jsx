@@ -13,7 +13,7 @@ function tokenize(query) {
   return filteredText;
 }
 
-export const ResultPage = () => {
+export const ReportResultPage = () => {
   const location = useLocation();
 
   const { comparisonResult } = location.state || {};
