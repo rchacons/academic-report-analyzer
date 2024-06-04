@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -24,7 +24,14 @@ import Collapse from '@mui/material/Collapse';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function createData({ id, field, level, title, materials_configurations, score = 0 }) {
+function createData({
+  id,
+  field,
+  level,
+  title,
+  materials_configurations,
+  score = 0,
+}) {
   return { id, field, level, title, materials_configurations, score };
 }
 
@@ -32,7 +39,12 @@ const headCells = [
   { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
   { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
   { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
-  { id: 'related_concepts', numeric: false, disablePadding: false, label: 'Concepts liés' },
+  {
+    id: 'related_concepts',
+    numeric: false,
+    disablePadding: false,
+    label: 'Concepts liés',
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -132,20 +144,6 @@ function EnhancedTableToolbar(props) {
           Rapports de Jury - {numberOfSubjects} résultat(s)
         </Typography>
       )}
-
-      {numSelected > 0 ? (
-        <Tooltip title='Delete'>
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title='Filter list'>
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
     </Toolbar>
   );
 }
@@ -185,14 +183,9 @@ function mergeMaterialConfigurations(materials_configurations) {
   return [...origin1, ...origin2];
 }
 
-function CollapsibleRow({
-  row,
-  isItemSelected,
-  handleClick,
-  isSelected,
-  handleSelectMaterial,
-}) {
+function CollapsibleRow({ row, isItemSelected, handleClick }) {
   const [open, setOpen] = useState(false);
+  const theme = useTheme();
 
   // Fusionner les configurations de matériaux
   const mergedMaterials = mergeMaterialConfigurations(
@@ -203,7 +196,7 @@ function CollapsibleRow({
     <>
       <TableRow
         hover
-        onClick={(event) => handleClick(event, row.id)}
+        // onClick={(event) => handleClick(event, row.id)}
         role='checkbox'
         aria-checked={isItemSelected}
         tabIndex={-1}
@@ -223,7 +216,9 @@ function CollapsibleRow({
         <TableCell align='left'>{row.field}</TableCell>
         <TableCell align='left'>{row.level}</TableCell>
         <TableCell align='left'>{row.title}</TableCell>
-        <TableCell align='left'><Link>voir</Link></TableCell>
+        <TableCell align='left'>
+          <Link>voir</Link>
+        </TableCell>
 
         <TableCell align='left'>
           <IconButton
@@ -236,7 +231,11 @@ function CollapsibleRow({
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell
+          style={{ paddingBottom: 0, paddingTop: 0 }}
+          colSpan={6}
+          sx={{ backgroundColor: theme.palette.gray }}
+        >
           <Collapse in={open} timeout='auto' unmountOnExit>
             <Box margin={1}>
               {mergedMaterials.map((config, index) => (
@@ -248,26 +247,18 @@ function CollapsibleRow({
                   >
                     Sous-sujet {index + 1}
                   </Typography>
-                  <Table size='small' aria-label='purchases'>
+                  <Table size='small' aria-label='materials'>
                     <TableHead>
                       <TableRow>
                         <TableCell>Document</TableCell>
                         <TableCell align={'left'}>Matériel</TableCell>
-                        <TableCell align={'right'}>Sélectionner</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       <TableRow>
-                        <TableCell>{config.origin}</TableCell>
-                        <TableCell>{config.materials.join(', ')}</TableCell>
-                        <TableCell align={'right'}>
-                          <Checkbox
-                            color='primary'
-                            onClick={() => handleSelectMaterial(row.id, config)}
-                            inputProps={{
-                              'aria-labelledby': `enhanced-table-checkbox-material-${row.id}-${index}`,
-                            }}
-                          />
+                        <TableCell align={'left'}>{config.origin}</TableCell>
+                        <TableCell align={'left'}>
+                          {config.materials.join(', ')}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -297,9 +288,10 @@ function ReportsTable({ reports }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const rows = useMemo(() => reports.map((report) => createData(report)), [
-    reports,
-  ]);
+  const rows = useMemo(
+    () => reports.map((report) => createData(report)),
+    [reports]
+  );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -382,9 +374,16 @@ function ReportsTable({ reports }) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          numberOfSubjects={reports.length}
+        />
         <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle' size={'medium'}>
+          <Table
+            sx={{ minWidth: 750 }}
+            aria-labelledby='tableTitle'
+            size={'medium'}
+          >
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
@@ -410,7 +409,7 @@ function ReportsTable({ reports }) {
                   );
                 })}
               {rows.length > 0 && (
-                <TableRow style={{ height: (53) * rowsPerPage }}>
+                <TableRow style={{ height: 53 * rowsPerPage }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
