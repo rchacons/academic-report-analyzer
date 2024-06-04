@@ -1,8 +1,9 @@
 import './app.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
-import { ResultPage } from './pages/ResultPage';
+import  {ReportResultPage}  from './pages/ReportResultPage';
 import AppBar from './components/AppBar';
+import BiblioResultPage from './pages/BiblioResultPage';
 
 export const App = () => {
   const router = createBrowserRouter([
@@ -16,11 +17,20 @@ export const App = () => {
       ),
     },
     {
-      path: '/results',
+      path: '/results/report',
       element: (
         <>
           <AppBar />
-          <ResultPage />
+          <ReportResultPage />
+        </>
+      ),
+    },
+    {
+      path: '/results/biblio',
+      element: (
+        <>
+          <AppBar />
+          <BiblioResultPage />
         </>
       ),
     },
