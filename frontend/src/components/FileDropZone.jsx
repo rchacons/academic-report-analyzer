@@ -64,7 +64,7 @@ function FileDropZone({ title, reportFile, setReportFile, displayMessage }) {
           </Typography>
         ) : (
           <Typography variant='textInfo' mt={1}>
-            Ou faite glisser un fichier ici
+            Ou faites glisser un fichier ici
           </Typography>
         )}
       </Box>

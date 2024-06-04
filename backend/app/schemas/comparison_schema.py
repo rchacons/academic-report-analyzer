@@ -1,3 +1,5 @@
+
+
 from pydantic import BaseModel
 from typing import List, Set
 
@@ -45,3 +47,28 @@ class ComparisonSubjectsResult(BaseModel):
     field_list: Set[str]
     level_list: Set[str]
     theme_list: Set[str]
+
+class Book(BaseModel):
+        author: str
+        year_published: str
+        book_name: str
+
+        def __eq__(self, other):
+            if isinstance(other, Book):
+                return (self.author == other.author and
+                        self.year_published == other.year_published and
+                        self.book_name == other.book_name)
+            return False
+
+        def __hash__(self):
+            return hash((self.author, self.year_published, self.book_name))
+        
+class BookWithOrigin(BaseModel):
+    infor_book: Book
+    origin: int 
+
+class ComparaisonListBookResult(BaseModel):
+    added_books: List[BookWithOrigin]
+    removed_books: List[BookWithOrigin]
+    kept_books: List[BookWithOrigin]
+   

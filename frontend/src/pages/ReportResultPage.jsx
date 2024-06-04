@@ -13,7 +13,7 @@ function tokenize(query) {
   return filteredText;
 }
 
-export const ResultPage = () => {
+export const ReportResultPage = () => {
   const location = useLocation();
 
   const { comparisonResult } = location.state || {};
@@ -43,38 +43,74 @@ export const ResultPage = () => {
 
   function search(query, items) {
     if (!query) return items;
-
-    const tokens = tokenize(query);
+    const tokens = tokenize(query.toLowerCase());
     console.log('tokenized query:', tokens);
+
     return items
       .map((item) => {
-        let score = 0;
-
+        // Calcul du score pour le titre de l'item
+        let itemScore = 0;
         tokens.forEach((token) => {
           if (item.title_research.toLowerCase().includes(token)) {
-            score += 1;
+            itemScore += 1;
           }
         });
 
-        return { item, score };
+        // Calcul des scores pour chaque liste de matériel
+        const materialsScores = item.materials_configurations.map((config) => {
+          let configScore = 0;
+          tokens.forEach((token) => {
+            config.materials.forEach((material) => {
+              if (material.toLowerCase().includes(token)) {
+                configScore += 1;
+              }
+            });
+          });
+          return { ...config, score: configScore };
+        });
+
+        // Trier les listes de matériel par score décroissant
+        materialsScores.sort((a, b) => b.score - a.score);
+
+        // Score maximum parmi les listes de matériel
+        const maxMaterialScore = Math.max(
+          ...materialsScores.map((config) => config.score)
+        );
+
+        // Score global de l'item
+        const totalScore = itemScore + maxMaterialScore;
+        console.log('result', {
+          ...item,
+          score: totalScore,
+          materials_configurations: materialsScores,
+        });
+        return {
+          ...item,
+          score: totalScore,
+          materials_configurations: materialsScores,
+        };
       })
-      .filter((result) => result.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map((result) => result.item);
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
   }
 
-  /* const search = (query, subjects) => {
+  /*  const search = (query, subjects) => {
     if (!query) return subjects;
 
     const options = {
       keys: ['title', 'materials_configurations.materials'],
       threshold: 0.3,
+      includeScore: true,
+      shouldSort: true,
+      findAllMatches: true,
+      useExtendedSearch: false,
     };
 
     const fuse = new Fuse(subjects, options);
     const result = fuse.search(query);
+    console.log('result:', result);
 
-    return result.map(({ item, score }) => ({
+    const returnResult = result.map(({ item, score }) => ({
       ...item,
       score,
       materials_configurations: item.materials_configurations.map((config) => {
@@ -83,12 +119,16 @@ export const ResultPage = () => {
           threshold: 0.3,
         });
         const materialResult = materialFuse.search(query);
-        const materialScore = materialResult.length > 0 ? materialResult[0].score : 1;
+        const materialScore =
+          materialResult.length > 0 ? materialResult[0].score : 1;
         return { ...config, score: materialScore };
       }),
     }));
-  }; */
 
+    console.log('result', returnResult);
+    return returnResult;
+  };
+ */
   const getSelectedSubjects = (subjectFilter) => {
     let subjects;
     switch (subjectFilter) {
