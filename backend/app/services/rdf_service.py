@@ -284,17 +284,17 @@ def create_combined_graph(graph, client_concept):
             for edge in edges
         ]
 
-    # 2. Relier tous les noeuds du premier graphe entre eux
+    # 2. Relier tous les noeuds du premier graphe entre eux en utilisant les URLs
     nodes = list(graph.keys())
     for i in range(len(nodes)):
         for j in range(i + 1, len(nodes)):
             combined_graph[nodes[i]].append({
                 "predicate": nodes[j],
-                "object": nodes[j]
+                "object": graph[nodes[j]][0]["object"]
             })
             combined_graph[nodes[j]].append({
                 "predicate": nodes[i],
-                "object": nodes[i]
+                "object": graph[nodes[i]][0]["object"]
             })
 
     # 3. Relier chaque noeud du deuxième graphe au noeud correspondant du premier graphe
