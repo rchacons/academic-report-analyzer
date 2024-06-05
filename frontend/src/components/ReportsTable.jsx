@@ -14,9 +14,6 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'preact/hooks';
@@ -337,10 +334,6 @@ function ReportsTable({ reports }) {
     setPage(0);
   };
 
-  const handleSelectMaterial = (rowId, materialConfig) => {
-    // Logique pour gérer la sélection du matériel
-  };
-
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   const stableSort = (array, comparator) => {
@@ -395,7 +388,7 @@ function ReportsTable({ reports }) {
             <TableBody>
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page, page + rowsPerPage)
-                .map((row, index) => {
+                .map((row) => {
                   const isItemSelected = isSelected(row.id);
                   return (
                     <CollapsibleRow
@@ -404,15 +397,10 @@ function ReportsTable({ reports }) {
                       isItemSelected={isItemSelected}
                       handleClick={handleClick}
                       isSelected={isSelected}
-                      handleSelectMaterial={handleSelectMaterial}
                     />
                   );
                 })}
-              {rows.length > 0 && (
-                <TableRow style={{ height: 53 * rowsPerPage }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
+
             </TableBody>
           </Table>
         </TableContainer>

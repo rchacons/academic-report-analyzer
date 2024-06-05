@@ -6,12 +6,7 @@ import ReportsTable from '../components/ReportsTable';
 import SearchBar from '../components/SearchBar';
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
 import Fuse from 'fuse.js';
-import { removeStopwords, fra } from 'stopword';
-
-function tokenize(query) {
-  const filteredText = removeStopwords(query.toLowerCase().split(' '), fra);
-  return filteredText;
-}
+import { tokenize } from '../utils';
 
 export const ReportResultPage = () => {
   const location = useLocation();
@@ -20,13 +15,14 @@ export const ReportResultPage = () => {
   const newSubjects = comparisonResult.added_subjects;
   const removedSubjects = comparisonResult.removed_subjects;
   const keptSubjects = comparisonResult.kept_subjects;
+  const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects) ;
   const levels = comparisonResult.level_list;
   const fields = comparisonResult.field_list;
-  const numberOfSubjects =
-    newSubjects.length + removedSubjects.length + keptSubjects.length;
 
   const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
+  const [selectedSubjects, setSelecetedSubjects] = useState([]);
+
   const [filterLevels, setFilterLevels] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,14 +37,14 @@ export const ReportResultPage = () => {
     );
   };
 
-  function search(query, items) {
+  const search = (query, items) => {
     if (!query) return items;
     const tokens = tokenize(query.toLowerCase());
     console.log('tokenized query:', tokens);
 
     return items
       .map((item) => {
-        // Calcul du score pour le titre de l'item
+        // Calcul du score pour l'intitulé' de l'item
         let itemScore = 0;
         tokens.forEach((token) => {
           if (item.title_research.toLowerCase().includes(token)) {
@@ -69,7 +65,7 @@ export const ReportResultPage = () => {
           return { ...config, score: configScore };
         });
 
-        // Trier les listes de matériel par score décroissant
+        // Tri listes de matériel par score décroissant
         materialsScores.sort((a, b) => b.score - a.score);
 
         // Score maximum parmi les listes de matériel
@@ -129,7 +125,7 @@ export const ReportResultPage = () => {
     return returnResult;
   };
  */
-  const getSelectedSubjects = (subjectFilter) => {
+  const getSubjectsByType = (subjectFilter) => {
     let subjects;
     switch (subjectFilter) {
       case 'new_subjects':
@@ -141,6 +137,9 @@ export const ReportResultPage = () => {
       case 'kept_subjects':
         subjects = keptSubjects;
         break;
+        case 'all_subjects':
+          subjects = allSubjects;
+          break;
       default:
         subjects = [];
     }
@@ -148,7 +147,7 @@ export const ReportResultPage = () => {
   };
 
   const setSubjectsToDisplay = (subjectFilter) => {
-    let subjects = getSelectedSubjects(subjectFilter);
+    let subjects = getSubjectsByType(subjectFilter);
     subjects = applyFilters(subjects, filterLevels, filterFields);
     subjects = search(searchQuery, subjects);
     setActiveSubjectFilter(subjectFilter);
@@ -190,12 +189,14 @@ export const ReportResultPage = () => {
           }}
         >
           <SubjectsFilterButtons
+            itemsType={'Sujets'}
             setSubjectsToDisplay={setSubjectsToDisplay}
             activeSubjectFilter={activeSubjectFilter}
             newSubjects={newSubjects}
             removedSubjects={removedSubjects}
             keptSubjects={keptSubjects}
-            numberOfSubjects={numberOfSubjects}
+            allSubjects={allSubjects}
+            numberOfSubjects={allSubjects.length}
           />
         </Box>
       </Grid>
