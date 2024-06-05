@@ -310,6 +310,26 @@ def create_combined_graph(graph, client_concept):
 
 
 #Main
+def get_graph_from_sentence(words):
+    #Traduis l'entrée en français
+    eng_sentence = trad_sentence(words)
+    #Preprocess les mots de la phrase
+    preprocessed_terms = preprocess_english(eng_sentence)
+    #Lemmetize words
+    lemmatize_terms = lemmatize_words(preprocessed_terms)
+    #Translate in french
+    french_terms = trad_words_french(lemmatize_terms)
+    #Construit le graphe
+    graph = wiki_graph(french_terms)
+    #Récupère les concepts liés
+    client_concept= process_graph_nodes(graph)
+    #Crée le graphe combiné
+    combinate_graph= create_combined_graph(graph, client_concept)
+
+    return combinate_graph
+
+
+# Pour test Routeur
 def process_rdf_wikipedia(words):
     #Traduis l'entrée en français
     eng_sentence = trad_sentence(words)
@@ -321,13 +341,12 @@ def process_rdf_wikipedia(words):
     french_terms = trad_words_french(lemmatize_terms)
     #Construit le graphe
     graph = wiki_graph(french_terms)
-
+    #Récupère les concepts liés
     client_concept= process_graph_nodes(graph)
-
+    #Crée le graphe combiné
     combinate_graph= create_combined_graph(graph, client_concept)
+
     return graph, client_concept, combinate_graph
-
-
 
 # Code de la V1
 

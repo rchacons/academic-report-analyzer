@@ -1,10 +1,33 @@
 from fastapi import APIRouter, HTTPException
-from ..services.rdf_service import preprocess, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french, merge_graphs, get_graph_data, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, get_labels_from_dbpedia, get_labels_from_wikidata, test_wiki, wiki_graph, process_rdf_wikipedia
-from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5, RDFResponse6, RDFResponse22, RDFResponse23, RDFResponseGraph
+from ..services.rdf_service import preprocess, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french, merge_graphs, get_graph_data, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, get_labels_from_dbpedia, get_labels_from_wikidata, test_wiki, wiki_graph, process_rdf_wikipedia, get_graph_from_sentence
+from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5, RDFResponse6, RDFResponse22, RDFResponse23, RDFResponseGraph, RDFResponseCombinGraph
 import json
 
 
 router = APIRouter()
+
+
+@router.post("/main-get-graph-from-sentence/", 
+            summary="Process RDF data",
+            description="Takes a text, pre-processes it, lemmetize it, queries Wikipedia, and returns the constructed graph in JSON format.",
+            response_model=RDFResponseCombinGraph,
+            responses={
+                200: {"description": "RDF processed successfully"},
+                400: {"description": "Invalid input"},
+                500: {"description": "An error occurred during RDF processing"}
+            })
+async def process_rdf(request: RDFRequest):
+    try:
+        combinate_graph = get_graph_from_sentence(request.text)
+
+        print(json.dumps(combinate_graph, indent=2, ensure_ascii=False))
+
+        return RDFResponseCombinGraph(
+            combinate_graph=combinate_graph
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/main-process-rdf-wikipedia/", 
             summary="Process RDF data",
@@ -28,6 +51,8 @@ async def process_rdf(request: RDFRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
 
 
 
