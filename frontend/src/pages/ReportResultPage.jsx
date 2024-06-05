@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar';
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
 import Fuse from 'fuse.js';
 import { tokenize } from '../utils';
+import { exportSubjects } from '../services/exportService';
 
 export const ReportResultPage = () => {
   const location = useLocation();
@@ -15,7 +16,7 @@ export const ReportResultPage = () => {
   const newSubjects = comparisonResult.added_subjects;
   const removedSubjects = comparisonResult.removed_subjects;
   const keptSubjects = comparisonResult.kept_subjects;
-  const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects) ;
+  const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects);
   const levels = comparisonResult.level_list;
   const fields = comparisonResult.field_list;
 
@@ -88,7 +89,7 @@ export const ReportResultPage = () => {
       })
       .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score);
-  }
+  };
 
   /*  const search = (query, subjects) => {
     if (!query) return subjects;
@@ -136,10 +137,11 @@ export const ReportResultPage = () => {
         break;
       case 'kept_subjects':
         subjects = keptSubjects;
+        console.log(subjects);
         break;
-        case 'all_subjects':
-          subjects = allSubjects;
-          break;
+      case 'all_subjects':
+        subjects = allSubjects;
+        break;
       default:
         subjects = [];
     }
@@ -169,6 +171,11 @@ export const ReportResultPage = () => {
   const handleSearchResults = (query) => {
     setSearchQuery(query);
     setSubjectsToDisplay(activeSubjectFilter);
+  };
+
+  const handleExportSubjects = async () => {
+    console.log('selectedSubjects', selectedSubjects);
+    await exportSubjects(selectedSubjects);
   };
 
   useEffect(() => {
@@ -210,7 +217,12 @@ export const ReportResultPage = () => {
           }}
         >
           <Tooltip title='Exporter les éléments sélectionnés au format xlsx'>
-            <Button variant='outlined' thin color='primary' onClick={() => {}}>
+            <Button
+              variant='outlined'
+              thin
+              color='primary'
+              onClick={handleExportSubjects}
+            >
               Exporter
             </Button>
           </Tooltip>
@@ -247,7 +259,11 @@ export const ReportResultPage = () => {
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable reports={displayedSubjects} />
+        <ReportsTable
+          reports={displayedSubjects}
+          selected={selectedSubjects}
+          setSelectedSubjects={setSelecetedSubjects}
+        />
       </Grid>
     </Grid>
   );

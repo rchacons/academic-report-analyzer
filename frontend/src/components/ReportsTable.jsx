@@ -21,16 +21,16 @@ import Collapse from '@mui/material/Collapse';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function createData({
+const createData = ({
   id,
   field,
   level,
   title,
   materials_configurations,
   score = 0,
-}) {
+}) => {
   return { id, field, level, title, materials_configurations, score };
-}
+};
 
 const headCells = [
   { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
@@ -44,7 +44,7 @@ const headCells = [
   },
 ];
 
-function EnhancedTableHead(props) {
+const EnhancedTableHead = (props) => {
   const {
     onSelectAllClick,
     order,
@@ -94,7 +94,7 @@ function EnhancedTableHead(props) {
       </TableRow>
     </TableHead>
   );
-}
+};
 
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
@@ -105,7 +105,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar(props) {
+const EnhancedTableToolbar = (props) => {
   const { numSelected, numberOfSubjects } = props;
 
   return (
@@ -143,28 +143,26 @@ function EnhancedTableToolbar(props) {
       )}
     </Toolbar>
   );
-}
+};
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   numberOfSubjects: PropTypes.number.isRequired,
 };
 
-// Fusionner les configurations de matériaux identiques tout en maintenant l'ordre des origines
-function mergeMaterialConfigurations(materials_configurations) {
+const mergeMaterialConfigurations = (materials_configurations) => {
   const merged = {};
 
   materials_configurations.forEach((config) => {
-    const key = config.materials.join(','); // Utiliser les matériaux comme clé
+    const key = config.materials.join(',');
 
     if (merged[key]) {
-      merged[key].origin = `${merged[key].origin} et ${config.origin}`; // Fusionner les origines
+      merged[key].origin = `${merged[key].origin} et ${config.origin}`;
     } else {
       merged[key] = { ...config };
     }
   });
 
-  // Séparer les configurations par origine pour maintenir l'ordre
   const origin1 = [];
   const origin2 = [];
 
@@ -176,15 +174,13 @@ function mergeMaterialConfigurations(materials_configurations) {
     }
   });
 
-  // Retourner les configurations de l'origine 1 suivies de celles de l'origine 2
   return [...origin1, ...origin2];
-}
+};
 
-function CollapsibleRow({ row, isItemSelected, handleClick }) {
+const CollapsibleRow = ({ row, isItemSelected, handleClick }) => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
 
-  // Fusionner les configurations de matériaux
   const mergedMaterials = mergeMaterialConfigurations(
     row.materials_configurations
   );
@@ -193,17 +189,17 @@ function CollapsibleRow({ row, isItemSelected, handleClick }) {
     <>
       <TableRow
         hover
-        // onClick={(event) => handleClick(event, row.id)}
         role='checkbox'
         aria-checked={isItemSelected}
         tabIndex={-1}
         key={row.id}
-        selected={isItemSelected}
+        // selected={isItemSelected}
       >
         <TableCell padding='checkbox'>
           <Checkbox
             color='primary'
             checked={isItemSelected}
+            onChange={(event) => handleClick(event, row)}
             inputProps={{
               'aria-labelledby': `enhanced-table-checkbox-${row.id}`,
             }}
@@ -236,7 +232,7 @@ function CollapsibleRow({ row, isItemSelected, handleClick }) {
           <Collapse in={open} timeout='auto' unmountOnExit>
             <Box margin={1}>
               {mergedMaterials.map((config, index) => (
-                <Box key={index} margin={1}>
+                <Box key={index}>
                   <Typography
                     variant='tableRowTitle'
                     gutterBottom
@@ -268,25 +264,23 @@ function CollapsibleRow({ row, isItemSelected, handleClick }) {
       </TableRow>
     </>
   );
-}
+};
 
 CollapsibleRow.propTypes = {
   row: PropTypes.object.isRequired,
   isItemSelected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
-  isSelected: PropTypes.func.isRequired,
-  handleSelectMaterial: PropTypes.func.isRequired,
 };
 
-function ReportsTable({ reports }) {
+const ReportsTable = ({ reports, setSelectedSubjects }) => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('score');
-  const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selected, setSelected] = useState([]);
 
   const rows = useMemo(
-    () => reports.map((report) => createData(report)),
+    () => reports.map((report, index) => createData({ id: index, ...report })),
     [reports]
   );
 
@@ -300,17 +294,19 @@ function ReportsTable({ reports }) {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id);
       setSelected(newSelecteds);
+      setSelectedSubjects(newSelecteds);
       return;
     }
     setSelected([]);
+    setSelectedSubjects([]);
   };
 
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id);
+  const handleClick = (event, row) => {
+    const selectedIndex = selected.indexOf(row.id);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
+      newSelected = newSelected.concat(selected, row.id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -323,8 +319,13 @@ function ReportsTable({ reports }) {
     }
 
     setSelected(newSelected);
+    updateSelectedSubjects(newSelected);
   };
 
+  const updateSelectedSubjects = (selectedIds) => {
+    const selectedReports = rows.filter(row => selectedIds.includes(row.id));
+    setSelectedSubjects(selectedReports);
+  };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -333,6 +334,8 @@ function ReportsTable({ reports }) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
@@ -387,7 +390,7 @@ function ReportsTable({ reports }) {
             />
             <TableBody>
               {stableSort(rows, getComparator(order, orderBy))
-                .slice(page, page + rowsPerPage)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   const isItemSelected = isSelected(row.id);
                   return (
@@ -396,11 +399,9 @@ function ReportsTable({ reports }) {
                       row={row}
                       isItemSelected={isItemSelected}
                       handleClick={handleClick}
-                      isSelected={isSelected}
                     />
                   );
                 })}
-
             </TableBody>
           </Table>
         </TableContainer>
@@ -416,10 +417,11 @@ function ReportsTable({ reports }) {
       </Paper>
     </Box>
   );
-}
+};
 
 ReportsTable.propTypes = {
   reports: PropTypes.array.isRequired,
+  setSelectedSubjects: PropTypes.func.isRequired,
 };
 
 export default ReportsTable;
