@@ -1,11 +1,13 @@
 import { Button, ButtonGroup } from '@mui/material';
 
 const SubjectsFilterButtons = ({
+  itemsType,
   setSubjectsToDisplay,
   activeSubjectFilter,
   newSubjects,
   removedSubjects,
   keptSubjects,
+  allSubjects,
   numberOfSubjects,
 }) => {
   const subjectFilterButtons = [
@@ -17,7 +19,7 @@ const SubjectsFilterButtons = ({
       }
       onClick={() => setSubjectsToDisplay('new_subjects')}
     >
-      Sujets ajoutés ({newSubjects.length} sur {numberOfSubjects})
+      {itemsType} ajoutés ({newSubjects.length} sur {numberOfSubjects})
     </Button>,
 
     <Button
@@ -36,7 +38,7 @@ const SubjectsFilterButtons = ({
         },
       }}
     >
-      Sujets supprimés ({removedSubjects.length} sur {numberOfSubjects})
+      {itemsType} supprimés ({removedSubjects.length} sur {numberOfSubjects})
     </Button>,
     <Button
       key='kept_subjects'
@@ -54,12 +56,30 @@ const SubjectsFilterButtons = ({
         },
       }}
     >
-      Sujets gardés ({keptSubjects.length} sur {numberOfSubjects})
+      {itemsType} gardés ({keptSubjects.length} sur {numberOfSubjects})
     </Button>,
+     <Button
+     key='all_subjects'
+     thin
+     variant={
+       activeSubjectFilter === 'all_subjects' ? 'contained' : 'outlined'
+     }
+     onClick={() => setSubjectsToDisplay('all_subjects')}
+     sx={{
+       '&:focus': {
+         outline: 'none',
+       },
+       '&:active': {
+         border: 'none',
+       },
+     }}
+   >
+     Tous les {itemsType} ({allSubjects.length} sur {numberOfSubjects})
+   </Button>,
   ];
 
   return (
-    <ButtonGroup size='large' aria-label='Large button group'>
+    <ButtonGroup size='large' aria-label={`${itemsType} filter tabs`}>
       {subjectFilterButtons}
     </ButtonGroup>
   );
