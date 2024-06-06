@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar';
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
 import { tokenize } from '../utils';
 import { exportSubjects } from '../services/exportService';
+import SimpleSelect from '../components/shared/SimpleSelect';
 
 export const ReportResultPage = () => {
   const location = useLocation();
@@ -28,22 +29,33 @@ export const ReportResultPage = () => {
   const levels = comparisonResult.level_list;
   const fields = comparisonResult.field_list;
 
-  const [activeSubjectFilter, setActiveSubjectFilter] = useState('');
+  const [activeSubjectFilter, setActiveSubjectFilter] =
+    useState('new_subjects');
   const [displayedSubjects, setDisplayedSubjects] = useState([]);
   const [selectedSubjects, setSelecetedSubjects] = useState([]);
 
   const [filterLevels, setFilterLevels] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
+  const [filterDoc, setFilterDoc] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const applyFilters = (subjects, levelsFilter, fieldsFilter) => {
-    return subjects.filter(
-      (subject) =>
+  const applyFilters = (subjects, levelsFilter, fieldsFilter, docFilter) => {
+    return subjects.filter((subject) => {
+      return (
         (levelsFilter.length === 0 ||
           levelsFilter.includes(subject.level.toLowerCase())) &&
         (fieldsFilter.length === 0 ||
-          fieldsFilter.includes(subject.field.toLowerCase()))
+          fieldsFilter.includes(subject.field.toLowerCase())) &&
+        (docFilter === 0 || getOrigin(subject).includes(docFilter))
+      );
+    });
+  };
+
+  const getOrigin = (subject) => {
+    const origins = subject.materials_configurations.map(
+      (config) => config.origin
     );
+    return [...new Set(origins)].join(' ');
   };
 
   const search = (query, items) => {
@@ -153,7 +165,7 @@ export const ReportResultPage = () => {
 
   const setSubjectsToDisplay = (subjectFilter) => {
     let subjects = getSubjectsByType(subjectFilter);
-    subjects = applyFilters(subjects, filterLevels, filterFields);
+    subjects = applyFilters(subjects, filterLevels, filterFields, filterDoc);
     subjects = search(searchQuery, subjects);
     setActiveSubjectFilter(subjectFilter);
     setDisplayedSubjects(subjects);
@@ -171,6 +183,12 @@ export const ReportResultPage = () => {
     setSubjectsToDisplay(activeSubjectFilter);
   };
 
+  const handleFilterDocChange = (event) => {
+    const selectedDoc = event.target.value;
+    setFilterDoc(selectedDoc);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
   const handleSearchResults = (query) => {
     setSearchQuery(query);
     setSubjectsToDisplay(activeSubjectFilter);
@@ -185,11 +203,11 @@ export const ReportResultPage = () => {
 
   useEffect(() => {
     setSubjectsToDisplay(activeSubjectFilter);
-  }, [filterLevels, filterFields, searchQuery]);
+  }, [filterLevels, filterFields, filterDoc, searchQuery]);
 
   return (
     <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
-      <Grid item xs={12} md={8}>
+      <Grid item xs={12} md={10}>
         <Box
           sx={{
             display: 'flex',
@@ -241,7 +259,7 @@ export const ReportResultPage = () => {
             flexDirection: 'row',
             alignItems: 'center',
             '& > *': {
-              m: 1,
+              m: 0.5,
             },
           }}
         >
@@ -258,6 +276,13 @@ export const ReportResultPage = () => {
             selectedValue={filterLevels}
             onChange={handleFilterLevelsChange}
           ></MultipleSelectChip>
+
+          <SimpleSelect
+            name='Document'
+            items={[1, 2]}
+            selectedValue={filterDoc}
+            onChange={handleFilterDocChange}
+          />
 
           <SearchBar onSearch={handleSearchResults}></SearchBar>
         </Box>
