@@ -9,6 +9,11 @@ class RDFSchema(BaseModel):
 
 class RDFResponseGraph(BaseModel):
     graph: dict
+    client_concept: dict
+    combinate_graph: dict
+
+class RDFResponseCombinGraph(BaseModel):
+    combinate_graph: dict
 
 
 class RDFResponse(BaseModel):
