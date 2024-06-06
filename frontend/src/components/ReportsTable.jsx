@@ -280,7 +280,7 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
   const [selected, setSelected] = useState([]);
 
   const rows = useMemo(
-    () => reports.map((report, index) => createData({ id: index, ...report })),
+    () => reports.map((report) => createData(report)),
     [reports]
   );
 
@@ -290,18 +290,18 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event) => {
+  const handleCheckAll = (event) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id);
       setSelected(newSelecteds);
       setSelectedSubjects(newSelecteds);
-      return;
+    } else {
+      setSelected([]);
+      setSelectedSubjects([]);
     }
-    setSelected([]);
-    setSelectedSubjects([]);
   };
 
-  const handleClick = (event, row) => {
+  const handleCheck = (event, row) => {
     const selectedIndex = selected.indexOf(row.id);
     let newSelected = [];
 
@@ -319,13 +319,9 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
     }
 
     setSelected(newSelected);
-    updateSelectedSubjects(newSelected);
+    setSelectedSubjects(newSelected);
   };
 
-  const updateSelectedSubjects = (selectedIds) => {
-    const selectedReports = rows.filter(row => selectedIds.includes(row.id));
-    setSelectedSubjects(selectedReports);
-  };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -334,8 +330,6 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
@@ -384,7 +378,7 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
+              onSelectAllClick={handleCheckAll}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
@@ -398,7 +392,7 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
                       key={row.id}
                       row={row}
                       isItemSelected={isItemSelected}
-                      handleClick={handleClick}
+                      handleClick={handleCheck}
                     />
                   );
                 })}

@@ -5,7 +5,6 @@ import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import ReportsTable from '../components/ReportsTable';
 import SearchBar from '../components/SearchBar';
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
-import Fuse from 'fuse.js';
 import { tokenize } from '../utils';
 import { exportSubjects } from '../services/exportService';
 
@@ -13,10 +12,19 @@ export const ReportResultPage = () => {
   const location = useLocation();
 
   const { comparisonResult } = location.state || {};
-  const newSubjects = comparisonResult.added_subjects;
-  const removedSubjects = comparisonResult.removed_subjects;
-  const keptSubjects = comparisonResult.kept_subjects;
+  const newSubjects = comparisonResult.added_subjects.map((item, index) => ({
+    id: `ns${index}`,
+    ...item,
+  }));
+  const removedSubjects = comparisonResult.removed_subjects.map(
+    (item, index) => ({ id: `rs${index}`, ...item })
+  );
+  const keptSubjects = comparisonResult.kept_subjects.map((item, index) => ({
+    id: `ks${index}`,
+    ...item,
+  }));
   const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects);
+
   const levels = comparisonResult.level_list;
   const fields = comparisonResult.field_list;
 
@@ -76,11 +84,7 @@ export const ReportResultPage = () => {
 
         // Score global de l'item
         const totalScore = itemScore + maxMaterialScore;
-        console.log('result', {
-          ...item,
-          score: totalScore,
-          materials_configurations: materialsScores,
-        });
+
         return {
           ...item,
           score: totalScore,
@@ -137,7 +141,6 @@ export const ReportResultPage = () => {
         break;
       case 'kept_subjects':
         subjects = keptSubjects;
-        console.log(subjects);
         break;
       case 'all_subjects':
         subjects = allSubjects;
@@ -174,8 +177,10 @@ export const ReportResultPage = () => {
   };
 
   const handleExportSubjects = async () => {
-    console.log('selectedSubjects', selectedSubjects);
-    await exportSubjects(selectedSubjects);
+    const subjectsToExport = allSubjects
+      .filter((subject) => selectedSubjects.includes(subject.id))
+      .map(({ id, ...rest }) => rest); // Exclure 'id' des éléments
+    await exportSubjects(subjectsToExport);
   };
 
   useEffect(() => {
