@@ -26,6 +26,7 @@ class ExportService:
                     'Domaine': subject.field,
                     'Niveau': subject.level,
                     'Intitulé': subject.title,
+                    'Thème': subject.theme,
                     'Matériels': materials
                 }
                 data.append(row)
