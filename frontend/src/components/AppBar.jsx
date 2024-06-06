@@ -6,7 +6,7 @@ import { ButtonBase } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
 
-export default function AppBar() {
+const AppBar = () => {
   let navigate = useNavigate();
 
   return (
@@ -35,4 +35,6 @@ export default function AppBar() {
       </MuiAppBar>
     </Box>
   );
-}
+};
+
+export default AppBar;

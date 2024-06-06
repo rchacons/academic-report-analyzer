@@ -3,7 +3,7 @@ import { useCallback } from 'preact/hooks';
 import { useDropzone } from 'react-dropzone';
 import uploadFile from '../assets/upload_file.svg';
 
-function FileDropZone({ title, reportFile, setReportFile, displayMessage }) {
+const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -75,6 +75,6 @@ function FileDropZone({ title, reportFile, setReportFile, displayMessage }) {
       )}
     </Grid>
   );
-}
+};
 
 export default FileDropZone;
