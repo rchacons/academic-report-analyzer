@@ -1,9 +1,13 @@
 import api from '../api';
 
-export const compareReports = async (file1, file2) => {
+export const compareReports = async (file1, file2, file3) => {
   const formData = new FormData();
   formData.append('file1', file1);
   formData.append('file2', file2);
+
+  if (file3 !== null && file3 !== undefined) {
+    formData.append('file3', file3);
+  }
 
   try {
     const response = await api.post('/compare-reports/', formData, {

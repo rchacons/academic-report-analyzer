@@ -18,6 +18,7 @@ export const HomePage = () => {
 
   const [firstFile, setFirstFile] = useState(null);
   const [secondFile, setSecondFile] = useState(null);
+  const [thirdFile, setThirdFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -43,7 +44,11 @@ export const HomePage = () => {
 
   const handleReportComparison = async () => {
     try {
-      const comparisonResult = await compareReports(firstFile, secondFile);
+      const comparisonResult = await compareReports(
+        firstFile,
+        secondFile,
+        thirdFile
+      );
       navigate('/results/report', { state: { comparisonResult } });
     } catch (error) {
       displayMessage('Une erreur est survenue');
@@ -102,20 +107,48 @@ export const HomePage = () => {
         </Typography>
       )}
 
-      <Grid container spacing={2} justifyContent='center'>
+      <Grid container spacing={1} justifyContent='center'>
         <FileDropZone
           title={'Ancien Fichier'}
-          reportFile={firstFile}
-          setReportFile={setFirstFile}
+          file={firstFile}
+          setFile={setFirstFile}
           displayMessage={displayMessage}
+          acceptedMimeType={{
+            'application/pdf': ['.pdf'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+              ['.xlsx'],
+          }}
+          tooltip={'Chargez le premier fichier à comparer'}
         />
 
         <FileDropZone
           title={'Nouveau Fichier'}
-          reportFile={secondFile}
-          setReportFile={setSecondFile}
+          file={secondFile}
+          setFile={setSecondFile}
           displayMessage={displayMessage}
+          acceptedMimeType={{
+            'application/pdf': ['.pdf'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+              ['.xlsx'],
+          }}
+          tooltip={'Chargez le second fichier à comparer'}
         />
+
+        {comparisonType == 'report' ? (
+          <FileDropZone
+            title={'Liste des thèmes (Optionel)'}
+            file={thirdFile}
+            setFile={setThirdFile}
+            displayMessage={displayMessage}
+            acceptedMimeType={{
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                ['.xlsx'],
+            }}
+            tooltip={'Chargez une liste de thèmes pour les associer aux sujets'}
+          />
+        ) : (
+          <></>
+        )}
       </Grid>
 
       <Box

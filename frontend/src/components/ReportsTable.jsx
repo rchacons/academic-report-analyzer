@@ -26,16 +26,19 @@ const createData = ({
   field,
   level,
   title,
+  theme,
   materials_configurations,
   score = 0,
 }) => {
-  return { id, field, level, title, materials_configurations, score };
+  return { id, field, level, title, theme, materials_configurations, score };
 };
 
 const headCells = [
   { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
   { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
   { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
+  { id: 'theme', numeric: false, disablePadding: false, label: 'Thème' },
+
   {
     id: 'related_concepts',
     numeric: false,
@@ -209,6 +212,8 @@ const CollapsibleRow = ({ row, isItemSelected, handleClick }) => {
         <TableCell align='left'>{row.field}</TableCell>
         <TableCell align='left'>{row.level}</TableCell>
         <TableCell align='left'>{row.title}</TableCell>
+        <TableCell align='left'>{row.theme}</TableCell>
+
         <TableCell align='left'>
           <Link>voir</Link>
         </TableCell>
