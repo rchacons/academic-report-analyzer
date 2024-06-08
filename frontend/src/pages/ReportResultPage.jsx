@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'react-router-dom';
-import { Box, Button, Grid, Tooltip } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import ReportsTable from '../components/ReportsTable';
 import SearchBar from '../components/SearchBar';
@@ -28,6 +35,7 @@ export const ReportResultPage = () => {
 
   const levels = comparisonResult.level_list;
   const fields = comparisonResult.field_list;
+  const themes = comparisonResult.theme_list;
 
   const [activeSubjectFilter, setActiveSubjectFilter] =
     useState('new_subjects');
@@ -37,16 +45,24 @@ export const ReportResultPage = () => {
   const [filterLevels, setFilterLevels] = useState([]);
   const [filterFields, setFilterFields] = useState([]);
   const [filterDoc, setFilterDoc] = useState(0);
+  const [filterTheme, setFilterTheme] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const applyFilters = (subjects, levelsFilter, fieldsFilter, docFilter) => {
+  const applyFilters = (
+    subjects,
+    levelsFilter,
+    fieldsFilter,
+    docFilter,
+    themeFilter
+  ) => {
     return subjects.filter((subject) => {
       return (
         (levelsFilter.length === 0 ||
           levelsFilter.includes(subject.level.toLowerCase())) &&
         (fieldsFilter.length === 0 ||
           fieldsFilter.includes(subject.field.toLowerCase())) &&
-        (docFilter === 0 || getOrigin(subject).includes(docFilter))
+        (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
+        (themeFilter === '' || subject.theme === themeFilter)
       );
     });
   };
@@ -165,7 +181,13 @@ export const ReportResultPage = () => {
 
   const setSubjectsToDisplay = (subjectFilter) => {
     let subjects = getSubjectsByType(subjectFilter);
-    subjects = applyFilters(subjects, filterLevels, filterFields, filterDoc);
+    subjects = applyFilters(
+      subjects,
+      filterLevels,
+      filterFields,
+      filterDoc,
+      filterTheme
+    );
     subjects = search(searchQuery, subjects);
     setActiveSubjectFilter(subjectFilter);
     setDisplayedSubjects(subjects);
@@ -189,6 +211,11 @@ export const ReportResultPage = () => {
     setSubjectsToDisplay(activeSubjectFilter);
   };
 
+  const handleFilterThemeChange = (event, value) => {
+    setFilterTheme(value);
+    setSubjectsToDisplay(activeSubjectFilter);
+  };
+
   const handleSearchResults = (query) => {
     setSearchQuery(query);
     setSubjectsToDisplay(activeSubjectFilter);
@@ -203,7 +230,7 @@ export const ReportResultPage = () => {
 
   useEffect(() => {
     setSubjectsToDisplay(activeSubjectFilter);
-  }, [filterLevels, filterFields, filterDoc, searchQuery]);
+  }, [filterLevels, filterFields, filterDoc, filterTheme, searchQuery]);
 
   return (
     <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
@@ -284,6 +311,17 @@ export const ReportResultPage = () => {
             onChange={handleFilterDocChange}
           />
 
+          <Autocomplete
+            disablePortal
+            disabled={themes.length == 0}
+            id='theme-filter'
+            options={themes}
+            size='small'
+            sx={{ width: 300 }}
+            value={filterTheme}
+            onChange={handleFilterThemeChange}
+            renderInput={(params) => <TextField {...params} label='Thèmes' />}
+          />
           <SearchBar onSearch={handleSearchResults}></SearchBar>
         </Box>
       </Grid>
