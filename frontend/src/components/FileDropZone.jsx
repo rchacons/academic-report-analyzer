@@ -3,35 +3,50 @@ import { useCallback } from 'preact/hooks';
 import { useDropzone } from 'react-dropzone';
 import uploadFile from '../assets/upload_file.svg';
 
-const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
+const FileDropZone = ({
+  title,
+  file,
+  setFile,
+  displayMessage,
+  acceptedMimeType,
+  required,
+}) => {
+  const getAcceptedExtensions = () => {
+    return Object.values(acceptedMimeType).flat().join(', ');
+  };
+
+  const isFileTypeAccepted = (fileType) => {
+    return Object.keys(acceptedMimeType).includes(fileType);
+  };
+
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
-      if (file && (file.type === 'application/pdf' || file.type ==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+
+      if (file && isFileTypeAccepted(file.type)) {
         if (file.size <= 5242880) {
-          setReportFile(file);
+          setFile(file);
         } else {
           displayMessage('La taille du fichier doit être inférieur à 5 Mo');
         }
       } else {
-        displayMessage('Veuillez charger un fichier au format pdf ou xlsx');
+        const acceptedExtensions = getAcceptedExtensions(acceptedMimeType);
+
+        displayMessage(
+          `Veuillez charger un fichier au format accepté (${acceptedExtensions})`
+        );
       }
     },
-    [setReportFile]
+    [setFile]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
-        '.xlsx',
-      ],
-    },
+    accept: acceptedMimeType,
   });
 
   return (
-    <Grid item xs={12} md={5}>
+    <Grid item xs={12} md={4}>
       <Box
         {...getRootProps()}
         display='flex'
@@ -42,7 +57,7 @@ const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
         alignItems='center'
         border={1}
         borderRadius={1}
-        p={'3vh'}
+        p={'1vh'}
         borderColor='grey.300'
         sx={{
           cursor: 'pointer',
@@ -57,9 +72,9 @@ const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
           {title}
         </Typography>
 
-        <img className='uploadImg' src={uploadFile}></img>
+        {required ? <img className='uploadImg' src={uploadFile}></img> : <></>}
 
-        <Button variant='outlined' color={'primary'}>
+        <Button variant='outlined' color={'primary'} size='small'>
           Télécharger un fichier
         </Button>
 
@@ -73,9 +88,10 @@ const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
           </Typography>
         )}
       </Box>
-      {reportFile && (
+
+      {file && (
         <Typography variant='body2' sx={{ mt: 2 }}>
-          Fichier chargé : {reportFile.name}
+          Fichier chargé : {file.name}
         </Typography>
       )}
     </Grid>
