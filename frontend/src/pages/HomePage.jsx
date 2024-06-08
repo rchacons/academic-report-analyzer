@@ -44,7 +44,7 @@ export const HomePage = () => {
 
   const handleReportComparison = async () => {
     try {
-      const comparisonResult = await compareReports(firstFile, secondFile);
+      const comparisonResult = await compareReports(firstFile, secondFile, thirdFile);
       navigate('/results/report', { state: { comparisonResult } });
     } catch (error) {
       displayMessage('Une erreur est survenue');
@@ -114,7 +114,6 @@ export const HomePage = () => {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
               ['.xlsx'],
           }}
-          required
         />
 
         <FileDropZone
@@ -127,7 +126,6 @@ export const HomePage = () => {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
               ['.xlsx'],
           }}
-          required
         />
 
         <FileDropZone
@@ -139,15 +137,7 @@ export const HomePage = () => {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
               ['.xlsx'],
           }}
-          required
         />
-
-        {/*   <OptionalFileDropZone
-          title={'Liste des thèmes (optionel)'}
-          file={secondFile}
-          setFile={setSecondFile}
-          displayMessage={displayMessage}
-        /> */}
       </Grid>
 
       <Box

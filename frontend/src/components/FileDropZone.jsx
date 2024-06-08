@@ -9,7 +9,6 @@ const FileDropZone = ({
   setFile,
   displayMessage,
   acceptedMimeType,
-  required,
 }) => {
   const getAcceptedExtensions = () => {
     return Object.values(acceptedMimeType).flat().join(', ');
@@ -72,7 +71,7 @@ const FileDropZone = ({
           {title}
         </Typography>
 
-        {required ? <img className='uploadImg' src={uploadFile}></img> : <></>}
+        <img className='uploadImg' src={uploadFile}></img>
 
         <Button variant='outlined' color={'primary'} size='small'>
           Télécharger un fichier
