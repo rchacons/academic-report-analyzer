@@ -86,19 +86,19 @@ export const HomePage = () => {
             onChange={(event) => handleComparisonTypeChange(event)}
             aria-label='Comparison-type'
           >
-            <ToggleButton value='report'>Rapport de jury</ToggleButton>
-            <ToggleButton value='biblio'>Bibliographie</ToggleButton>
+            <ToggleButton value='report'>Rapports de jury</ToggleButton>
+            <ToggleButton value='biblio'>Bibliographies</ToggleButton>
           </ToggleButtonGroup>
         </Tooltip>
       </Grid>
 
       {comparisonType == 'report' ? (
-        <Typography variant='headerTitle' /* width={'83%'} */>
+        <Typography variant='headerTitle'>
           Comparer les rapports de jury CAPES
         </Typography>
       ) : (
-        <Typography variant='headerTitle' /* width={'83%'} */>
-          Comparer les bibliographie
+        <Typography variant='headerTitle'>
+          Comparer les bibliographies
         </Typography>
       )}
 
