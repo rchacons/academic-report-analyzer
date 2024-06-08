@@ -7,14 +7,14 @@ const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
-      if (file && file.type === 'application/pdf') {
+      if (file && (file.type === 'application/pdf' || file.type ==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
         if (file.size <= 5242880) {
           setReportFile(file);
         } else {
           displayMessage('La taille du fichier doit être inférieur à 5 Mo');
         }
       } else {
-        displayMessage('Veuillez charger un fichier au format PDF');
+        displayMessage('Veuillez charger un fichier au format pdf ou xlsx');
       }
     },
     [setReportFile]
@@ -22,7 +22,12 @@ const FileDropZone = ({ title, reportFile, setReportFile, displayMessage }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': ['.pdf'] },
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
+        '.xlsx',
+      ],
+    },
   });
 
   return (

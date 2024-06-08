@@ -1,6 +1,7 @@
-from .report_service import ReportService  
+from .report_service import ReportService
+from .themes_service import ThemesService
 from ..schemas.comparison_schema import Subject, ComparisonSubjectsResult, ListMaterials
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 import pandas as pd
 import numpy as np
 import logging
@@ -13,7 +14,7 @@ class ComparisonService:
     """
     A service for comparing reports.
     """
-    def compare(self, path1: str, path2: str) -> ComparisonSubjectsResult:
+    def compare(self, path1: str, path2: str, path3: Optional[str]) -> ComparisonSubjectsResult:
         """
         Creates the reports based on the pdf path and compares them.
 
@@ -27,30 +28,19 @@ class ComparisonService:
 
         logger.info("Starting comparison : Fetching report data")
 
-        report1 = ReportService(path1, 1).data
-        report2 = ReportService(path2, 2).data
-        return self.compareSubjectsWithMaterials(report1, report2)
+        themes: ThemesService = ThemesService(path3)
+        report1 : Dict[Subject, Set[ListMaterials]] | None = ReportService(path1, 1, themes).data
+        report2 : Dict[Subject, Set[ListMaterials]] | None = ReportService(path2, 2, themes).data
+       
+        return self.compareSubjectsWithMaterials(report1, report2, themes)
  
-    def compareSubjectsWithMaterials(self, subjects1: Dict[Subject, Set[ListMaterials]], subjects2: Dict[Subject, Set[ListMaterials]]) -> ComparisonSubjectsResult:
+    def compareSubjectsWithMaterials(self, subjects1: Dict[Subject, Set[ListMaterials]], subjects2: Dict[Subject, Set[ListMaterials]], themeService: ThemesService) -> ComparisonSubjectsResult:
         added_subjects : Dict[Subject, Set[ListMaterials]] = {subject: values for subject, values in subjects2.items() if subject not in subjects1}
         removed_subjects : Dict[Subject, Set[ListMaterials]] = {subject: values for subject, values in subjects1.items() if subject not in subjects2}
-        kept_subjects : Dict[Subject, Set[ListMaterials]] = {}
-        identical_subjects : Dict[Subject, Set[ListMaterials]] = {}
+        kept_subjects: Dict[Subject, Set[ListMaterials]] = {}
 
-        common_keys : set[Subject] = subjects1.keys() & subjects2.keys()
-
-        for subject in common_keys:
-
-            materials_s1_set : set[ListMaterials] = subjects1[subject]
-            materials_s2_set : set[ListMaterials] = subjects2[subject]
-
-            identical : set[ListMaterials] = materials_s1_set & materials_s2_set
-            kept : set[ListMaterials] = materials_s1_set ^ materials_s2_set  # Symmetric difference
-
-            if identical:
-                identical_subjects[subject] = identical
-            if kept:
-                kept_subjects[subject] = kept
+        for subject in subjects1.keys() & subjects2.keys():
+            kept_subjects[subject] = subjects1[subject].union(subjects2[subject])
 
         all_keys : set[Subject] = subjects1.keys() | subjects2.keys()
         unique_fields: Set[str] = {subject.field.lower() for subject in all_keys if subject.field.strip()}
@@ -60,15 +50,14 @@ class ComparisonService:
             added_subjects=self.convertDictionaryIntoSubject(added_subjects),
             removed_subjects=self.convertDictionaryIntoSubject(removed_subjects),
             kept_subjects=self.convertDictionaryIntoSubject(kept_subjects),
-            identical_subjects=self.convertDictionaryIntoSubject(identical_subjects),
             field_list=unique_fields,
             level_list=unique_levels,
-            theme_list =[]
+            theme_list =themeService.themes if themeService.themes else set()
         )
 
     def convertDictionaryIntoSubject(self, dictionary: Dict[Subject, Set[ListMaterials]]) -> List[Subject]:
-        subjects_list = []
+        subjects_list : List[Subject] = []
         for key, value in dictionary.items():
-            subject = Subject(field=key.field, level=key.level, theme=key.theme, title=key.title, title_research=key.title_research, materials_configurations=value)
+            subject : Subject = Subject(field=key.field, level=key.level, theme=key.theme, title=key.title, title_research=key.title_research, materials_configurations=value)
             subjects_list.append(subject)
         return subjects_list
