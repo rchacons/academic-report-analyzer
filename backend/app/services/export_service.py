@@ -26,8 +26,8 @@ class ExportService:
                     'Domaine': subject.field,
                     'Niveau': subject.level,
                     'Intitulé': subject.title,
-                    'Thème': subject.theme,
-                    'Matériels': materials
+                    'Matériels': materials,
+                    'Thème': subject.theme
                 }
                 data.append(row)
         df = pd.DataFrame(data)
