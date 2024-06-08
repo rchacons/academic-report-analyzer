@@ -23,7 +23,7 @@ const SearchBar = ({ onSearch }) => {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder='Rechercher un intutulé ou du matériel...'
+        placeholder='Rechercher un intitulé ou du matériel...'
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
