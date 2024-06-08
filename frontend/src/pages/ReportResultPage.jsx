@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'react-router-dom';
-import { Autocomplete, Box, Button, Grid, TextField, Tooltip } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import MultipleSelectChip from '../components/shared/MultipleSelectChip';
 import ReportsTable from '../components/ReportsTable';
 import SearchBar from '../components/SearchBar';
@@ -41,11 +48,19 @@ export const ReportResultPage = () => {
   const [filterTheme, setFilterTheme] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const applyFilters = (subjects, levelsFilter, fieldsFilter, docFilter, themeFilter) => {
+  const applyFilters = (
+    subjects,
+    levelsFilter,
+    fieldsFilter,
+    docFilter,
+    themeFilter
+  ) => {
     return subjects.filter((subject) => {
       return (
-        (levelsFilter.length === 0 || levelsFilter.includes(subject.level.toLowerCase())) &&
-        (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field.toLowerCase())) &&
+        (levelsFilter.length === 0 ||
+          levelsFilter.includes(subject.level.toLowerCase())) &&
+        (fieldsFilter.length === 0 ||
+          fieldsFilter.includes(subject.field.toLowerCase())) &&
         (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
         (themeFilter === '' || subject.theme === themeFilter)
       );
@@ -166,7 +181,13 @@ export const ReportResultPage = () => {
 
   const setSubjectsToDisplay = (subjectFilter) => {
     let subjects = getSubjectsByType(subjectFilter);
-    subjects = applyFilters(subjects, filterLevels, filterFields, filterDoc, filterTheme);
+    subjects = applyFilters(
+      subjects,
+      filterLevels,
+      filterFields,
+      filterDoc,
+      filterTheme
+    );
     subjects = search(searchQuery, subjects);
     setActiveSubjectFilter(subjectFilter);
     setDisplayedSubjects(subjects);
@@ -292,6 +313,7 @@ export const ReportResultPage = () => {
 
           <Autocomplete
             disablePortal
+            disabled={themes.length == 0}
             id='theme-filter'
             options={themes}
             size='small'
