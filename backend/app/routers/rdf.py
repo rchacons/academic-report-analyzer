@@ -1,10 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from ..services.rdf_service import preprocess, merge_graphs, get_graph_data, stemme_words, trad_words,trad_sentence, preprocess_english, lemmatize_words, trad_words_french, merge_graphs, get_graph_data, retrieve_top_biology_concepts_dbpedia, retrieve_top_biology_concepts_wikidata, get_labels_from_dbpedia, get_labels_from_wikidata, test_wiki, wiki_graph, process_rdf_wikipedia, get_graph_from_sentence
 from ..schemas.rdf_schema import RDFSchema, RDFResponse2, RDFRequest, RDFResponse3, RDFResponse4, RDFResponse5, RDFResponse6, RDFResponse22, RDFResponse23, RDFResponseGraph, RDFResponseCombinGraph
 import json
+from ..auth.auth_bearer import JWTBearer
 
 
-router = APIRouter()
+router = APIRouter(
+    tags=["RDF"],
+    dependencies=[Depends(JWTBearer())]
+)
 
 
 @router.post("/main-get-graph-from-sentence/", 
