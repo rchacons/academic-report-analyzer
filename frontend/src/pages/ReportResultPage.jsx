@@ -1,127 +1,108 @@
-import { useEffect, useState } from 'preact/hooks';
-import { useLocation } from 'react-router-dom';
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Grid,
-  TextField,
-  Tooltip,
-} from '@mui/material';
-import MultipleSelectChip from '../components/shared/MultipleSelectChip';
-import ReportsTable from '../components/ReportsTable';
-import SearchBar from '../components/SearchBar';
-import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
-import { tokenize } from '../utils';
-import { exportSubjects } from '../services/exportService';
-import SimpleSelect from '../components/shared/SimpleSelect';
+import { useEffect, useState } from 'preact/hooks'
+import { useLocation } from 'react-router-dom'
+import { Autocomplete, Box, Button, Grid, TextField, Tooltip } from '@mui/material'
+import MultipleSelectChip from '../components/shared/MultipleSelectChip'
+import ReportsTable from '../components/ReportsTable'
+import SearchBar from '../components/SearchBar'
+import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
+import { tokenize } from '../utils'
+import { exportSubjects } from '../services/exportService'
+import SimpleSelect from '../components/shared/SimpleSelect'
 
 export const ReportResultPage = () => {
-  const location = useLocation();
+  const location = useLocation()
 
-  const { comparisonResult } = location.state || {};
+  const { comparisonResult } = location.state || {}
   const newSubjects = comparisonResult.added_subjects.map((item, index) => ({
     id: `ns${index}`,
     ...item,
-  }));
-  const removedSubjects = comparisonResult.removed_subjects.map(
-    (item, index) => ({ id: `rs${index}`, ...item })
-  );
+  }))
+  const removedSubjects = comparisonResult.removed_subjects.map((item, index) => ({
+    id: `rs${index}`,
+    ...item,
+  }))
   const keptSubjects = comparisonResult.kept_subjects.map((item, index) => ({
     id: `ks${index}`,
     ...item,
-  }));
-  const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects);
+  }))
+  const allSubjects = newSubjects.concat(removedSubjects).concat(keptSubjects)
 
-  const levels = comparisonResult.level_list;
-  const fields = comparisonResult.field_list;
-  const themes = comparisonResult.theme_list;
+  const levels = comparisonResult.level_list
+  const fields = comparisonResult.field_list
+  const themes = comparisonResult.theme_list
 
-  const [activeSubjectFilter, setActiveSubjectFilter] =
-    useState('new_subjects');
-  const [displayedSubjects, setDisplayedSubjects] = useState([]);
-  const [selectedSubjects, setSelecetedSubjects] = useState([]);
+  const [activeSubjectFilter, setActiveSubjectFilter] = useState('new_subjects')
+  const [displayedSubjects, setDisplayedSubjects] = useState([])
+  const [selectedSubjects, setSelecetedSubjects] = useState([])
 
-  const [filterLevels, setFilterLevels] = useState([]);
-  const [filterFields, setFilterFields] = useState([]);
-  const [filterDoc, setFilterDoc] = useState(0);
-  const [filterTheme, setFilterTheme] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filterLevels, setFilterLevels] = useState([])
+  const [filterFields, setFilterFields] = useState([])
+  const [filterDoc, setFilterDoc] = useState(0)
+  const [filterTheme, setFilterTheme] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const applyFilters = (
-    subjects,
-    levelsFilter,
-    fieldsFilter,
-    docFilter,
-    themeFilter
-  ) => {
+  const applyFilters = (subjects, levelsFilter, fieldsFilter, docFilter, themeFilter) => {
     return subjects.filter((subject) => {
       return (
-        (levelsFilter.length === 0 ||
-          levelsFilter.includes(subject.level.toLowerCase())) &&
-        (fieldsFilter.length === 0 ||
-          fieldsFilter.includes(subject.field.toLowerCase())) &&
+        (levelsFilter.length === 0 || levelsFilter.includes(subject.level.toLowerCase())) &&
+        (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field.toLowerCase())) &&
         (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
         (themeFilter === '' || subject.theme === themeFilter)
-      );
-    });
-  };
+      )
+    })
+  }
 
   const getOrigin = (subject) => {
-    const origins = subject.materials_configurations.map(
-      (config) => config.origin
-    );
-    return [...new Set(origins)].join(' ');
-  };
+    const origins = subject.materials_configurations.map((config) => config.origin)
+    return [...new Set(origins)].join(' ')
+  }
 
   const search = (query, items) => {
-    if (!query) return items;
-    const tokens = tokenize(query.toLowerCase());
-    console.log('tokenized query:', tokens);
+    if (!query) return items
+    const tokens = tokenize(query.toLowerCase())
+    console.log('tokenized query:', tokens)
 
     return items
       .map((item) => {
         // Calcul du score pour l'intitulé' de l'item
-        let itemScore = 0;
+        let itemScore = 0
         tokens.forEach((token) => {
           if (item.title_research.toLowerCase().includes(token)) {
-            itemScore += 1;
+            itemScore += 1
           }
-        });
+        })
 
         // Calcul des scores pour chaque liste de matériel
         const materialsScores = item.materials_configurations.map((config) => {
-          let configScore = 0;
+          let configScore = 0
           tokens.forEach((token) => {
             config.materials.forEach((material) => {
               if (material.toLowerCase().includes(token)) {
-                configScore += 1;
+                configScore += 1
               }
-            });
-          });
-          return { ...config, score: configScore };
-        });
+            })
+          })
+          return { ...config, score: configScore }
+        })
 
         // Tri listes de matériel par score décroissant
-        materialsScores.sort((a, b) => b.score - a.score);
+        materialsScores.sort((a, b) => b.score - a.score)
 
         // Score maximum parmi les listes de matériel
-        const maxMaterialScore = Math.max(
-          ...materialsScores.map((config) => config.score)
-        );
+        const maxMaterialScore = Math.max(...materialsScores.map((config) => config.score))
 
         // Score global de l'item
-        const totalScore = itemScore + maxMaterialScore;
+        const totalScore = itemScore + maxMaterialScore
 
         return {
           ...item,
           score: totalScore,
           materials_configurations: materialsScores,
-        };
+        }
       })
       .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score);
-  };
+      .sort((a, b) => b.score - a.score)
+  }
 
   /*  const search = (query, subjects) => {
     if (!query) return subjects;
@@ -159,81 +140,75 @@ export const ReportResultPage = () => {
   };
  */
   const getSubjectsByType = (subjectFilter) => {
-    let subjects;
+    let subjects
     switch (subjectFilter) {
       case 'new_subjects':
-        subjects = newSubjects;
-        break;
+        subjects = newSubjects
+        break
       case 'removed_subjects':
-        subjects = removedSubjects;
-        break;
+        subjects = removedSubjects
+        break
       case 'kept_subjects':
-        subjects = keptSubjects;
-        break;
+        subjects = keptSubjects
+        break
       case 'all_subjects':
-        subjects = allSubjects;
-        break;
+        subjects = allSubjects
+        break
       default:
-        subjects = [];
+        subjects = []
     }
-    return subjects;
-  };
+    return subjects
+  }
 
   const setSubjectsToDisplay = (subjectFilter) => {
-    let subjects = getSubjectsByType(subjectFilter);
-    subjects = applyFilters(
-      subjects,
-      filterLevels,
-      filterFields,
-      filterDoc,
-      filterTheme
-    );
-    subjects = search(searchQuery, subjects);
-    setActiveSubjectFilter(subjectFilter);
-    setDisplayedSubjects(subjects);
-  };
+    let subjects = getSubjectsByType(subjectFilter)
+    subjects = applyFilters(subjects, filterLevels, filterFields, filterDoc, filterTheme)
+    subjects = search(searchQuery, subjects)
+    setActiveSubjectFilter(subjectFilter)
+    setDisplayedSubjects(subjects)
+  }
 
   const handleFilterLevelsChange = (event) => {
-    const selectedLevels = event.target.value;
-    setFilterLevels(selectedLevels);
-    setSubjectsToDisplay(activeSubjectFilter);
-  };
+    const selectedLevels = event.target.value
+    setFilterLevels(selectedLevels)
+    setSubjectsToDisplay(activeSubjectFilter)
+  }
 
   const handleFilterFieldsChange = (event) => {
-    const selectedFields = event.target.value;
-    setFilterFields(selectedFields);
-    setSubjectsToDisplay(activeSubjectFilter);
-  };
+    const selectedFields = event.target.value
+    setFilterFields(selectedFields)
+    setSubjectsToDisplay(activeSubjectFilter)
+  }
 
   const handleFilterDocChange = (event) => {
-    const selectedDoc = event.target.value;
-    setFilterDoc(selectedDoc);
-    setSubjectsToDisplay(activeSubjectFilter);
-  };
+    const selectedDoc = event.target.value
+    setFilterDoc(selectedDoc)
+    setSubjectsToDisplay(activeSubjectFilter)
+  }
 
   const handleFilterThemeChange = (event, value) => {
-    setFilterTheme(value);
-    setSubjectsToDisplay(activeSubjectFilter);
-  };
+    setFilterTheme(value)
+    setSubjectsToDisplay(activeSubjectFilter)
+  }
 
   const handleSearchResults = (query) => {
-    setSearchQuery(query);
-    setSubjectsToDisplay(activeSubjectFilter);
-  };
+    setSearchQuery(query)
+    setSubjectsToDisplay(activeSubjectFilter)
+  }
 
   const handleExportSubjects = async () => {
     const subjectsToExport = allSubjects
       .filter((subject) => selectedSubjects.includes(subject.id))
-      .map(({ id, ...rest }) => rest); // Exclure 'id' des éléments
-    await exportSubjects(subjectsToExport);
-  };
+      .map(({ id, ...rest }) => rest) // Exclure 'id' des éléments
+    await exportSubjects(subjectsToExport)
+  }
 
   useEffect(() => {
-    setSubjectsToDisplay(activeSubjectFilter);
-  }, [filterLevels, filterFields, filterDoc, filterTheme, searchQuery]);
+    setSubjectsToDisplay(activeSubjectFilter)
+  }, [filterLevels, filterFields, filterDoc, filterTheme, searchQuery])
 
   return (
-    <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
+    <Grid container spacing={2} justifyContent="space-between" p="1em 2em">
       <Grid item xs={12} md={10}>
         <Box
           sx={{
@@ -266,13 +241,8 @@ export const ReportResultPage = () => {
             alignItems: 'right',
           }}
         >
-          <Tooltip title='Exporter les éléments sélectionnés au format xlsx'>
-            <Button
-              variant='outlined'
-              thin
-              color='primary'
-              onClick={handleExportSubjects}
-            >
+          <Tooltip title="Exporter les éléments sélectionnés au format xlsx">
+            <Button variant="outlined" thin color="primary" onClick={handleExportSubjects}>
               Exporter
             </Button>
           </Tooltip>
@@ -291,21 +261,21 @@ export const ReportResultPage = () => {
           }}
         >
           <MultipleSelectChip
-            name='Domaines'
+            name="Domaines"
             items={fields}
             selectedValue={filterFields}
             onChange={handleFilterFieldsChange}
           ></MultipleSelectChip>
 
           <MultipleSelectChip
-            name='Niveaux'
+            name="Niveaux"
             items={levels}
             selectedValue={filterLevels}
             onChange={handleFilterLevelsChange}
           ></MultipleSelectChip>
 
           <SimpleSelect
-            name='Document'
+            name="Document"
             items={[1, 2]}
             selectedValue={filterDoc}
             onChange={handleFilterDocChange}
@@ -314,13 +284,13 @@ export const ReportResultPage = () => {
           <Autocomplete
             disablePortal
             disabled={themes.length == 0}
-            id='theme-filter'
+            id="theme-filter"
             options={themes}
-            size='small'
+            size="small"
             sx={{ width: 300 }}
             value={filterTheme}
             onChange={handleFilterThemeChange}
-            renderInput={(params) => <TextField {...params} label='Thèmes' />}
+            renderInput={(params) => <TextField {...params} label="Thèmes" />}
           />
           <SearchBar onSearch={handleSearchResults}></SearchBar>
         </Box>
@@ -334,5 +304,5 @@ export const ReportResultPage = () => {
         />
       </Grid>
     </Grid>
-  );
-};
+  )
+}

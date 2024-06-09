@@ -1,17 +1,12 @@
-import { Button, CircularProgress } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material'
 
-const LoadingButton = ({onClick, loading}) => {
+const LoadingButton = ({ onClick, loading }) => {
   return (
-    <Button
-      variant='contained'
-      color='primary'
-      onClick={onClick}
-      disabled={loading}
-    >
+    <Button variant="contained" color="primary" onClick={onClick} disabled={loading}>
       Afficher le résultat
       {loading && (
         <CircularProgress
-          color='primary'
+          color="primary"
           size={30}
           sx={{
             position: 'absolute',
@@ -23,7 +18,7 @@ const LoadingButton = ({onClick, loading}) => {
         />
       )}
     </Button>
-  );
-};
+  )
+}
 
-export default LoadingButton;
+export default LoadingButton

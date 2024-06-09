@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint:write": "npx prettier . --write"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.13",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.2",
+    "prettier": "3.3.1",
     "vite": "^5.2.0"
   }
 }
