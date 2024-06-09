@@ -6,7 +6,7 @@ import ReportsTable from '../components/ReportsTable'
 import SearchBar from '../components/SearchBar'
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
 import { tokenize } from '../utils'
-import { exportSubjects } from '../services/exportService'
+import { exportSubjects } from '../services/ExportService'
 import SimpleSelect from '../components/shared/SimpleSelect'
 
 export const ReportResultPage = () => {

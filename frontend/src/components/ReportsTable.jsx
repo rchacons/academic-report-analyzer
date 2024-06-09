@@ -210,7 +210,7 @@ const CollapsibleRow = ({ row, isItemSelected, handleClick }) => {
                   <Table size="small" aria-label="materials">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Document</TableCell>
+                        <TableCell width={15}>Document</TableCell>
                         <TableCell align={'left'}>Matériel</TableCell>
                       </TableRow>
                     </TableHead>
