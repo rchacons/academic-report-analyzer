@@ -1,32 +1,32 @@
-import { useState } from 'preact/hooks';
-import { TextField, InputAdornment, Box, IconButton } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { useState } from 'preact/hooks'
+import { TextField, InputAdornment, Box, IconButton } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
 
 const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState('')
 
   const handleSearch = () => {
-    onSearch(query);
-  };
+    onSearch(query)
+  }
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      handleSearch();
+      handleSearch()
     }
-  };
+  }
 
   return (
-    <Box display='flex' alignItems='center' gap={2} width={'30em'}>
+    <Box display="flex" alignItems="center" gap={2} width={'30em'}>
       <TextField
-        size='small'
-        variant='outlined'
+        size="small"
+        variant="outlined"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder='Rechercher un intitulé ou du matériel...'
+        placeholder="Rechercher un intitulé ou du matériel..."
         InputProps={{
           endAdornment: (
-            <InputAdornment position='end'>
+            <InputAdornment position="end">
               <IconButton onClick={handleSearch}>
                 <SearchIcon />
               </IconButton>
@@ -36,7 +36,7 @@ const SearchBar = ({ onSearch }) => {
         fullWidth
       />
     </Box>
-  );
-};
+  )
+}
 
-export default SearchBar;
+export default SearchBar

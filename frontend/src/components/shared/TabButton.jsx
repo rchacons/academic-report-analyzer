@@ -1,12 +1,12 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button } from '@mui/material'
 
-const TabButton = ({label1, label2}) => {
+const TabButton = ({ label1, label2 }) => {
   return (
     <Box display={'flex'}>
-      <Button variant='tab'>{label1}</Button>
-      <Button variant='tab'>{label2}</Button>
+      <Button variant="tab">{label1}</Button>
+      <Button variant="tab">{label2}</Button>
     </Box>
-  );
-};
+  )
+}
 
-export default TabButton;
+export default TabButton

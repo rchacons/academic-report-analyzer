@@ -7,8 +7,8 @@ import {
   ListItemText,
   Paper,
   Typography,
-} from '@mui/material';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+} from '@mui/material'
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 
 const materielData = [
   'plant de fraisier',
@@ -24,9 +24,9 @@ const materielData = [
   '1 de solution mère',
   'matériel biologique stérile (scalpel et pinces enfermés dans du papier aluminium, boîte de pétri)',
   "fiche technique : réalisation d'une culture in vitro lames + lamelles + microscope + eau iodée",
-];
+]
 
-const EquipmentList = ({data}) => {
+const EquipmentList = ({ data }) => {
   return (
     <Paper
       sx={{
@@ -36,10 +36,10 @@ const EquipmentList = ({data}) => {
         padding: 2,
       }}
     >
-      <Typography variant='h6' component='div' gutterBottom>
+      <Typography variant="h6" component="div" gutterBottom>
         Matériel imposé
       </Typography>
-      <Typography variant='body1' component='div' gutterBottom>
+      <Typography variant="body1" component="div" gutterBottom>
         Total : {data.length}
       </Typography>
       <Divider />
@@ -48,17 +48,14 @@ const EquipmentList = ({data}) => {
         {data.map((item, index) => (
           <ListItem key={index}>
             <ListItemIcon>
-              <FiberManualRecordIcon
-                htmlColor='#1C2833'
-                sx={{ fontSize: '12px' }}
-              />
+              <FiberManualRecordIcon htmlColor="#1C2833" sx={{ fontSize: '12px' }} />
             </ListItemIcon>
             <ListItemText primary={item} />
           </ListItem>
         ))}
       </List>
     </Paper>
-  );
-};
+  )
+}
 
-export default EquipmentList;
+export default EquipmentList
