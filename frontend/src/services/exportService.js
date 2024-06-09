@@ -1,4 +1,4 @@
-import api from '../api';
+import api from '../api'
 
 export const exportSubjects = async (data) => {
   try {
@@ -7,19 +7,19 @@ export const exportSubjects = async (data) => {
         'Content-Type': 'application/json',
       },
       responseType: 'blob',
-    });
+    })
 
     if (response.status === 200) {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'liste_sujets.xlsx');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'liste_sujets.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     }
   } catch (error) {
-    console.error('Erreur lors de la comparaison des rapports:', error);
-    throw error;
+    console.error('Erreur lors de la comparaison des rapports:', error)
+    throw error
   }
-};
+}
