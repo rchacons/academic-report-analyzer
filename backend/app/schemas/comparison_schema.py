@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Set
+from typing import List, Optional, Set
 
 class ListMaterials(BaseModel):
     materials: List[str]
@@ -43,6 +43,9 @@ class Book(BaseModel):
         author: str
         year_published: str
         book_name: str
+        origin: Optional[List[int]] = None
+
+        
 
         def __eq__(self, other):
             if isinstance(other, Book):
@@ -54,16 +57,13 @@ class Book(BaseModel):
         def __hash__(self):
             return hash((self.author, self.year_published, self.book_name))
         
-class BookWithOrigin(BaseModel):
-    infor_book: Book
-    origin: int 
+
 
 class Author(BaseModel):
     name: str
 
 class ComparaisonListBookResult(BaseModel):
-    added_books: List[BookWithOrigin]
-    removed_books: List[BookWithOrigin]
-    kept_books: List[BookWithOrigin]
-    author_list: List[Author]
+    added_books: List[Book]
+    removed_books: List[Book]
+    kept_books: List[Book]
    
