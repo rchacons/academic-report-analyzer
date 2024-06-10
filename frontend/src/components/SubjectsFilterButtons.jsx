@@ -16,7 +16,7 @@ const SubjectsFilterButtons = ({
       key={keys[0]}
       thin
       variant={activeItemtFilter === keys[0] ? 'contained' : 'outlined'}
-      onClick={() => setitemsToDisplay('added_subjects')}
+      onClick={() => setitemsToDisplay(keys[0])}
     >
       {itemsType} ajoutés ({addedItems.length} sur {numberOfItems})
     </Button>,
@@ -25,7 +25,7 @@ const SubjectsFilterButtons = ({
       key={keys[1]}
       thin
       variant={activeItemtFilter === keys[1] ? 'contained' : 'outlined'}
-      onClick={() => setitemsToDisplay('removed_subjects')}
+      onClick={() => setitemsToDisplay(keys[1])}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -41,7 +41,7 @@ const SubjectsFilterButtons = ({
       key={keys[2]}
       thin
       variant={activeItemtFilter === keys[2] ? 'contained' : 'outlined'}
-      onClick={() => setitemsToDisplay('kept_subjects')}
+      onClick={() => setitemsToDisplay(keys[2])}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -57,7 +57,7 @@ const SubjectsFilterButtons = ({
       key={keys[3]}
       thin
       variant={activeItemtFilter === keys[3] ? 'contained' : 'outlined'}
-      onClick={() => setitemsToDisplay('all_subjects')}
+      onClick={() => setitemsToDisplay(keys[3])}
       sx={{
         '&:focus': {
           outline: 'none',

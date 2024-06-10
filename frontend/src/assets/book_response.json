@@ -1,0 +1,63 @@
+{
+    "added_books": [
+      {
+        "author": "HERVE",
+        "year_published": "2020",
+        "book_name": "Systématique animale D'Aristote aux phylogénies moléculaires : histoire, concepts et méthodes de la classification. De Boe",
+        "origin": [2]
+      },
+      {
+        "author": "LECOINTRE",
+        "year_published": "2021",
+        "book_name": "Guide critique de l'évolution. Belin",
+        "origin": [2]
+      },
+      {
+        "author": "GUYADER",
+        "year_published": "2016",
+        "book_name": "Classification phylogénétique du vivant. Belin",
+        "origin": [2]
+      }
+    ],
+    "removed_books": [
+      {
+        "author": "Gallais",
+        "year_published": "2018",
+        "book_name": "Histoire de la génétique et de l'amélioration des plantes. Éditions Quae",
+        "origin": [1]
+      },
+      {
+        "author": "LAGADEUC",
+        "year_published": "2001",
+        "book_name": "Statistiques pour les sciences de la vie et de l’environnement, cours et exercices corrigés. Dunod",
+        "origin": [1]
+      }
+    ],
+    "kept_books": [
+      {
+        "author": "BAUDET",
+        "year_published": "2018",
+        "book_name": "Histoire de la biologie et de la médecine. De Boeck Supérieur",
+        "origin": [1, 2]
+      },
+      {
+        "author": "CADET",
+        "year_published": "2008",
+        "book_name": "Invention de la physiologie. Belin Education",
+        "origin": [1, 2]
+      },
+      {
+        "author": "CARIOU",
+        "year_published": "2019",
+        "book_name": "Histoire des démarches scientifiques. Editions matériologiques",
+        "origin": [1, 2]
+      },
+      {
+        "author": "HERVE",
+        "year_published": "2020",
+        "book_name": "Systématique D'Aristote aux phylogénies moléculaires : histoire, concepts et méthodes de la classification. De Boeck",
+        "origin": [1, 2]
+      }
+    ],
+    "author_list": ["HERVE", "LECOINTRE", "GUYADER", "Gallais", "LAGADEUC", "BAUDET", "CADET", "CARIOU"]
+  }

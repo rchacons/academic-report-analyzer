@@ -1,145 +1,135 @@
-import { useEffect, useState } from 'preact/hooks';
-import { useLocation } from 'react-router-dom';
-import { Box, Button, Grid, Tooltip } from '@mui/material';
-import MultipleSelectChip from '../components/shared/MultipleSelectChip';
-import ReportsTable from '../components/ReportsTable';
-import SearchBar from '../components/SearchBar';
-import SubjectsFilterButtons from '../components/SubjectsFilterButtons';
-import { tokenize } from '../utils';
-import { exportSubjects } from '../services/exportService';
-import SimpleSelect from '../components/shared/SimpleSelect';
+import { useEffect, useState } from 'preact/hooks'
+import { useLocation } from 'react-router-dom'
+import { Autocomplete, Box, Button, Grid, TextField, Tooltip } from '@mui/material'
+import MultipleSelectChip from '../components/shared/MultipleSelectChip'
+import ReportsTable from '../components/ReportsTable'
+import SearchBar from '../components/SearchBar'
+import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
+import { tokenize } from '../utils'
+import { exportSubjects } from '../services/ExportService'
+import SimpleSelect from '../components/shared/SimpleSelect'
+import comparisonResult from '../assets/book_response.json'
+import BiblioTable from '../components/BiblioTable'
 
 export const BiblioResultPage = () => {
-  const location = useLocation();
+  const location = useLocation()
 
-  const { comparisonResult } = location.state || {};
+  // const { comparisonResult } = location.state || {};
 
+  // const { comparisonResult } = data || {};
+  console.log(comparisonResult)
 
-  const addedBooks = comparisonResult.added_subjects.map((item, index) => ({
+  const addedBooks = comparisonResult.added_books.map((item, index) => ({
     id: `nb${index}`,
     ...item,
-  }));
-  const removedBooks = comparisonResult.removed_subjects.map(
-    (item, index) => ({ id: `rb${index}`, ...item })
-  );
-  const keptBooks = comparisonResult.kept_subjects.map((item, index) => ({
+  }))
+  const removedBooks = comparisonResult.removed_books.map((item, index) => ({
+    id: `rb${index}`,
+    ...item,
+  }))
+  const keptBooks = comparisonResult.kept_books.map((item, index) => ({
     id: `kb${index}`,
     ...item,
-  }));
-  const allBooks = addedBooks.concat(removedBooks).concat(keptBooks);
+  }))
+  const allBooks = addedBooks.concat(removedBooks).concat(keptBooks)
 
+  const authors = comparisonResult.author_list
 
-  const [activeBookFilter, setActiveBookFilter] =
-    useState('added_books');
-  const [displayedBooks, setDisplayedBooks] = useState([]);
-  const [selectedBooks, setSelecetedBooks] = useState([]);
+  const [filterAuthor, setFilterAuthor] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
+  const [activeBookFilter, setActiveBookFilter] = useState('added_books')
+  const [displayedBooks, setDisplayedBooks] = useState([])
+  const [selectedBooks, setSelecetedBooks] = useState([])
 
-
-  const applyFilters = (subjects, levelsFilter, fieldsFilter, docFilter) => {
-    return subjects.filter((subject) => {
+  const applyFilters = (books, authorFilter) => {
+    return books.filter((book) => {
       return (
-        (levelsFilter.length === 0 ||
-          levelsFilter.includes(subject.level.toLowerCase())) &&
-        (fieldsFilter.length === 0 ||
-          fieldsFilter.includes(subject.field.toLowerCase())) &&
-        (docFilter === 0 || getOrigin(subject).includes(docFilter))
-      );
-    });
-  };
+        // (levelsFilter.length === 0 || levelsFilter.includes(subject.level.toLowerCase())) &&
+        // (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field.toLowerCase())) &&
+        // (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
+        authorFilter === '' || book.author === authorFilter
+      )
+    })
+  }
 
   const search = (query, items) => {
-    if (!query) return items;
-    const tokens = tokenize(query.toLowerCase());
-    console.log('tokenized query:', tokens);
+    if (!query) return items
+    const tokens = tokenize(query.toLowerCase())
+    console.log('tokenized query:', tokens)
 
     return items
       .map((item) => {
         // Calcul du score pour l'intitulé' de l'item
-        let itemScore = 0;
+        let itemScore = 0
         tokens.forEach((token) => {
-          if (item.title_research.toLowerCase().includes(token)) {
-            itemScore += 1;
+          if (item.book_name.toLowerCase().includes(token)) {
+            itemScore += 1
           }
-        });
-
-        // Calcul des scores pour chaque liste de matériel
-        const materialsScores = item.materials_configurations.map((config) => {
-          let configScore = 0;
-          tokens.forEach((token) => {
-            config.materials.forEach((material) => {
-              if (material.toLowerCase().includes(token)) {
-                configScore += 1;
-              }
-            });
-          });
-          return { ...config, score: configScore };
-        });
-
-        // Tri listes de matériel par score décroissant
-        materialsScores.sort((a, b) => b.score - a.score);
-
-        // Score maximum parmi les listes de matériel
-        const maxMaterialScore = Math.max(
-          ...materialsScores.map((config) => config.score)
-        );
-
-        // Score global de l'item
-        const totalScore = itemScore + maxMaterialScore;
+        })
 
         return {
           ...item,
-          score: totalScore,
-          materials_configurations: materialsScores,
-        };
+          score: itemScore,
+        }
       })
       .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score);
-  };
-
+      .sort((a, b) => b.score - a.score)
+  }
 
   const getBooksByType = (bookFilter) => {
-    let books;
+    let books
     switch (bookFilter) {
       case 'added_books':
-        books = addedBooks;
-        break;
+        books = addedBooks
+        break
       case 'removed_books':
-        books = removedBooks;
-        break;
+        books = removedBooks
+        break
       case 'kept_books':
-        books = keptBooks;
-        break;
+        books = keptBooks
+        break
       case 'all_books':
-        books = allBooks;
-        break;
+        books = allBooks
+        break
       default:
-        books = [];
+        books = []
     }
-    return books;
-  };
+    return books
+  }
 
-  const setBooksToDisplay = (booktFilter) => {
-    let books = getBooksByType(booktFilter);
-    books = applyFilters(books, filterLevels, filterFields, filterDoc);
-    books = search(searchQuery, books);
-    setActiveBookFilter(booktFilter);
-    setDisplayedBooks(books);
-  };
+  const setBooksToDisplay = (bookFilter) => {
+    console.log("bookFilter", bookFilter);
+    let books = getBooksByType(bookFilter)
+    books = applyFilters(books, filterAuthor)
+    books = search(searchQuery, books)
+    setActiveBookFilter(bookFilter)
+    setDisplayedBooks(books)
+  }
 
   const handleExportBooks = async () => {
     const booksToExport = allBooks
-      .filter((subject) => selectedBooks.includes(subject.id))
-      .map(({ id, ...rest }) => rest); // Exclure 'id' des éléments
-    await exportSubjects(booksToExport);
-  };
+      .filter((book) => selectedBooks.includes(book.id))
+      .map(({ id, ...rest }) => rest) // Exclure 'id' des éléments
+    await exportSubjects(booksToExport)
+  }
+
+  const handleFilterAuthorChange = (event, value) => {
+    setFilterAuthor(value)
+    setBooksToDisplay(activeBookFilter)
+  }
+
+  const handleSearchResults = (query) => {
+    setSearchQuery(query)
+    setBooksToDisplay(activeBookFilter)
+  }
 
   useEffect(() => {
-    setBooksToDisplay(activeBookFilter);
-  }, []);
+    setBooksToDisplay(activeBookFilter)
+  }, [filterAuthor, searchQuery])
 
   return (
-    <Grid container spacing={2} justifyContent='space-between' p='1em 2em'>
+    <Grid container spacing={2} justifyContent="space-between" p="1em 2em">
       <Grid item xs={12} md={10}>
         <Box
           sx={{
@@ -159,7 +149,7 @@ export const BiblioResultPage = () => {
             removedItems={removedBooks}
             keptItems={keptBooks}
             allItems={allBooks}
-            keys={['added_books','removed_books','kept_books','all_books']}
+            keys={['added_books', 'removed_books', 'kept_books', 'all_books']}
             numberOfItems={allBooks.length}
           />
         </Box>
@@ -173,13 +163,8 @@ export const BiblioResultPage = () => {
             alignItems: 'right',
           }}
         >
-          <Tooltip title='Exporter les éléments sélectionnés au format xlsx'>
-            <Button
-              variant='outlined'
-              thin
-              color='primary'
-              onClick={handleExportBooks}
-            >
+          <Tooltip title="Exporter les éléments sélectionnés au format xlsx">
+            <Button variant="outlined" thin color="primary" onClick={handleExportBooks}>
               Exporter
             </Button>
           </Tooltip>
@@ -197,38 +182,29 @@ export const BiblioResultPage = () => {
             },
           }}
         >
-        {/*   <MultipleSelectChip
-            name='Domaines'
-            items={fields}
-            selectedValue={filterFields}
-            onChange={handleFilterFieldsChange}
-          ></MultipleSelectChip>
-
-          <MultipleSelectChip
-            name='Niveaux'
-            items={levels}
-            selectedValue={filterLevels}
-            onChange={handleFilterLevelsChange}
-          ></MultipleSelectChip>
-
-          <SimpleSelect
-            name='Document'
-            items={[1, 2]}
-            selectedValue={filterDoc}
-            onChange={handleFilterDocChange}
+          <Autocomplete
+            disablePortal
+            disabled={authors.length == 0}
+            id="author-filter"
+            options={authors}
+            size="small"
+            sx={{ width: 300 }}
+            value={filterAuthor}
+            onChange={handleFilterAuthorChange}
+            renderInput={(params) => <TextField {...params} label="Auteurs" />}
           />
 
-          <SearchBar onSearch={handleSearchResults}></SearchBar> */}
+          <SearchBar onSearch={handleSearchResults}></SearchBar>
         </Box>
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable
-          reports={displayedBooks}
-          selected={selectedBooks}
-          setSelectedSubjects={setSelecetedBooks}
+        <BiblioTable
+          books={displayedBooks}
+          // selected={selectedBooks}
+          setSelectedBooks={setSelecetedBooks}
         />
       </Grid>
     </Grid>
-  );
-};
+  )
+}
