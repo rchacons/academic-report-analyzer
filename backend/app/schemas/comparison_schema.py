@@ -58,8 +58,12 @@ class BookWithOrigin(BaseModel):
     infor_book: Book
     origin: int 
 
+class Author(BaseModel):
+    name: str
+
 class ComparaisonListBookResult(BaseModel):
     added_books: List[BookWithOrigin]
     removed_books: List[BookWithOrigin]
     kept_books: List[BookWithOrigin]
+    author_list: List[Author]
    
