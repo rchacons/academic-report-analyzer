@@ -10,7 +10,7 @@ import {
 import FileDropZone from '../components/FileDropZone'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'preact/hooks'
-import { compareBiblio, compareReports } from '../services/comparisonService'
+import { compareBiblio, compareReports } from '../services/ComparisonService'
 import LoadingButton from '../components/shared/LoadingButton'
 
 export const HomePage = () => {

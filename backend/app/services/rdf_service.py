@@ -195,20 +195,34 @@ def get_related_articles(url):
     for ac in articles_connexes:
         #print(type(ac))
         text = ac.text
-        lines = text.split("\n")
+        print(text)
+        if text:
+            lines = text.split("\n")
+        else:
+            lines = []
         #print(lines)
+    
+    try:
+        lines
+    except NameError:
+        lines = []
 
-    for line in lines:
-        print("OK " + line)
-        if wiki.page(line).exists and line != '':
-            #print("   Page trouvée :" + line)
-            if line == "Acide désoxyribonucléique (ADN)":
-                link =  wiki.page('Acide désoxyribonucléique').fullurl
-                #print("   Lien :"+link)
-            else:
-                link =  wiki.page(line).fullurl
-                #print("   Lien :"+link)
-            related_articles.append(link)
+    if lines:
+        for line in lines:
+            print("OK " + line)
+            if wiki.page(line).exists and line != '':
+                #print("   Page trouvée :" + line)
+                if len(line) > 50:
+                    print("Lien trop long, c'est un livre ")
+                    continue
+                else:
+                    try:
+                        link =  wiki.page(line).fullurl
+                    except Exception as e:
+                        print(e)
+                        continue
+                    #print("   Lien :"+link)
+                related_articles.append(link)
 
     #Après analyse de la page en français, si il n'y a aucun lien, on regarde dans la page anglaise
     if not related_articles:
@@ -224,22 +238,28 @@ def get_related_articles(url):
                 lines = text.split("\n")
                 #print(lines)
 
-            for line in lines:
-                #print("OK " + line)
-                if wiki.page(line).exists and line != '':
-                    #print("   Page Espagnol trouvée :" + line)
-                    #print(wiki.page(line).langlinks)
-                    page_test = wiki.page(line)
-                    test_lang = page_test.langlinks
-                    #print(test_lang)
-                    if not test_lang:
-                        print("Pas de lien de langue")
-                    elif wiki.page(line).langlinks['en'].exists:
-                        #print("Page englaise trouvée")
-                        page_fr = wiki.page(line).langlinks['en']
-                        link =  page_fr.fullurl
-                        #print("   Lien :"+link)
-                        related_articles.append(link)
+            if lines:
+                for line in lines:
+                    #print("OK " + line)
+                    if wiki.page(line).exists and line != '':
+                        #print("   Page Espagnol trouvée :" + line)
+                        #print(wiki.page(line).langlinks)
+                        page_test = wiki.page(line)
+                        test_lang = page_test.langlinks
+                        #print(test_lang)
+                        if not test_lang:
+                            print("Pas de lien de langue")
+                            continue
+                        elif wiki.page(line).langlinks['en'].exists:
+                            #print("Page englaise trouvée")
+                            page_fr = wiki.page(line).langlinks['en']
+                            try:
+                                link =  wiki.page(line).fullurl
+                            except Exception as e:
+                                print(e)
+                                continue
+                            #print("   Lien :"+link)
+                            related_articles.append(link)
 
 
     # je retourne le lien vers la partie des articles connexes de la page :
@@ -348,7 +368,12 @@ def process_rdf_wikipedia(words):
 
     return graph, client_concept, combinate_graph
 
-# Code de la V1
+
+##################################
+##################################
+########## Code de la V1 #########
+##################################
+##################################
 
 
 def preprocess(terms):

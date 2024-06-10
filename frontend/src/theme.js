@@ -101,8 +101,8 @@ const theme = createTheme(baseTheme, {
         {
           props: { thin: true },
           style: {
-            fontSize: '12px',
-            // padding: '4px 10px',
+            fontSize: '0.75em',
+            padding: '1em'
           },
         },
       ],
