@@ -20,7 +20,7 @@ export const exportData = async (data, fileName) => {
       link.remove()
     }
   } catch (error) {
-    console.error('Erreur lors de la comparaison des rapports:', error)
+    console.error('Erreur lors de l\'export des données:', error)
     throw error
   }
 }
