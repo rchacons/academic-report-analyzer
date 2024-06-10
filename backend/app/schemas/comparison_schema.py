@@ -59,13 +59,9 @@ class Book(BaseModel):
             return hash((self.author, self.year_published, self.book_name))
         
 
-
-class Author(BaseModel):
-    name: str
-
 class ComparaisonListBookResult(BaseModel):
     added_books: List[Book]
     removed_books: List[Book]
     kept_books: List[Book]
-    author_list: List[Author]
+    author_list: List[str]
    

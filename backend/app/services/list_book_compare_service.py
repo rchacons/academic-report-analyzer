@@ -4,7 +4,7 @@ import re
 import logging
 from collections import defaultdict
 
-from ..schemas.comparison_schema import Author, Book, ComparaisonListBookResult
+from ..schemas.comparison_schema import  Book, ComparaisonListBookResult
 from .book_list_extractor_service import BookListExtractorService
 
 
@@ -28,14 +28,20 @@ class ListBookCompareService:
 
         list_book1 = BookListExtractorService(path1).extract_books_from_pdf()
 
-        author_list1 = [Author(name=book.author) for book in list_book1]
+        author_list1 = [book.author for book in list_book1]
 
 
 
         list_book2 = BookListExtractorService(path2).extract_books_from_pdf()
 
-        author_list2 = [Author(name=book.author) for book in list_book2]
+        author_list2 = [book.author for book in list_book2]
 
+
+        """
+        # Create a list of authors from two list of books with no duplicates"""
+        author_list = author_list1 + author_list2
+        author_list = list(set(author_list))
+        author_list.sort()
 
         set_book1 = set(list_book1)
 
@@ -51,7 +57,7 @@ class ListBookCompareService:
             added_books=added_books_to_list,
             removed_books=removed_books_from_list,
             kept_books=kept_books_in_list,
-            author_list=author_list1 + author_list2)
+            author_list=author_list)
     
 
     
