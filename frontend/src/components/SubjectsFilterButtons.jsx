@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@mui/material';
+import { Button, ButtonGroup } from '@mui/material'
 
 const SubjectsFilterButtons = ({
   itemsType,
@@ -72,10 +72,10 @@ const SubjectsFilterButtons = ({
   ];
 
   return (
-    <ButtonGroup size='large' aria-label={`${itemsType} filter tabs`}>
+    <ButtonGroup size="large" aria-label={`${itemsType} filter tabs`}>
       {subjectFilterButtons}
     </ButtonGroup>
-  );
-};
+  )
+}
 
-export default SubjectsFilterButtons;
+export default SubjectsFilterButtons

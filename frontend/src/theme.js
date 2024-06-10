@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
 let baseTheme = createTheme({
   palette: {
@@ -48,7 +48,7 @@ let baseTheme = createTheme({
       light: '#1C1C1E',
     },
   }, // palette
-});
+})
 
 const theme = createTheme(baseTheme, {
   typography: {
@@ -101,8 +101,8 @@ const theme = createTheme(baseTheme, {
         {
           props: { thin: true },
           style: {
-            fontSize: '12px',
-            // padding: '4px 10px',
+            fontSize: '0.75em',
+            padding: '1em'
           },
         },
       ],
@@ -203,6 +203,6 @@ const theme = createTheme(baseTheme, {
       ],
     },
   },
-});
+})
 
-export default theme;
+export default theme

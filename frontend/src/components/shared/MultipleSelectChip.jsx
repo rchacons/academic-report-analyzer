@@ -1,17 +1,17 @@
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Chip from '@mui/material/Chip';
+import { useTheme } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import Chip from '@mui/material/Chip'
 
 const MultipleSelectChip = ({ name, items, selectedValue, onChange }) => {
-  const theme = useTheme();
+  const theme = useTheme()
 
   return (
-    <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
+    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
       <InputLabel id={`filter-${name}-label`}>{name}</InputLabel>
       <Select
         labelId={`filter-${name}-label`}
@@ -42,7 +42,7 @@ const MultipleSelectChip = ({ name, items, selectedValue, onChange }) => {
         ))}
       </Select>
     </FormControl>
-  );
-};
+  )
+}
 
-export default MultipleSelectChip;
+export default MultipleSelectChip
