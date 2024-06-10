@@ -4,7 +4,7 @@ import re
 import logging
 from collections import defaultdict
 
-from ..schemas.comparison_schema import Author, Book, BookWithOrigin, ComparaisonListBookResult
+from ..schemas.comparison_schema import Author, Book, ComparaisonListBookResult
 from .book_list_extractor_service import BookListExtractorService
 
 
@@ -22,10 +22,6 @@ class ListBookCompareService:
     def __init__(self):
         self.book_partern = re.compile(r'([A-Z\s,\'’:.]+)(\d{4})?\s?\(([^)]+)\)')
 
-
-
-    def commpare_book(self, book1: Book, book2: Book) -> bool: 
-        return  book1.is_same_book(book2)
 
 
     def compareTwoListBook(self, path1: str, path2: str) -> ComparaisonListBookResult:
@@ -46,9 +42,9 @@ class ListBookCompareService:
         set_book2 = set(list_book2)
 
         
-        removed_books_from_list = [BookWithOrigin(infor_book=book, origin = 1) for book in list_book1 if book not in set_book2]
-        added_books_to_list = [BookWithOrigin(infor_book=book, origin = 2) for book in list_book2 if book not in set_book1]
-        kept_books_in_list = [BookWithOrigin(infor_book=book, origin = 1) for book in list_book1 if book in set_book2]
+        removed_books_from_list = [Book(author=book.author, book_name= book.book_name, year_published=book.year_published, origin = [1]) for book in list_book1 if book not in set_book2]
+        added_books_to_list = [Book(author=book.author, book_name= book.book_name, year_published=book.year_published, origin = [2]) for book in list_book2 if book not in set_book1]
+        kept_books_in_list = [Book(author=book.author, book_name= book.book_name, year_published=book.year_published, origin = [1,2]) for book in list_book1 if book in set_book2]
 
 
         return ComparaisonListBookResult(
