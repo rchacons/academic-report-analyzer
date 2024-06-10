@@ -324,11 +324,10 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper>
         <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
         <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
+          <Table aria-labelledby="tableTitle" size={'medium'}>
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
@@ -364,7 +363,7 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-    </Box>
+
   )
 }
 
