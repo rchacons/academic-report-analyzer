@@ -6,13 +6,13 @@ import ReportsTable from '../components/ReportsTable'
 import SearchBar from '../components/SearchBar'
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
 import { tokenize } from '../utils'
-import { exportSubjects } from '../services/ExportService'
+import { exportData } from '../services/ExportService'
 import SimpleSelect from '../components/shared/SimpleSelect'
 
 export const ReportResultPage = () => {
   const location = useLocation()
 
-  const { comparisonResult } = location.state || {};
+  const { comparisonResult } = location.state || {}
   const addedSubjects = comparisonResult.added_subjects.map((item, index) => ({
     id: `ns${index}`,
     ...item,
@@ -24,17 +24,16 @@ export const ReportResultPage = () => {
   const keptSubjects = comparisonResult.kept_subjects.map((item, index) => ({
     id: `ks${index}`,
     ...item,
-  }));
-  const allSubjects = addedSubjects.concat(removedSubjects).concat(keptSubjects);
+  }))
+  const allSubjects = addedSubjects.concat(removedSubjects).concat(keptSubjects)
 
   const levels = comparisonResult.level_list
   const fields = comparisonResult.field_list
   const themes = comparisonResult.theme_list
 
-  const [activeSubjectFilter, setActiveSubjectFilter] =
-    useState('added_subjects');
-  const [displayedSubjects, setDisplayedSubjects] = useState([]);
-  const [selectedSubjects, setSelecetedSubjects] = useState([]);
+  const [activeSubjectFilter, setActiveSubjectFilter] = useState('added_subjects')
+  const [displayedSubjects, setDisplayedSubjects] = useState([])
+  const [selectedSubjects, setSelecetedSubjects] = useState([])
 
   const [filterLevels, setFilterLevels] = useState([])
   const [filterFields, setFilterFields] = useState([])
@@ -144,8 +143,8 @@ export const ReportResultPage = () => {
     let subjects
     switch (subjectFilter) {
       case 'added_subjects':
-        subjects = addedSubjects;
-        break;
+        subjects = addedSubjects
+        break
       case 'removed_subjects':
         subjects = removedSubjects
         break
@@ -200,8 +199,8 @@ export const ReportResultPage = () => {
   const handleExportSubjects = async () => {
     const subjectsToExport = allSubjects
       .filter((subject) => selectedSubjects.includes(subject.id))
-      .map(({ id, ...rest }) => rest) // Exclure 'id' des éléments
-    await exportSubjects(subjectsToExport)
+      .map(({ id, ...rest }) => rest) // Exclure 'id' des élémentss
+    await exportData(subjectsToExport, 'liste_sujets')
   }
 
   useEffect(() => {
@@ -229,7 +228,7 @@ export const ReportResultPage = () => {
             removedItems={removedSubjects}
             keptItems={keptSubjects}
             allItems={allSubjects}
-            keys={['added_subjects','removed_subjects','kept_subjects','all_subjects']}
+            keys={['added_subjects', 'removed_subjects', 'kept_subjects', 'all_subjects']}
             numberOfItems={allSubjects.length}
           />
         </Box>
@@ -299,10 +298,7 @@ export const ReportResultPage = () => {
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable
-          reports={displayedSubjects}
-          setSelectedSubjects={setSelecetedSubjects}
-        />
+        <ReportsTable reports={displayedSubjects} setSelectedSubjects={setSelecetedSubjects} />
       </Grid>
     </Grid>
   )

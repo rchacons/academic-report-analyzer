@@ -6,11 +6,12 @@ import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
 import { tokenize } from '../utils'
 import SimpleSelect from '../components/shared/SimpleSelect'
 import BiblioTable from '../components/BiblioTable'
+import { exportData } from '../services/ExportService'
 
 export const BiblioResultPage = () => {
   const location = useLocation()
 
-  const { comparisonResult } = location.state || {};
+  const { comparisonResult } = location.state || {}
 
   const addedBooks = comparisonResult.added_books.map((item, index) => ({
     id: `nb${index}`,
@@ -99,10 +100,10 @@ export const BiblioResultPage = () => {
   }
 
   const handleExportBooks = async () => {
-  /*   const booksToExport = allBooks
+    const booksToExport = allBooks
       .filter((book) => selectedBooks.includes(book.id))
-      .map(({ id, ...rest }) => rest) // Exclure 'id' des éléments
-    await exportBooks(booksToExport) */
+      .map(({ id, origin, ...rest }) => rest) // Exclure 'id' et 'origin' des éléments
+    await exportData(booksToExport, 'liste_livres')
   }
 
   const handleFilterDocChange = (event) => {
@@ -203,10 +204,7 @@ export const BiblioResultPage = () => {
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <BiblioTable
-          books={displayedBooks}
-          setSelectedBooks={setSelecetedBooks}
-        />
+        <BiblioTable books={displayedBooks} setSelectedBooks={setSelecetedBooks} />
       </Grid>
     </Grid>
   )
