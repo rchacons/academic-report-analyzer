@@ -2,29 +2,30 @@ import { Button, ButtonGroup } from '@mui/material'
 
 const SubjectsFilterButtons = ({
   itemsType,
-  setSubjectsToDisplay,
-  activeSubjectFilter,
-  newSubjects,
-  removedSubjects,
-  keptSubjects,
-  allSubjects,
-  numberOfSubjects,
+  setitemsToDisplay,
+  activeItemtFilter,
+  addedItems,
+  removedItems,
+  keptItems,
+  allItems,
+  keys,
+  numberOfItems,
 }) => {
   const subjectFilterButtons = [
     <Button
-      key="new_subjects"
+      key={keys[0]}
       thin
-      variant={activeSubjectFilter === 'new_subjects' ? 'contained' : 'outlined'}
-      onClick={() => setSubjectsToDisplay('new_subjects')}
+      variant={activeItemtFilter === keys[0] ? 'contained' : 'outlined'}
+      onClick={() => setitemsToDisplay(keys[0])}
     >
-      {itemsType} ajoutés ({newSubjects.length} sur {numberOfSubjects})
+      {itemsType} ajoutés ({addedItems.length} sur {numberOfItems})
     </Button>,
 
     <Button
-      key="removed_subjects"
+      key={keys[1]}
       thin
-      variant={activeSubjectFilter === 'removed_subjects' ? 'contained' : 'outlined'}
-      onClick={() => setSubjectsToDisplay('removed_subjects')}
+      variant={activeItemtFilter === keys[1] ? 'contained' : 'outlined'}
+      onClick={() => setitemsToDisplay(keys[1])}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -34,13 +35,13 @@ const SubjectsFilterButtons = ({
         },
       }}
     >
-      {itemsType} supprimés ({removedSubjects.length} sur {numberOfSubjects})
+      {itemsType} supprimés ({removedItems.length} sur {numberOfItems})
     </Button>,
     <Button
-      key="kept_subjects"
+      key={keys[2]}
       thin
-      variant={activeSubjectFilter === 'kept_subjects' ? 'contained' : 'outlined'}
-      onClick={() => setSubjectsToDisplay('kept_subjects')}
+      variant={activeItemtFilter === keys[2] ? 'contained' : 'outlined'}
+      onClick={() => setitemsToDisplay(keys[2])}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -50,13 +51,13 @@ const SubjectsFilterButtons = ({
         },
       }}
     >
-      {itemsType} gardés ({keptSubjects.length} sur {numberOfSubjects})
+      {itemsType} gardés ({keptItems.length} sur {numberOfItems})
     </Button>,
     <Button
-      key="all_subjects"
+      key={keys[3]}
       thin
-      variant={activeSubjectFilter === 'all_subjects' ? 'contained' : 'outlined'}
-      onClick={() => setSubjectsToDisplay('all_subjects')}
+      variant={activeItemtFilter === keys[3] ? 'contained' : 'outlined'}
+      onClick={() => setitemsToDisplay(keys[3])}
       sx={{
         '&:focus': {
           outline: 'none',
@@ -66,9 +67,9 @@ const SubjectsFilterButtons = ({
         },
       }}
     >
-      Tous les {itemsType} ({allSubjects.length} sur {numberOfSubjects})
+      Tous les {itemsType} ({allItems.length} sur {numberOfItems})
     </Button>,
-  ]
+  ];
 
   return (
     <ButtonGroup size="large" aria-label={`${itemsType} filter tabs`}>

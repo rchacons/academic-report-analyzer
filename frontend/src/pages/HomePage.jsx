@@ -124,7 +124,7 @@ export const HomePage = () => {
 
         {comparisonType == 'report' ? (
           <FileDropZone
-            title={'Liste des thèmes (Optionel)'}
+            title={'Liste des thèmes (Optionnel)'}
             file={thirdFile}
             setFile={setThirdFile}
             displayMessage={displayMessage}
