@@ -103,11 +103,21 @@ export const HomePage = () => {
           file={firstFile}
           setFile={setFirstFile}
           displayMessage={displayMessage}
-          acceptedMimeType={{
-            'application/pdf': ['.pdf'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-          }}
-          tooltip={'Chargez le premier fichier à comparer'}
+          acceptedMimeType={
+            comparisonType == 'report'
+              ? {
+                  'application/pdf': ['.pdf'],
+                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                }
+              : {
+                  'application/pdf': ['.pdf'],
+                }
+          }
+          tooltip={
+            comparisonType == 'report'
+              ? 'Chargez le premier fichier à comparer (.pdf, .xlsx)'
+              : 'Chargez le premier fichier à comparer (.pdf)'
+          }
         />
 
         <FileDropZone
@@ -115,11 +125,21 @@ export const HomePage = () => {
           file={secondFile}
           setFile={setSecondFile}
           displayMessage={displayMessage}
-          acceptedMimeType={{
-            'application/pdf': ['.pdf'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-          }}
-          tooltip={'Chargez le second fichier à comparer'}
+          acceptedMimeType={
+            comparisonType == 'report'
+              ? {
+                  'application/pdf': ['.pdf'],
+                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                }
+              : {
+                  'application/pdf': ['.pdf'],
+                }
+          }
+          tooltip={
+            comparisonType == 'report'
+              ? 'Chargez le premier fichier à comparer (.pdf, .xlsx)'
+              : 'Chargez le premier fichier à comparer (.pdf)'
+          }
         />
 
         {comparisonType == 'report' ? (
@@ -131,7 +151,7 @@ export const HomePage = () => {
             acceptedMimeType={{
               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
             }}
-            tooltip={'Chargez une liste de thèmes pour les associer aux sujets'}
+            tooltip={'Chargez une liste de thèmes pour les associer aux sujets (.xlsx)'}
           />
         ) : (
           <></>
