@@ -8,6 +8,7 @@ import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
 import { tokenize } from '../utils'
 import { exportData } from '../services/ExportService'
 import SimpleSelect from '../components/shared/SimpleSelect'
+import { getRdfGraph } from '../services/RdfService'
 
 export const ReportResultPage = () => {
   const location = useLocation()
@@ -298,7 +299,10 @@ export const ReportResultPage = () => {
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable reports={displayedSubjects} setSelectedSubjects={setSelecetedSubjects} />
+        <ReportsTable
+          reports={displayedSubjects}
+          setSelectedSubjects={setSelecetedSubjects}
+        />
       </Grid>
     </Grid>
   )

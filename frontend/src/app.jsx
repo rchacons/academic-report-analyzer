@@ -1,9 +1,10 @@
-import './app.css';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { HomePage } from './pages/HomePage';
-import  {ReportResultPage}  from './pages/ReportResultPage';
-import AppBar from './components/AppBar';
-import {BiblioResultPage} from './pages/BiblioResultPage';
+import './app.css'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { HomePage } from './pages/HomePage'
+import { ReportResultPage } from './pages/ReportResultPage'
+import AppBar from './components/AppBar'
+import { BiblioResultPage } from './pages/BiblioResultPage'
+import RelatedConceptPage from './pages/RelatedConceptPage'
 
 export const App = () => {
   const router = createBrowserRouter([
@@ -31,6 +32,15 @@ export const App = () => {
         <>
           <AppBar />
           <BiblioResultPage />
+        </>
+      ),
+    },
+    {
+      path: '/related-concepts/',
+      element: (
+        <>
+          <AppBar />
+          <RelatedConceptPage />
         </>
       ),
     },
