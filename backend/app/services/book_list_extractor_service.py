@@ -2,7 +2,7 @@ import logging
 from ..schemas.comparison_schema import Book
 import pdfplumber
 import re
-from typing import List, Dict, Tuple
+from typing import List
 
 
 logger = logging.getLogger(__name__)
@@ -37,8 +37,6 @@ class BookListExtractorService:
                             books.append(book)
         return books
 
-    def get_books(self) -> List[Dict[str, str]]:
-        return self.books
 
 
     def extract_book_multiple_line(self,book_string):
@@ -64,7 +62,7 @@ class BookListExtractorService:
         if match:
             # Extract the book details from the match
             author, year, title = match.groups()
-
+            
             # Create a new Book object and return it
             return Book(author=author, year_published=year, book_name=title)
         else:
