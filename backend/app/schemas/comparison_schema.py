@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Set
+from typing import List, Optional, Optional, Set
 
 class ListMaterials(BaseModel):
     materials: List[str]
@@ -43,6 +43,9 @@ class Book(BaseModel):
         author: str
         year_published: str
         book_name: str
+        origin: Optional[List[int]] = None
+
+        
         origin: Optional[List[int]] = None
 
         
