@@ -1,6 +1,6 @@
 import api from '../api'
 
-export const exportSubjects = async (data) => {
+export const exportData = async (data, fileName) => {
   try {
     const response = await api.post('/export-to-excel/', data, {
       headers: {
@@ -10,10 +10,11 @@ export const exportSubjects = async (data) => {
     })
 
     if (response.status === 200) {
+      console.log('response', response);
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'liste_sujets.xlsx')
+      link.setAttribute('download', `${fileName}.xlsx`)
       document.body.appendChild(link)
       link.click()
       link.remove()
