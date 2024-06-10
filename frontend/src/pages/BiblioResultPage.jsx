@@ -35,6 +35,7 @@ export const BiblioResultPage = () => {
 
   const authors = comparisonResult.author_list
 
+  const [filterDoc, setFilterDoc] = useState(0)
   const [filterAuthor, setFilterAuthor] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -42,13 +43,11 @@ export const BiblioResultPage = () => {
   const [displayedBooks, setDisplayedBooks] = useState([])
   const [selectedBooks, setSelecetedBooks] = useState([])
 
-  const applyFilters = (books, authorFilter) => {
+  const applyFilters = (books, authorFilter, docFilter) => {
     return books.filter((book) => {
       return (
-        // (levelsFilter.length === 0 || levelsFilter.includes(subject.level.toLowerCase())) &&
-        // (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field.toLowerCase())) &&
-        // (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
-        authorFilter === '' || book.author === authorFilter
+        ((docFilter === 0 || book.origin.includes(docFilter)) && authorFilter === '') ||
+        book.author === authorFilter
       )
     })
   }
@@ -99,19 +98,25 @@ export const BiblioResultPage = () => {
   }
 
   const setBooksToDisplay = (bookFilter) => {
-    console.log("bookFilter", bookFilter);
+    console.log('bookFilter', bookFilter)
     let books = getBooksByType(bookFilter)
-    books = applyFilters(books, filterAuthor)
+    books = applyFilters(books, filterAuthor, filterDoc)
     books = search(searchQuery, books)
     setActiveBookFilter(bookFilter)
     setDisplayedBooks(books)
   }
 
   const handleExportBooks = async () => {
-    const booksToExport = allBooks
+  /*   const booksToExport = allBooks
       .filter((book) => selectedBooks.includes(book.id))
       .map(({ id, ...rest }) => rest) // Exclure 'id' des éléments
-    await exportSubjects(booksToExport)
+    await exportBooks(booksToExport) */
+  }
+
+  const handleFilterDocChange = (event) => {
+    const selectedDoc = event.target.value
+    setFilterDoc(selectedDoc)
+    setBooksToDisplay(activeBookFilter)
   }
 
   const handleFilterAuthorChange = (event, value) => {
@@ -126,7 +131,7 @@ export const BiblioResultPage = () => {
 
   useEffect(() => {
     setBooksToDisplay(activeBookFilter)
-  }, [filterAuthor, searchQuery])
+  }, [filterDoc, filterAuthor, searchQuery])
 
   return (
     <Grid container spacing={2} justifyContent="space-between" p="1em 2em">
@@ -182,6 +187,13 @@ export const BiblioResultPage = () => {
             },
           }}
         >
+          <SimpleSelect
+            name="Document"
+            items={[1, 2]}
+            selectedValue={filterDoc}
+            onChange={handleFilterDocChange}
+          />
+
           <Autocomplete
             disablePortal
             disabled={authors.length == 0}
@@ -201,7 +213,6 @@ export const BiblioResultPage = () => {
       <Grid item xs={12} md={12}>
         <BiblioTable
           books={displayedBooks}
-          // selected={selectedBooks}
           setSelectedBooks={setSelecetedBooks}
         />
       </Grid>

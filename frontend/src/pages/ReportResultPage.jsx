@@ -301,7 +301,6 @@ export const ReportResultPage = () => {
       <Grid item xs={12} md={12}>
         <ReportsTable
           reports={displayedSubjects}
-          selected={selectedSubjects}
           setSelectedSubjects={setSelecetedSubjects}
         />
       </Grid>
