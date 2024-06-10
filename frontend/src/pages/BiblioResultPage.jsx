@@ -1,23 +1,16 @@
 import { useEffect, useState } from 'preact/hooks'
 import { useLocation } from 'react-router-dom'
 import { Autocomplete, Box, Button, Grid, TextField, Tooltip } from '@mui/material'
-import MultipleSelectChip from '../components/shared/MultipleSelectChip'
-import ReportsTable from '../components/ReportsTable'
 import SearchBar from '../components/SearchBar'
 import SubjectsFilterButtons from '../components/SubjectsFilterButtons'
 import { tokenize } from '../utils'
-import { exportSubjects } from '../services/ExportService'
 import SimpleSelect from '../components/shared/SimpleSelect'
-import comparisonResult from '../assets/book_response.json'
 import BiblioTable from '../components/BiblioTable'
 
 export const BiblioResultPage = () => {
   const location = useLocation()
 
-  // const { comparisonResult } = location.state || {};
-
-  // const { comparisonResult } = data || {};
-  console.log(comparisonResult)
+  const { comparisonResult } = location.state || {};
 
   const addedBooks = comparisonResult.added_books.map((item, index) => ({
     id: `nb${index}`,
@@ -33,7 +26,7 @@ export const BiblioResultPage = () => {
   }))
   const allBooks = addedBooks.concat(removedBooks).concat(keptBooks)
 
-  const authors = comparisonResult.author_list
+  const authors = comparisonResult.author_list || []
 
   const [filterDoc, setFilterDoc] = useState(0)
   const [filterAuthor, setFilterAuthor] = useState('')
@@ -98,7 +91,6 @@ export const BiblioResultPage = () => {
   }
 
   const setBooksToDisplay = (bookFilter) => {
-    console.log('bookFilter', bookFilter)
     let books = getBooksByType(bookFilter)
     books = applyFilters(books, filterAuthor, filterDoc)
     books = search(searchQuery, books)

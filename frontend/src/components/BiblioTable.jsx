@@ -149,7 +149,6 @@ Row.propTypes = {
 }
 
 const BiblioTable = ({ books, setSelectedBooks }) => {
-  console.log("books", books);
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('score')
   const [page, setPage] = useState(0)
