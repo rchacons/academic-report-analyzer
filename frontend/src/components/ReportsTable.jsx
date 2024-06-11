@@ -185,7 +185,7 @@ const CollapsibleRow = ({ row, isItemSelected, handleClick, handleGetRdfGraph })
         <TableCell align="left">{row.theme}</TableCell>
 
         <TableCell align="left">
-          <Link to={'/related-concepts'} state={{ id: row.id, title: row.title }}>
+          <Link to={'/related-concepts'} state={{ id: row.id, text: row.title }}>
             voir
           </Link>
         </TableCell>
