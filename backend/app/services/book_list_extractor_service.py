@@ -40,7 +40,7 @@ class BookListExtractorService:
 
 
     def extract_book_multiple_line(self,book_string):
-        book_pattern = re.compile(r"(\w+) \((\d{4})\) : (.+?)(?=\w+ \(\d{4}\) : |$)", re.DOTALL)
+        book_pattern = re.compile(r"(.+?) \((\d{4})\) : (.+?)(?=\w+ \(\d{4}\) : |$)", re.DOTALL)
 
         match = book_pattern.search(book_string)
         if match:
@@ -56,7 +56,7 @@ class BookListExtractorService:
             return None
         
     def extract_book_single_line(self,book_string):
-        book_pattern = re.compile(r"(\w+) \((\d{4})\) : (.+?)(?=\w+ \(\d{4}\) : |$)")
+        book_pattern = re.compile(r"(.+?) \((\d{4})\) : (.+?)(?=\w+ \(\d{4}\) : |$)")
 
         match = book_pattern.search(book_string)
         if match:
