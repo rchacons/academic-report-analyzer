@@ -53,35 +53,37 @@ const RelatedConceptPage = () => {
 
   return (
     <Box>
-      <Typography variant="headerTitle" align="center" mt={4}>
-        Concepts Liés
-      </Typography>
       {loading ? (
         <Box
-          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '80vh',
+            m: 4,
+          }}
         >
           <CircularProgress />
-          <Typography variant="textInfoLittle" mt={1}>
+          <Typography variant="body2" mt={1}>
             Le traitement peut mettre quelques instants, veuillez patienter...
           </Typography>
         </Box>
       ) : (
         rdfGraph && (
-          <Grid container spacing={2} display={'flex'}
-          justifyContent="center">
-            <Grid item md={6} xs={12}>
-              <GraphComponent data={rdfGraph} onNodeClick={handleNodeClick} />
+          <Grid container spacing={2} padding={'2em'}>
+            <Grid item md={6} xs={12} sx={{ height: 800, width: 800 }}>
+              <Box display={'flex'} flexDirection={'column'} textAlign={'center'} mt={2}>
+                <Typography variant="headerTitle">Concepts Liés</Typography>
+                <Typography variant="textInfo">
+                  Cliquer sur un noeud pour afficher la page wikipédia
+                </Typography>
+              </Box>
+              <GraphComponent rdfGraph={rdfGraph} onNodeClick={handleNodeClick} />
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid item md={6} xs={12} mt={4}>
               {wikiUrl && (
-                <Box sx={{ Height: '800em'/* , overflow: 'auto'  */}}>
-                  <iframe
-                    src={wikiUrl}
-                    title="Wiki Page"
-                    width="100%"
-                    height="100%"
-
-                  ></iframe>
+                <Box sx={{ height: '80vh', overflow: 'auto' }}>
+                  <iframe src={wikiUrl} title="Wiki Page" width="100%" height="100%"></iframe>
                 </Box>
               )}
             </Grid>
