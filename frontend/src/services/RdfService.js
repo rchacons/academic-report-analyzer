@@ -2,7 +2,8 @@ import api from '../api'
 
 export const getRdfGraph = async (text) => {
   try {
-    const response = await api.post('/compare-reports/', text, {
+    console.log('text', text);
+    const response = await api.post('/main-get-graph-from-sentence/', text, {
       headers: {
         'Content-Type': 'application/json',
       },
