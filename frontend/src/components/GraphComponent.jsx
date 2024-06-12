@@ -1,5 +1,3 @@
-// GraphComponent.js
-import { Box } from '@mui/material'
 import { ResponsiveNetwork } from '@nivo/network'
 
 const GraphComponent = ({ rdfGraph, onNodeClick }) => {

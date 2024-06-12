@@ -64,6 +64,7 @@ const RelatedConceptPage = () => {
           }}
         >
           <CircularProgress />
+
           <Typography variant="body2" mt={1}>
             Le traitement peut mettre quelques instants, veuillez patienter...
           </Typography>
@@ -71,15 +72,18 @@ const RelatedConceptPage = () => {
       ) : (
         rdfGraph && (
           <Grid container spacing={2} padding={'2em'}>
-            <Grid item md={6} xs={12} sx={{ height: 800, width: 800 }}>
+            <Grid item md={6} xs={12} sx={{ height: 600, width: '100%' }}>
+
               <Box display={'flex'} flexDirection={'column'} textAlign={'center'} mt={2}>
                 <Typography variant="headerTitle">Concepts Liés</Typography>
                 <Typography variant="textInfo">
                   Cliquer sur un noeud pour afficher la page wikipédia
                 </Typography>
               </Box>
+
               <GraphComponent rdfGraph={rdfGraph} onNodeClick={handleNodeClick} />
             </Grid>
+
             <Grid item md={6} xs={12} mt={4}>
               {wikiUrl && (
                 <Box sx={{ height: '80vh', overflow: 'auto' }}>
