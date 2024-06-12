@@ -257,6 +257,7 @@ export const ReportResultPage = () => {
             sx={{ width: 300 }}
             value={filterTheme}
             onChange={handleFilterThemeChange}
+            isOptionEqualToValue={(option, value) => option === value || value === ''}
             renderInput={(params) => <TextField {...params} label="Thèmes" />}
           />
           <SearchBar onSearch={handleSearchResults}></SearchBar>

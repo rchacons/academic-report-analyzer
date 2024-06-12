@@ -196,6 +196,7 @@ export const BiblioResultPage = () => {
             sx={{ width: 300 }}
             value={filterAuthor}
             onChange={handleFilterAuthorChange}
+            isOptionEqualToValue={(option, value) => option === value || value === ''}
             renderInput={(params) => <TextField {...params} label="Auteurs" />}
           />
 
