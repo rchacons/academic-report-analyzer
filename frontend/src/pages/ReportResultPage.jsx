@@ -48,7 +48,7 @@ export const ReportResultPage = () => {
         (levelsFilter.length === 0 || levelsFilter.includes(subject.level.toLowerCase())) &&
         (fieldsFilter.length === 0 || fieldsFilter.includes(subject.field.toLowerCase())) &&
         (docFilter === 0 || getOrigin(subject).includes(docFilter)) &&
-        (themeFilter === '' || subject.theme === themeFilter)
+        (themeFilter === null || themeFilter === '' || subject.theme === themeFilter)
       )
     })
   }
@@ -105,41 +105,6 @@ export const ReportResultPage = () => {
       .sort((a, b) => b.score - a.score)
   }
 
-  /*  const search = (query, subjects) => {
-    if (!query) return subjects;
-
-    const options = {
-      keys: ['title', 'materials_configurations.materials'],
-      threshold: 0.3,
-      includeScore: true,
-      shouldSort: true,
-      findAllMatches: true,
-      useExtendedSearch: false,
-    };
-
-    const fuse = new Fuse(subjects, options);
-    const result = fuse.search(query);
-    console.log('result:', result);
-
-    const returnResult = result.map(({ item, score }) => ({
-      ...item,
-      score,
-      materials_configurations: item.materials_configurations.map((config) => {
-        const materialFuse = new Fuse([config], {
-          keys: ['materials'],
-          threshold: 0.3,
-        });
-        const materialResult = materialFuse.search(query);
-        const materialScore =
-          materialResult.length > 0 ? materialResult[0].score : 1;
-        return { ...config, score: materialScore };
-      }),
-    }));
-
-    console.log('result', returnResult);
-    return returnResult;
-  };
- */
   const getSubjectsByType = (subjectFilter) => {
     let subjects
     switch (subjectFilter) {
@@ -188,7 +153,7 @@ export const ReportResultPage = () => {
   }
 
   const handleFilterThemeChange = (event, value) => {
-    setFilterTheme(value)
+    setFilterTheme(value || '')
     setSubjectsToDisplay(activeSubjectFilter)
   }
 

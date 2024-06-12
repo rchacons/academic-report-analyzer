@@ -40,8 +40,8 @@ export const BiblioResultPage = () => {
   const applyFilters = (books, authorFilter, docFilter) => {
     return books.filter((book) => {
       return (
-        ((docFilter === 0 || book.origin.includes(docFilter)) && authorFilter === '') ||
-        book.author === authorFilter
+        (docFilter === 0 || book.origin.includes(docFilter)) &&
+        (authorFilter === '' || book.author === authorFilter)
       )
     })
   }
@@ -113,7 +113,7 @@ export const BiblioResultPage = () => {
   }
 
   const handleFilterAuthorChange = (event, value) => {
-    setFilterAuthor(value)
+    setFilterAuthor(value || '')
     setBooksToDisplay(activeBookFilter)
   }
 
