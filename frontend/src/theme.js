@@ -60,6 +60,13 @@ const theme = createTheme(baseTheme, {
       fontWeight: 600,
       letterSpacing: 2,
     },
+    subTitle: {
+      fontSize: 24,
+      marginBottom: '20px',
+      color: '#888',
+      fontWeight: 600,
+      letterSpacing: 2,
+    },
     cardTitle: {
       fontSize: 28,
       color: baseTheme.palette.black.light,
@@ -102,7 +109,7 @@ const theme = createTheme(baseTheme, {
           props: { thin: true },
           style: {
             fontSize: '0.75em',
-            padding: '1em'
+            padding: '1em',
           },
         },
       ],

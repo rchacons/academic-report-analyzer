@@ -152,7 +152,7 @@ const mergeMaterialConfigurations = (materials_configurations) => {
   return [...origin1, ...origin2]
 }
 
-const CollapsibleRow = ({ row, isItemSelected, handleClick }) => {
+const CollapsibleRow = ({ row, isItemSelected, handleClick, handleGetRdfGraph }) => {
   const [open, setOpen] = useState(false)
   const theme = useTheme()
 
@@ -185,7 +185,9 @@ const CollapsibleRow = ({ row, isItemSelected, handleClick }) => {
         <TableCell align="left">{row.theme}</TableCell>
 
         <TableCell align="left">
-          <Link>voir</Link>
+          <Link to={'/related-concepts'} state={{ id: row.id, text: row.title }}>
+            voir
+          </Link>
         </TableCell>
 
         <TableCell align="left">
@@ -324,46 +326,45 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
   }
 
   return (
-      <Paper>
-        <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
-        <TableContainer>
-          <Table aria-labelledby="tableTitle" size={'medium'}>
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleCheckAll}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  const isItemSelected = isSelected(row.id)
-                  return (
-                    <CollapsibleRow
-                      key={row.id}
-                      row={row}
-                      isItemSelected={isItemSelected}
-                      handleClick={handleCheck}
-                    />
-                  )
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 20, 50]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-
+    <Paper>
+      <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
+      <TableContainer>
+        <Table aria-labelledby="tableTitle" size={'medium'}>
+          <EnhancedTableHead
+            numSelected={selected.length}
+            order={order}
+            orderBy={orderBy}
+            onSelectAllClick={handleCheckAll}
+            onRequestSort={handleRequestSort}
+            rowCount={rows.length}
+          />
+          <TableBody>
+            {stableSort(rows, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row) => {
+                const isItemSelected = isSelected(row.id)
+                return (
+                  <CollapsibleRow
+                    key={row.id}
+                    row={row}
+                    isItemSelected={isItemSelected}
+                    handleClick={handleCheck}
+                  />
+                )
+              })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 20, 50]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   )
 }
 
