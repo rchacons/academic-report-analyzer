@@ -1,5 +1,13 @@
 ## Développement local frontend
 
+### Sommaire
+- [Prérequis](#prérequis)
+- [Configuration de l'authentification](#configuration-de-lauthentification)
+- [Lancement de l'application en Local](#lancement-de-lapplication-en-local)
+- [Lancement avec Docker](#lancement-avec-docker)
+- [Redémarrage d'un conteneur Docker existant](#redémarrage-dun-conteneur-docker-existant)
+
+
 ### Prérequis
 
 Avoir une version de node 20+ d'installée sur vote poste.
