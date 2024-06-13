@@ -1,6 +1,13 @@
 # Projet Pro M2 SIREL2
 
-## Développement local
+## Sommaire
+- [Déploiement local](#déploiement-local)
+- [Déploiement en production](#déploiement-en-production)
+- [Fonctionnement du reverse proxy](#fonctionnement-du-reverse-proxy)
+ 
+
+
+## Déploiement local
 
 ### Prérequis
 Pour démarrer l'application localement, il y a deux possibilités (*dans les deux cas il faut créer les fichiers .env du backend et frontend pour simuler les variables d'environnement*) :
@@ -37,20 +44,6 @@ Cela générera des fichiers `key.pem` (clé privée) et `cert.pem` (certificat)
       - ./nginx/certs:/etc/ssl/certs
 ```
 
-### Fonctionnement du reverse proxy
-
-Le reverse proxy est un serveur intermédiaire qui agit comme un intermédiaire entre les clients et les serveurs. Il reçoit les requêtes des clients et les transmet aux serveurs appropriés, puis renvoie les réponses des serveurs aux clients. Dans le contexte de cette application, le reverse proxy est utilisé pour forcer l'utilisation du protocole HTTPS, assurant ainsi la sécurité de l'application.
-
-Lorsque le reverse proxy est utilisé en environnement local, il est configuré pour écouter sur le port 443 (HTTPS). Cela signifie que toutes les connexions doivent être établies via HTTPS, même en développement local. Cela garantit que les données échangées entre le client et le serveur sont chiffrées et sécurisées.
-
-La configuration se trouve dans le fichier `nginx.conf.template`. Il contient deux blocs principaux :
-
-1. **Bloc server (HTTP)** : Ce bloc définit un serveur qui écoute sur le port 80 (HTTP) et redirige toutes les requêtes vers HTTPS. Cela garantit que toutes les connexions sont redirigées vers le protocole sécurisé.
-
-2. **Bloc server (HTTPS)** : Ce bloc définit un serveur qui écoute sur le port 443 (HTTPS). Il spécifie l'emplacement du certificat SSL et de la clé privée nécessaires pour établir une connexion sécurisée. Les requêtes sont ensuite traitées en fonction de leur route :
-    - Les requêtes vers `/api/v1/` sont transmises au `backend`, avec des en-têtes CORS spécifiques ajoutés à la réponse.
-    - Toutes les autres requêtes sont transmises au `frontend`.
-
 
 ### Lancement avec Docker Compose
 
@@ -78,3 +71,71 @@ Si vous voulez juste arrêter les services sans les supprimer, vous pouvez utili
 docker compose stop
 ```
 
+
+
+## Déploiement en Production
+
+Pour déployer l'application en production, vous aurez besoin d'un certificat SSL valide pour votre domaine. Vous pouvez obtenir un certificat SSL gratuit de Let's Encrypt en utilisant Certbot ou tout autre outil de votre choix.
+
+### Installation du certificat SSL/TLS
+
+Pour une installation dans une machine virtuelle, vous pouvez utiliser Certbot, qui demande à Let’s Encrypt de délivrer un certificat SSL/TLS pour le domaine de la machine, pour cela, vous pouvez utiliser la commande : 
+
+```bash
+sudo certbot certonly --standalone -d <domaine de la machine>
+```
+
+Ensuite, vous pouvez vérifier que le certificat et les fichiers associés sont stockés dans le répertoire /etc/letsencrypt.
+- Certificat : /etc/letsencrypt/live/<domaine>/fullchain.pem
+- Clé privée : /etc/letsencrypt/live/<domaine>/privkey.pem
+
+
+
+### Deploiement de l'application
+
+Une fois le certificat installé, vous pouvez configurer et déployer l’application. 
+- Tout d'abord, créez les fichiers `.env` pour le backend et le frontend afin de configurer les variables d'environnements nécessaires. (cf READMEs /backend et /frontend).
+- Après avoir créé les fichiers `.env`, il ne reste qu'à vérifier que le projet pointe bien vers les certificats installés précédemment. Pour cela : 
+Ouvrez le fichier `docker-compose-prod.yml`, et modifiez les lignes suivantes (server.volumes) avec votre domaine et l’emplacement des certificats. 
+
+```
+     - etc/letsencrypt/live/<votre domaine>/fullchain.pem:/etc/letsencrypt/live/<votre domaine>/fullchain.pem
+     - /etc/letsencrypt/live/<votre domaine>/privkey.pem:/etc/letsencrypt/live/<votre domaine>/privkey.pem
+```
+
+- Finalement, vous pouvez lancer le déploiement :
+```bash
+sudo docker compose -f docker-compose-prod.yml up --build
+```
+
+Cette commande construit les images Docker pour les services définis dans le fichier `docker-compose-prod.yml` (backend,frontend et reverse-proxy).
+
+- Pour arrêter les conteneurs : 
+```bash
+sudo docker compose -f docker-compose-prod.yml down
+```
+
+Cette commande arrête et supprime les conteneurs, les réseaux, les volumes, et les images définis dans votre fichier Docker Compose
+
+Pour relancer les conteneurs, nous n’avons plus besoin du paramètre `--build`: 
+```bash
+sudo docker compose -f docker-compose-prod.yml up
+```
+
+Si vous voulez simplement arrêter les conteneurs sans les supprimer, vous pouvez utiliser la commande `docker compose stop` Et pour les redémarrer, vous pouvez utiliser la commande `docker compose start`. Ces commandes sont utiles si vous voulez conserver les données dans vos conteneurs entre les arrêts et les démarrages.
+
+
+
+## Fonctionnement du reverse proxy
+
+Le reverse proxy est un serveur intermédiaire qui agit comme un intermédiaire entre les clients et les serveurs. Il reçoit les requêtes des clients et les transmet aux serveurs appropriés, puis renvoie les réponses des serveurs aux clients. Dans le contexte de cette application, le reverse proxy est utilisé pour forcer l'utilisation du protocole HTTPS, assurant ainsi la sécurité de l'application.
+
+Lorsque le reverse proxy est utilisé en environnement local, il est configuré pour écouter sur le port 443 (HTTPS). Cela signifie que toutes les connexions doivent être établies via HTTPS, même en développement local. Cela garantit que les données échangées entre le client et le serveur sont chiffrées et sécurisées.
+
+La configuration se trouve dans le fichier `nginx.conf.template`. Il contient deux blocs principaux :
+
+1. **Bloc server (HTTP)** : Ce bloc définit un serveur qui écoute sur le port 80 (HTTP) et redirige toutes les requêtes vers HTTPS. Cela garantit que toutes les connexions sont redirigées vers le protocole sécurisé.
+
+2. **Bloc server (HTTPS)** : Ce bloc définit un serveur qui écoute sur le port 443 (HTTPS). Il spécifie l'emplacement du certificat SSL et de la clé privée nécessaires pour établir une connexion sécurisée. Les requêtes sont ensuite traitées en fonction de leur route :
+    - Les requêtes vers `/api/v1/` sont transmises au `backend`, avec des en-têtes CORS spécifiques ajoutés à la réponse.
+    - Toutes les autres requêtes sont transmises au `frontend`.
