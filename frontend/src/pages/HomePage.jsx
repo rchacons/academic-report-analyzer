@@ -6,7 +6,15 @@ import {
   ToggleButtonGroup,
   Tooltip,
   Typography,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from '@mui/material'
+import HelpOutline from '@mui/icons-material/HelpOutline'
 import FileDropZone from '../components/FileDropZone'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'preact/hooks'
@@ -23,6 +31,12 @@ export const HomePage = () => {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [comparisonType, setComparisonType] = useState('report')
+  const [helpOpen, setHelpOpen] = useState(false)
+
+  const helpText =
+    "Cette application est destinée à aider à la comparaison des sujets d'oral 1 d'une année sur l'autre." +
+    'Chargez les extraits de rapports (pages concernant les intitulés de leçons) ou les bilbiographies dans les zones indiquées.' +
+    'Vous pourrez alors visualiser les sujets ajoutés, gardés et retirés.'
 
   const handleComparisonTypeChange = (event) => {
     setComparisonType(event.target.value)
@@ -37,7 +51,7 @@ export const HomePage = () => {
     }
     setLoading(true)
 
-    comparisonType == 'report' ? handleReportComparison() : handleBiblioComparison()
+    comparisonType === 'report' ? handleReportComparison() : handleBiblioComparison()
   }
 
   const handleReportComparison = async () => {
@@ -67,6 +81,14 @@ export const HomePage = () => {
     setOpen(true)
   }
 
+  const handleHelpClickOpen = () => {
+    setHelpOpen(true)
+  }
+
+  const handleHelpClose = () => {
+    setHelpOpen(false)
+  }
+
   return (
     <Grid
       container
@@ -76,7 +98,7 @@ export const HomePage = () => {
       textAlign={'left'}
       sx={{ p: 4 }}
     >
-      <Grid item md={12}>
+      <Grid item md={12} display="flex" alignItems="center">
         <Tooltip title={'Que souhaitez-vous comparer ?'}>
           <ToggleButtonGroup
             color="primary"
@@ -89,9 +111,14 @@ export const HomePage = () => {
             <ToggleButton value="biblio">Bibliographies</ToggleButton>
           </ToggleButtonGroup>
         </Tooltip>
+        <Tooltip title={"Cliquer pour ouvrir l'aide"}>
+          <IconButton sx={{ ml: 1 }} onClick={handleHelpClickOpen} aria-label="help">
+            <HelpOutline color="primary.light" />
+          </IconButton>
+        </Tooltip>
       </Grid>
 
-      {comparisonType == 'report' ? (
+      {comparisonType === 'report' ? (
         <Typography variant="headerTitle">Comparer les rapports de jury CAPES</Typography>
       ) : (
         <Typography variant="headerTitle">Comparer les bibliographies</Typography>
@@ -104,7 +131,7 @@ export const HomePage = () => {
           setFile={setFirstFile}
           displayMessage={displayMessage}
           acceptedMimeType={
-            comparisonType == 'report'
+            comparisonType === 'report'
               ? {
                   'application/pdf': ['.pdf'],
                   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
@@ -114,7 +141,7 @@ export const HomePage = () => {
                 }
           }
           tooltip={
-            comparisonType == 'report'
+            comparisonType === 'report'
               ? 'Chargez le premier fichier à comparer (.pdf, .xlsx)'
               : 'Chargez le premier fichier à comparer (.pdf)'
           }
@@ -126,7 +153,7 @@ export const HomePage = () => {
           setFile={setSecondFile}
           displayMessage={displayMessage}
           acceptedMimeType={
-            comparisonType == 'report'
+            comparisonType === 'report'
               ? {
                   'application/pdf': ['.pdf'],
                   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
@@ -136,13 +163,13 @@ export const HomePage = () => {
                 }
           }
           tooltip={
-            comparisonType == 'report'
+            comparisonType === 'report'
               ? 'Chargez le premier fichier à comparer (.pdf, .xlsx)'
               : 'Chargez le premier fichier à comparer (.pdf)'
           }
         />
 
-        {comparisonType == 'report' ? (
+        {comparisonType === 'report' ? (
           <FileDropZone
             title={'Liste des thèmes (Optionnel)'}
             file={thirdFile}
@@ -176,6 +203,23 @@ export const HomePage = () => {
         onClose={() => setOpen(false)}
         message={message}
       />
+
+      <Dialog
+        open={helpOpen}
+        onClose={handleHelpClose}
+        aria-labelledby="help-dialog-title"
+        aria-describedby="help-dialog-description"
+      >
+        <DialogTitle id="help-dialog-title">Aide</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="help-dialog-description">{helpText}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleHelpClose} color="primary">
+            Fermer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   )
 }
