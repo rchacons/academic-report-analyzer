@@ -200,7 +200,10 @@ export const BiblioResultPage = () => {
             renderInput={(params) => <TextField {...params} label="Auteurs" />}
           />
 
-          <SearchBar onSearch={handleSearchResults}></SearchBar>
+          <SearchBar
+            onSearch={handleSearchResults}
+            placeholder={"Rechercher le titre d'un livre..."}
+          ></SearchBar>
         </Box>
       </Grid>
 

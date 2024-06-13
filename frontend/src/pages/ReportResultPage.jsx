@@ -260,15 +260,15 @@ export const ReportResultPage = () => {
             isOptionEqualToValue={(option, value) => option === value || value === ''}
             renderInput={(params) => <TextField {...params} label="Thèmes" />}
           />
-          <SearchBar onSearch={handleSearchResults}></SearchBar>
+          <SearchBar
+            onSearch={handleSearchResults}
+            placeholder={'Rechercher un intitulé ou du matériel...'}
+          ></SearchBar>
         </Box>
       </Grid>
 
       <Grid item xs={12} md={12}>
-        <ReportsTable
-          reports={displayedSubjects}
-          setSelectedSubjects={setSelecetedSubjects}
-        />
+        <ReportsTable reports={displayedSubjects} setSelectedSubjects={setSelecetedSubjects} />
       </Grid>
     </Grid>
   )

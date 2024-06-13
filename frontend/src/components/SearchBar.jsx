@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks'
 import { TextField, InputAdornment, Box, IconButton } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({ onSearch, placeholder }) => {
   const [query, setQuery] = useState('')
 
   const handleSearch = () => {
@@ -23,7 +23,7 @@ const SearchBar = ({ onSearch }) => {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Rechercher un intitulé ou du matériel..."
+        placeholder={placeholder}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
