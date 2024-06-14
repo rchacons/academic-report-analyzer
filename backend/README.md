@@ -6,15 +6,34 @@ Vous avez 2 options pour le démarrage locale de l'API :
 1. Lancement avec Docker.
 2. Lancement avec le serveur local Uvicorn.
 
+## Sommaire
+- [Prérequis](#prérequis)
+  - [Authentification](#authentification)
+    - [Configuration de l'authentification](#configuration-de-lauthentification)
+    - [Désactivation de l'authentification](#désactivation-de-lauthentification)    
+  - [Gunicorn](#gunicorn)
+    - [Configuration de Gunicorn](#configuration-de-gunicorn)
+- [Lancement via Docker](#lancement-via-docker)
+  - [Prérequis](#prérequis-1)
+  - [Instructions](#instructions)
+  - [Redémarrage d'un conteneur Docker existant](#redémarrage-dun-conteneur-docker-existant)
+- [Lancement sans Docker](#lancement-sans-docker)
+  - [Prérequis](#prérequis-2)
+  - [Installation des dépendances](#installation-des-dépendances)
+  - [Utilisation quotidienne](#utilisation-quotidienne)
+
+
+
+
 ## Prérequis
 
 Avant de démarrer l'API localement, il faut définir certaines variables d'environnement dans un fichier `.env` afin de gérer l'authentication du backend, et la configuration de gunicorn.
 
-## Authentification
+### Authentification
 
 L'API utilise JSON Web Tokens (JWT) pour l'authentification. Lorsqu'un utilisateur se connecte avec succès, l'API génère un JWT et le renvoie à l'utilisateur. Ce JWT doit ensuite être inclus dans l'en-tête `Authorization` des requêtes suivantes pour authentifier l'utilisateur.
 
-### Configuration de l'authentification
+#### Configuration de l'authentification
 
 Pour utiliser l'authentification en local, vous devez définir certaines variables d'environnement dans un fichier `.env`. Vous pouvez vous baser sur le fichier `.env.example` pour savoir quelles variables définir.
 
@@ -24,15 +43,15 @@ Voici les variables d'environnement liées à l'authentification :
 - `ALGORITHM` : L'algorithme utilisé pour signer les JWT.
 - `ACCESS_TOKEN_EXPIRE_MINUTES` : La durée de validité des JWT, en minutes.
 
-### Désactivation de l'authentification
+#### Désactivation de l'authentification
 
 Si vous souhaitez désactiver l'authentification pour des raisons de test ou de développement, vous pouvez le faire en définissant la variable d'environnement `ENABLE_AUTH` à `False` dans votre fichier `.env`.
 
-## Gunicorn 
+### Gunicorn 
 
 Gunicorn est un serveur HTTP WSGI pour Python. Il est utilisé pour servir des applications web Python en production. Gunicorn crée un processus pour chaque travailleur et chaque travailleur peut gérer une seule requête à la fois. Vous en avez pas besoin pour le lancement local.
 
-### Configuration de Gunicorn
+#### Configuration de Gunicorn
 
 Pour configurer Gunicorn en local, vous devez définir les variables d'environnement suivantes dans votre fichier `.env`. Vous pouvez vous référer au fichier `.env.example` pour savoir quelles variables définir.
 
@@ -54,6 +73,7 @@ Voici les variables d'environnement liées à Gunicorn :
 ### Prérequis
 
 - Avoir Docker installé sur votre machine.
+- Avoir crée le fichier `.env` (cf. [Prérequis](#prérequis)).
 
 ### Instructions
 1. Construisez l'image Docker à partir du Dockerfile :
@@ -102,7 +122,8 @@ Cette méthode utilise Uvicorn, un serveur ASGI léger et rapide, qui permet de 
 
 ### Prérequis
 
-Avoir python3 d'installé sur votre poste
+- Avoir python3 d'installé sur votre poste
+- Avoir crée le fichier `.env` (cf. [Prérequis](#prérequis)).
 
 Installez Poetry, un outil de gestion de dépendances et de packaging pour Python.
 

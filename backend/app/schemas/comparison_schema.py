@@ -1,19 +1,13 @@
 from pydantic import BaseModel
-from typing import List, Set
+from typing import List, Optional, Set
 
 class ListMaterials(BaseModel):
     materials: List[str]
     materials_research: str
     origin: int
 
-    # 2 ListMaterials are treated as equals if their materials have the same content
-    def __eq__(self, other):
-        if isinstance(other, ListMaterials):
-            return set(self.materials) == set(other.materials)
-        return False
-
     def __hash__(self):
-        return hash(frozenset(self.materials))
+        return hash((tuple(self.materials), self.materials_research, self.origin))
 
 class Subject(BaseModel):
     """
@@ -41,7 +35,33 @@ class ComparisonSubjectsResult(BaseModel):
     added_subjects: List[Subject]
     removed_subjects: List[Subject]
     kept_subjects: List[Subject]
-    identical_subjects: List[Subject]
     field_list: Set[str]
     level_list: Set[str]
     theme_list: Set[str]
+
+class Book(BaseModel):
+        author: str
+        year_published: str
+        book_name: str
+        origin: Optional[List[int]] = None
+
+
+        
+
+        def __eq__(self, other):
+            if isinstance(other, Book):
+                return (self.author == other.author and
+                        self.year_published == other.year_published and
+                        self.book_name == other.book_name)
+            return False
+
+        def __hash__(self):
+            return hash((self.author, self.year_published, self.book_name))
+        
+
+class ComparaisonListBookResult(BaseModel):
+    added_books: List[Book]
+    removed_books: List[Book]
+    kept_books: List[Book]
+    author_list: List[str]
+   

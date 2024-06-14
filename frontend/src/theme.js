@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
 let baseTheme = createTheme({
   palette: {
@@ -48,7 +48,7 @@ let baseTheme = createTheme({
       light: '#1C1C1E',
     },
   }, // palette
-});
+})
 
 const theme = createTheme(baseTheme, {
   typography: {
@@ -57,6 +57,13 @@ const theme = createTheme(baseTheme, {
       fontSize: 32,
       marginBottom: '20px',
       color: baseTheme.palette.black.light,
+      fontWeight: 600,
+      letterSpacing: 2,
+    },
+    subTitle: {
+      fontSize: 24,
+      marginBottom: '20px',
+      color: '#888',
       fontWeight: 600,
       letterSpacing: 2,
     },
@@ -101,8 +108,8 @@ const theme = createTheme(baseTheme, {
         {
           props: { thin: true },
           style: {
-            fontSize: '12px',
-            // padding: '4px 10px',
+            fontSize: '0.75em',
+            padding: '1em',
           },
         },
       ],
@@ -111,6 +118,22 @@ const theme = createTheme(baseTheme, {
       styleOverrides: {
         root: {
           textTransform: 'none',
+
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:active': {
+            border: 'none',
+          },
+        },
+      },
+    },
+
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          padding: '0.5rem 2rem',
 
           '&:focus': {
             outline: 'none',
@@ -182,12 +205,11 @@ const theme = createTheme(baseTheme, {
           props: { thin: true },
           style: {
             fontSize: '10px',
-            // padding: '4px 10px',
           },
         },
       ],
     },
   },
-});
+})
 
-export default theme;
+export default theme
