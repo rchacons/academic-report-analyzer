@@ -1,12 +1,13 @@
 {
   "name": "compdoc-front",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint:write": "npx prettier . --write"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.13",
@@ -14,8 +15,8 @@
     "@mui/material": "^5.15.18",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/x-data-grid": "^7.5.0",
+    "@nivo/network": "^0.87.0",
     "axios": "^1.7.2",
-    "fuse.js": "^7.0.0",
     "preact": "^10.19.6",
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.23.1",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.2",
+    "prettier": "3.3.1",
     "vite": "^5.2.0"
   }
 }

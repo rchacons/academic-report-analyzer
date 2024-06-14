@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { alpha, useTheme } from '@mui/material/styles'
+import { alpha } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -13,30 +13,17 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import Checkbox from '@mui/material/Checkbox'
-import IconButton from '@mui/material/IconButton'
 import { visuallyHidden } from '@mui/utils'
-import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'preact/hooks'
-import Collapse from '@mui/material/Collapse'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 
-const createData = ({ id, field, level, title, theme, materials_configurations, score = 0 }) => {
-  return { id, field, level, title, theme, materials_configurations, score }
+const createData = ({ id, author, year_published, book_name, origin, score = 0 }) => {
+  return { id, author, year_published, book_name, origin, score }
 }
 
 const headCells = [
-  { id: 'field', numeric: false, disablePadding: false, label: 'Domaine' },
-  { id: 'level', numeric: false, disablePadding: false, label: 'Niveau' },
-  { id: 'title', numeric: false, disablePadding: false, label: 'Intitulé' },
-  { id: 'theme', numeric: false, disablePadding: false, label: 'Thème' },
-
-  {
-    id: 'related_concepts',
-    numeric: false,
-    disablePadding: false,
-    label: 'Concepts liés',
-  },
+  { id: 'author', numeric: false, disablePadding: false, label: 'Auteur' },
+  { id: 'book_name', numeric: false, disablePadding: false, label: 'Titre' },
+  { id: 'year_published', numeric: false, disablePadding: false, label: 'Année de publication' },
 ]
 
 const EnhancedTableHead = (props) => {
@@ -54,7 +41,7 @@ const EnhancedTableHead = (props) => {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all reports' }}
+            inputProps={{ 'aria-label': 'select all books' }}
           />
         </TableCell>
         {headCells.map((headCell) => (
@@ -78,7 +65,6 @@ const EnhancedTableHead = (props) => {
             </TableSortLabel>
           </TableCell>
         ))}
-        <TableCell align="left">Matériels</TableCell>
       </TableRow>
     </TableHead>
   )
@@ -125,39 +111,7 @@ EnhancedTableToolbar.propTypes = {
   numberOfSubjects: PropTypes.number.isRequired,
 }
 
-const mergeMaterialConfigurations = (materials_configurations) => {
-  const merged = {}
-
-  materials_configurations.forEach((config) => {
-    const key = config.materials.join(',')
-
-    if (merged[key]) {
-      merged[key].origin = `${merged[key].origin} et ${config.origin}`
-    } else {
-      merged[key] = { ...config }
-    }
-  })
-
-  const origin1 = []
-  const origin2 = []
-
-  Object.values(merged).forEach((config) => {
-    if (config.origin == '1') {
-      origin1.push(config)
-    } else {
-      origin2.push(config)
-    }
-  })
-
-  return [...origin1, ...origin2]
-}
-
-const CollapsibleRow = ({ row, isItemSelected, handleClick, handleGetRdfGraph }) => {
-  const [open, setOpen] = useState(false)
-  const theme = useTheme()
-
-  const mergedMaterials = mergeMaterialConfigurations(row.materials_configurations)
-
+const Row = ({ row, isItemSelected, handleClick }) => {
   return (
     <>
       <TableRow
@@ -179,74 +133,29 @@ const CollapsibleRow = ({ row, isItemSelected, handleClick, handleGetRdfGraph })
           />
         </TableCell>
 
-        <TableCell align="left">{row.field}</TableCell>
-        <TableCell align="left">{row.level}</TableCell>
-        <TableCell align="left">{row.title}</TableCell>
-        <TableCell align="left">{row.theme}</TableCell>
-
-        <TableCell align="left">
-          <Link to={'/related-concepts'} state={{ id: row.id, text: row.title }}>
-            voir
-          </Link>
-        </TableCell>
-
-        <TableCell align="left">
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
+        <TableCell align="left">{row.author}</TableCell>
+        <TableCell align="left">{row.book_name}</TableCell>
+        <TableCell align="left">{row.year_published}</TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell
-          style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={6}
-          sx={{ backgroundColor: theme.palette.gray }}
-        >
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box margin={1}>
-              {mergedMaterials.map((config, index) => (
-                <Box key={index}>
-                  <Typography variant="tableRowTitle" gutterBottom component="div">
-                    Sous-sujet {index + 1}
-                  </Typography>
-                  <Table size="small" aria-label="materials">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell width={15}>Document</TableCell>
-                        <TableCell align={'left'}>Matériel</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell align={'left'}>{config.origin}</TableCell>
-                        <TableCell align={'left'}>{config.materials.join(', ')}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </Box>
-              ))}
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
+      <TableRow></TableRow>
     </>
   )
 }
 
-CollapsibleRow.propTypes = {
+Row.propTypes = {
   row: PropTypes.object.isRequired,
   isItemSelected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
 }
 
-const ReportsTable = ({ reports, setSelectedSubjects }) => {
+const BiblioTable = ({ books, setSelectedBooks }) => {
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('score')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [selected, setSelected] = useState([])
 
-  const rows = useMemo(() => reports.map((report) => createData(report)), [reports])
+  const rows = useMemo(() => books.map((book) => createData(book)), [books])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -258,10 +167,10 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id)
       setSelected(newSelecteds)
-      setSelectedSubjects(newSelecteds)
+      setSelectedBooks(newSelecteds)
     } else {
       setSelected([])
-      setSelectedSubjects([])
+      setSelectedBooks([])
     }
   }
 
@@ -283,7 +192,7 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
     }
 
     setSelected(newSelected)
-    setSelectedSubjects(newSelected)
+    setSelectedBooks(newSelected)
   }
 
   const handleChangePage = (event, newPage) => {
@@ -326,51 +235,53 @@ const ReportsTable = ({ reports, setSelectedSubjects }) => {
   }
 
   return (
-    <Paper>
-      <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={reports.length} />
-      <TableContainer>
-        <Table aria-labelledby="tableTitle" size={'medium'}>
-          <EnhancedTableHead
-            numSelected={selected.length}
-            order={order}
-            orderBy={orderBy}
-            onSelectAllClick={handleCheckAll}
-            onRequestSort={handleRequestSort}
-            rowCount={rows.length}
-          />
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                const isItemSelected = isSelected(row.id)
-                return (
-                  <CollapsibleRow
-                    key={row.id}
-                    row={row}
-                    isItemSelected={isItemSelected}
-                    handleClick={handleCheck}
-                  />
-                )
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 20, 50]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Paper>
+    <Box sx={{ width: '100%' }}>
+      <Paper sx={{ width: '100%', mb: 2 }}>
+        <EnhancedTableToolbar numSelected={selected.length} numberOfSubjects={books.length} />
+        <TableContainer>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleCheckAll}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {stableSort(rows, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  const isItemSelected = isSelected(row.id)
+                  return (
+                    <Row
+                      key={row.id}
+                      row={row}
+                      isItemSelected={isItemSelected}
+                      handleClick={handleCheck}
+                    />
+                  )
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 20, 50]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
   )
 }
 
-ReportsTable.propTypes = {
-  reports: PropTypes.array.isRequired,
-  setSelectedSubjects: PropTypes.func.isRequired,
+BiblioTable.propTypes = {
+  books: PropTypes.array.isRequired,
+  setSelectedBooks: PropTypes.func.isRequired,
 }
 
-export default ReportsTable
+export default BiblioTable

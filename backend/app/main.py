@@ -1,5 +1,5 @@
 from fastapi import Depends, FastAPI
-from .routers import comparison, authentication, rdf
+from .routers import comparison, authentication, rdf, export
 from .core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 from .auth.auth_bearer import JWTBearer
@@ -30,6 +30,7 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(comparison.router)
 app.include_router(authentication.router)
 app.include_router(rdf.router)
+app.include_router(export.router)
 
 @app.get("/", summary="Root endpoint", description="This is the root endpoint of the API.")
 async def root():

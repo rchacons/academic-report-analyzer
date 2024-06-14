@@ -14,6 +14,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import networkx as nx
 from networkx.readwrite import json_graph
 from deep_translator import GoogleTranslator
+from urllib.parse import urlparse, unquote
 import os
 
 def download_nltk_package(package_name, subfolder):
@@ -133,10 +134,14 @@ def get_wiki_link(word):
                 else:
                     #print(f"{category} : La page '{wiki_wiki.page(word)}' n'appartient pas à la catégorie 'Category:Biologie'.")
                     if wiki_wiki.page(f"{word} (biologie)").exists:
-                        #print("Page (biologie) trouvée - " + word)
-                        return wiki_wiki.page(f"{word} (biologie)").canonicalurl
-            #else:
-                #print(f"{category} : La page '{wiki_wiki.page(word)}' n'appartient pas à la catégorie 'Category:Biologie'.")
+                        print("Page (biologie) trouvée - " + word)
+                        for index, category in enumerate(wiki_wiki.page(f"{word} (biologie)").categories.keys()):
+                            if category.startswith("Catégorie:Biologie") or category.startswith("Catégorie:Portail:Biologie"):
+                                return wiki_wiki.page(f"{word} (biologie)").canonicalurl
+                    else:
+                        return ""
+            else:
+                print(f"{category} : La page '{wiki_wiki.page(word)}' n'appartient pas à la catégorie 'Category:Biologie'.")
     else:
         #print("Mot non trouvé - " + word)
         return ""
@@ -167,8 +172,184 @@ def graph_to_dict(graph):
     return graph_dict
 
 
+def get_related_articles(url):
+    # Extraire le titre de l'article à partir de l'URL
+    parsed_url = urlparse(url)
+    article_title = unquote(parsed_url.path.split('/')[-1])
+    print(article_title)
+
+    wiki = wikipediaapi.Wikipedia(user_agent='Projet SI-REL2 (annie.foret@univ-rennes1.fr)',
+        language='fr',
+        extract_format=wikipediaapi.ExtractFormat.WIKI)
+    page = wiki.page(article_title)
+    
+    if not page.exists():
+        return []
+    
+    # Accéder à la section "Articles connexes"
+    related_articles = []
+
+    #print(page.sections)
+    
+    articles_connexes = page.sections_by_title("Articles connexes")
+    for ac in articles_connexes:
+        #print(type(ac))
+        text = ac.text
+        print(text)
+        if text:
+            lines = text.split("\n")
+        else:
+            lines = []
+        #print(lines)
+    
+    try:
+        lines
+    except NameError:
+        lines = []
+
+    if lines:
+        for line in lines:
+            print("OK " + line)
+            if wiki.page(line).exists and line != '':
+                #print("   Page trouvée :" + line)
+                if len(line) > 50:
+                    print("Lien trop long, c'est un livre ")
+                    continue
+                else:
+                    try:
+                        link =  wiki.page(line).fullurl
+                    except Exception as e:
+                        print(e)
+                        continue
+                    #print("   Lien :"+link)
+                related_articles.append(link)
+
+    #Après analyse de la page en français, si il n'y a aucun lien, on regarde dans la page anglaise
+    if not related_articles:
+        #langlinks = page.langlinks
+        #print(langlinks)
+        if page.langlinks['es']:
+            page_en = page.langlinks['es']
+            print('OK - Espagnol trouvé')
+            articles_connexes = page_en.sections_by_title("Véase también")
+            for ac in articles_connexes:
+                #print(type(ac))
+                text = ac.text
+                lines = text.split("\n")
+                #print(lines)
+
+            if lines:
+                for line in lines:
+                    #print("OK " + line)
+                    if wiki.page(line).exists and line != '':
+                        #print("   Page Espagnol trouvée :" + line)
+                        #print(wiki.page(line).langlinks)
+                        page_test = wiki.page(line)
+                        test_lang = page_test.langlinks
+                        #print(test_lang)
+                        if not test_lang:
+                            print("Pas de lien de langue")
+                            continue
+                        elif wiki.page(line).langlinks['en'].exists:
+                            #print("Page englaise trouvée")
+                            page_fr = wiki.page(line).langlinks['en']
+                            try:
+                                link =  wiki.page(line).fullurl
+                            except Exception as e:
+                                print(e)
+                                continue
+                            #print("   Lien :"+link)
+                            related_articles.append(link)
+
+
+    # je retourne le lien vers la partie des articles connexes de la page :
+    #print("Pas de lien trouvé, retourne la partie articles connexes")
+    articles_connexes_url = url + "#Articles_connexes"
+    #print(articles_connexes_url)
+    related_articles.append(articles_connexes_url)
+    return related_articles
+
+
+def process_graph_nodes(graph):
+    processed_data = {}
+    for subj, triples in graph.items():
+        related_articles = []
+        for triple in triples:
+            obj = triple['object']
+            related_articles += get_related_articles(obj)
+        
+        processed_data[subj] = related_articles
+
+    return processed_data
+
+# Fonction pour extraire le titre de l'article à partir de l'URL
+def get_article_title(url):
+    parsed_url = urlparse(url)
+    article_title = unquote(parsed_url.path.split('/')[-1])
+    if parsed_url.fragment == "Articles_connexes":
+        article_title += " - listes d'articles connexes"
+    return article_title
+
+# Fonction pour créer le graphe combiné
+def create_combined_graph(graph, client_concept):
+    combined_graph = {}
+
+    # 1. Ajouter tous les noeuds du premier graphe
+    for node, edges in graph.items():
+        combined_graph[node] = [
+            {
+                "predicate": get_article_title(edge["object"]),
+                "object": edge["object"]
+            }
+            for edge in edges
+        ]
+
+    # 2. Relier tous les noeuds du premier graphe entre eux en utilisant les URLs
+    nodes = list(graph.keys())
+    for i in range(len(nodes)):
+        for j in range(i + 1, len(nodes)):
+            combined_graph[nodes[i]].append({
+                "predicate": nodes[j],
+                "object": graph[nodes[j]][0]["object"]
+            })
+            combined_graph[nodes[j]].append({
+                "predicate": nodes[i],
+                "object": graph[nodes[i]][0]["object"]
+            })
+
+    # 3. Relier chaque noeud du deuxième graphe au noeud correspondant du premier graphe
+    for node, related_articles in client_concept.items():
+        if node in combined_graph:
+            for article in related_articles:
+                combined_graph[node].append({
+                    "predicate": get_article_title(article),
+                    "object": article
+                })
+
+    return combined_graph
+
 
 #Main
+def get_graph_from_sentence(words):
+    #Traduis l'entrée en français
+    eng_sentence = trad_sentence(words)
+    #Preprocess les mots de la phrase
+    preprocessed_terms = preprocess_english(eng_sentence)
+    #Lemmetize words
+    lemmatize_terms = lemmatize_words(preprocessed_terms)
+    #Translate in french
+    french_terms = trad_words_french(lemmatize_terms)
+    #Construit le graphe
+    graph = wiki_graph(french_terms)
+    #Récupère les concepts liés
+    client_concept= process_graph_nodes(graph)
+    #Crée le graphe combiné
+    combinate_graph= create_combined_graph(graph, client_concept)
+
+    return combinate_graph
+
+
+# Pour test Routeur
 def process_rdf_wikipedia(words):
     #Traduis l'entrée en français
     eng_sentence = trad_sentence(words)
@@ -180,11 +361,19 @@ def process_rdf_wikipedia(words):
     french_terms = trad_words_french(lemmatize_terms)
     #Construit le graphe
     graph = wiki_graph(french_terms)
-    return graph
+    #Récupère les concepts liés
+    client_concept= process_graph_nodes(graph)
+    #Crée le graphe combiné
+    combinate_graph= create_combined_graph(graph, client_concept)
+
+    return graph, client_concept, combinate_graph
 
 
-
-# Code de la V1
+##################################
+##################################
+########## Code de la V1 #########
+##################################
+##################################
 
 
 def preprocess(terms):
