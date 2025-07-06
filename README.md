@@ -1,141 +1,155 @@
-# Projet Pro M2 SIREL2
+# Academic Report Analyzer
 
-## Sommaire
-- [Déploiement local](#déploiement-local)
-- [Déploiement en production](#déploiement-en-production)
-- [Fonctionnement du reverse proxy](#fonctionnement-du-reverse-proxy)
- 
+A platform for analyzing, comparing, and extracting insights from academic reports with a focus on CAPES reports (French academic evaluation reports). This project offers powerful tools for researchers, evaluators, and educational institutions to process and visualize academic data.
 
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=flat&logo=react)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+[![NGINX](https://img.shields.io/badge/Server-NGINX-009639?style=flat&logo=nginx)](https://nginx.org/)
 
-## Déploiement local
+## 🚀 Features
 
-### Prérequis
-Pour démarrer l'application localement, il y a deux possibilités (*dans les deux cas il faut créer les fichiers .env du backend et frontend pour simuler les variables d'environnement*) :
+- **Report Comparison**: Compare CAPES reports across different years to identify changes and trends
+- **Bibliography Analysis**: Extract and analyze bibliographic references from academic documents
+- **Related Concepts Mapping**: Visualize relationships between academic concepts using RDF processing
+- **Secure Authentication**: JWT-based authentication system for secure access to the platform
+- **Export Functionality**: Export analysis results in various formats for further processing
+- **Responsive UI**: Modern Material UI design that works across desktop and mobile devices
 
-1. Démarrer le backend et le frontend séparemment (cf README des /backend et /frontend) 
-2. Utiliser le `docker-compose.yml`, qui lancera les trois conteneurs : `backend`, `frontend` et le `reverse proxy`. Afin de faire fonctionner le reverse proxy, il faut utiliser des certificats auto-signés (en production ce sont des vraies certificats). De cette façon, chaque développeur peut générer son propre certificat pour les tests locaux sans avoir besoin de partager des certificats de production sensibles. 
+## 🏗️ Architecture
 
-**Attention** : Lors de l'utilisation d'un certificat auto-signé, cela générera un avertissement dans votre navigateur indiquant que le certificat n'est pas fiable. Vous pouvez contourner cet avertissement à des fins de test.
+The project follows a modern microservices architecture with clear separation of concerns:
 
+### Backend
 
-### Certificats auto-signés
+- Built with **FastAPI**, a modern, high-performance Python web framework
+- Modular architecture with dedicated services for comparison, authentication, RDF processing, and exports
+- JWT-based authentication with configurable security settings
+- Advanced PDF and XLSX processing capabilities
+- REST API with comprehensive documentation (via Swagger UI)
 
-Voici comment vous pouvez générer un certificat auto-signé :
+### Frontend
 
+- Developed with **React** and **Vite** for fast rendering and development experience
+- **Material UI** components for a consistent and professional user interface
+- Multi-page application with dedicated views for different analysis types
+- File upload capabilities with preview and validation
+- Responsive design that works on both desktop and mobile devices
+
+### Infrastructure
+
+- **Docker** containerization for consistent deployment across environments
+- **NGINX** reverse proxy with SSL termination for secure communication
+- Production-ready configuration with proper error handling and logging
+- Environment-based configuration for development and production setups
+
+## 🛠️ Technology Stack
+
+### Backend
+- **FastAPI**: Web framework
+- **Poetry**: Dependency management
+- **Uvicorn/Gunicorn**: ASGI servers
+- **Python libraries**: For PDF processing, NLP, and data analysis
+
+### Frontend
+- **React**: UI library
+- **Vite**: Build tool
+- **Material UI**: Component library
+- **React Router**: Navigation
+
+### Infrastructure
+- **Docker & Docker Compose**: Containerization
+- **NGINX**: Reverse proxy and static file serving
+- **Let's Encrypt**: SSL certificates for production
+
+## 🧑‍💻 Development Setup
+
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 20+ (for local frontend development)
+- Python 3.8+ (for local backend development)
+- Poetry (for Python dependency management)
+
+### Local Development with Docker
+
+1. Clone the repository
 ```bash
-cd nginx 
-mkdir certs && cd certs
+git clone https://github.com/yourusername/academic-report-analyzer.git
+cd academic-report-analyzer
+```
+
+2. Generate self-signed certificates for local HTTPS:
+```bash
+cd nginx/certs
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+cd ../..
 ```
 
-Cela générera des fichiers `key.pem` (clé privée) et `cert.pem` (certificat). Vous pouvez ensuite vérifier que le fichier `docker-compose.yml` contient les informations : 
+3. Configure environment variables:
+```bash
+# Backend configuration
+cp backend/.env.example backend/.env
+# Edit backend/.env with your settings
 
-```
-  server:
-    image: nginx:1.21-slim
-    container_name: sirel2-nginx
-    environment:
-      - SERVER_NAME=localhost
-      - SSL_CERTIFICATE=/etc/ssl/certs/cert.pem
-      - SSL_CERTIFICATE_KEY=/etc/ssl/certs/key.pem
-    volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
-      - ./nginx/start-nginx.sh:/start-nginx.sh
-      - ./nginx/certs:/etc/ssl/certs
+# Frontend configuration
+cp frontend/.env.example frontend/.env
+# Edit frontend/.env with VITE_API_BASE_URL=https://localhost/api/v1
 ```
 
-
-### Lancement avec Docker Compose
-
-Si vous avez Docker et Docker Compose installés, vous pouvez les utiliser pour lancer l'application. Docker Compose permet de gérer plusieurs conteneurs comme un ensemble de services définis dans le fichier `docker-compose.yml`.
-
-Avant de lancer l'application, assurez-vous que les fichiers `.env` du backend et du frontend sont correctement configurés pour simuler les variables d'environnement.
-
-Pour lancer l'application :
-
+4. Start the application:
 ```bash
 docker compose up
 ```
 
-Cette commande va démarrer tous les services définis dans le fichier docker-compose.yml. Cela inclut le backend, le frontend et le reverse proxy. Les conteneurs seront lancés en arrière-plan et leurs logs seront affichés dans le terminal.
+5. Access the application at https://localhost
 
-Pour arrêter l'application :
+### Manual Development Setup
+
+#### Backend
 ```bash
-docker compose down
+cd backend
+poetry install
+poetry shell
+uvicorn app.main:app --reload
 ```
 
-Cette commande arrête tous les services lancés par `docker compose up`. Elle arrête également et supprime les conteneurs, réseaux, volumes et images définis dans le fichier `docker-compose.yml`.
-
-Si vous voulez juste arrêter les services sans les supprimer, vous pouvez utiliser la commande :
+#### Frontend
 ```bash
-docker compose stop
+cd frontend
+npm install
+npm run dev
 ```
 
+## 🌐 Deployment
 
+### Production Setup
 
-## Déploiement en Production
-
-Pour déployer l'application en production, vous aurez besoin d'un certificat SSL valide pour votre domaine. Vous pouvez obtenir un certificat SSL gratuit de Let's Encrypt en utilisant Certbot ou tout autre outil de votre choix.
-
-### Installation du certificat SSL/TLS
-
-Pour une installation dans une machine virtuelle, vous pouvez utiliser Certbot, qui demande à Let’s Encrypt de délivrer un certificat SSL/TLS pour le domaine de la machine, pour cela, vous pouvez utiliser la commande : 
-
+1. Obtain SSL certificates for your domain:
 ```bash
-sudo certbot certonly --standalone -d <domaine de la machine>
+sudo certbot certonly --standalone -d your-domain.com
 ```
 
-Ensuite, vous pouvez vérifier que le certificat et les fichiers associés sont stockés dans le répertoire /etc/letsencrypt.
-- Certificat : /etc/letsencrypt/live/<domaine>/fullchain.pem
-- Clé privée : /etc/letsencrypt/live/<domaine>/privkey.pem
+2. Configure production environment variables
 
-
-
-### Deploiement de l'application
-
-Une fois le certificat installé, vous pouvez configurer et déployer l’application. 
-- Tout d'abord, créez les fichiers `.env` pour le backend et le frontend afin de configurer les variables d'environnements nécessaires. (cf READMEs /backend et /frontend).
-- Après avoir créé les fichiers `.env`, il ne reste qu'à vérifier que le projet pointe bien vers les certificats installés précédemment. Pour cela : 
-Ouvrez le fichier `docker-compose-prod.yml`, et modifiez les lignes suivantes (server.volumes) avec votre domaine et l’emplacement des certificats. 
-
-```
-     - etc/letsencrypt/live/<votre domaine>/fullchain.pem:/etc/letsencrypt/live/<votre domaine>/fullchain.pem
-     - /etc/letsencrypt/live/<votre domaine>/privkey.pem:/etc/letsencrypt/live/<votre domaine>/privkey.pem
-```
-
-- Finalement, vous pouvez lancer le déploiement :
+3. Deploy with Docker Compose:
 ```bash
 sudo docker compose -f docker-compose-prod.yml up --build
 ```
 
-Cette commande construit les images Docker pour les services définis dans le fichier `docker-compose-prod.yml` (backend,frontend et reverse-proxy).
+## 👥 Contributors
 
-- Pour arrêter les conteneurs : 
-```bash
-sudo docker compose -f docker-compose-prod.yml down
-```
+- **Roberto Chacon** ([rchacons](https://github.com/rchacons)) - Backend architecture (FastAPI migration, Poetry dependency management), Infrastructure (Deployment setup, SSL encryption), Project management (Agile workflow, Kanban boards)
+- **Manh-Huan Nguyen** ([manh-huan](https://github.com/manh-huan)) - Report comparison functionalities
+- **Hugo Thomas** ([HugoThoma](https://github.com/HugoThoma)) - RDF processing, Concept mapping
+- **Julien Perrier** - Frontend development, UI design
+- **Tristan LE SAUX** - Report comparison functionalities, Result Export
 
-Cette commande arrête et supprime les conteneurs, les réseaux, les volumes, et les images définis dans votre fichier Docker Compose
+## 📖 Documentation
 
-Pour relancer les conteneurs, nous n’avons plus besoin du paramètre `--build`: 
-```bash
-sudo docker compose -f docker-compose-prod.yml up
-```
+The original documentation (in French) is available in [README.md.fr](README.md.fr).
 
-Si vous voulez simplement arrêter les conteneurs sans les supprimer, vous pouvez utiliser la commande `docker compose stop` Et pour les redémarrer, vous pouvez utiliser la commande `docker compose start`. Ces commandes sont utiles si vous voulez conserver les données dans vos conteneurs entre les arrêts et les démarrages.
+API documentation is available at `/api/v1/docs` when the backend is running.
 
+## 📄 License
 
-
-## Fonctionnement du reverse proxy
-
-Le reverse proxy est un serveur intermédiaire qui agit comme un intermédiaire entre les clients et les serveurs. Il reçoit les requêtes des clients et les transmet aux serveurs appropriés, puis renvoie les réponses des serveurs aux clients. Dans le contexte de cette application, le reverse proxy est utilisé pour forcer l'utilisation du protocole HTTPS, assurant ainsi la sécurité de l'application.
-
-Lorsque le reverse proxy est utilisé en environnement local, il est configuré pour écouter sur le port 443 (HTTPS). Cela signifie que toutes les connexions doivent être établies via HTTPS, même en développement local. Cela garantit que les données échangées entre le client et le serveur sont chiffrées et sécurisées.
-
-La configuration se trouve dans le fichier `nginx.conf.template`. Il contient deux blocs principaux :
-
-1. **Bloc server (HTTP)** : Ce bloc définit un serveur qui écoute sur le port 80 (HTTP) et redirige toutes les requêtes vers HTTPS. Cela garantit que toutes les connexions sont redirigées vers le protocole sécurisé.
-
-2. **Bloc server (HTTPS)** : Ce bloc définit un serveur qui écoute sur le port 443 (HTTPS). Il spécifie l'emplacement du certificat SSL et de la clé privée nécessaires pour établir une connexion sécurisée. Les requêtes sont ensuite traitées en fonction de leur route :
-    - Les requêtes vers `/api/v1/` sont transmises au `backend`, avec des en-têtes CORS spécifiques ajoutés à la réponse.
-    - Toutes les autres requêtes sont transmises au `frontend`.
+This project is licensed under the MIT License - see the LICENSE file for details.
